@@ -1,0 +1,13 @@
+admin/
+cargo_logs/
+osxcross/
+summaries/
+target/
+web/
+b.sh
+Cargo.lock
+install.sh
+t.sh
+.env
+.buddy
+.treat

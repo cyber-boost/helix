@@ -1,0 +1,124 @@
+[package]
+name = "helix"
+version = "1.1.1"
+edition = "2021"
+authors = ["Bernie", "Buddy"]
+description = "Configuration language designed specifically for AI systems"
+license = "MIT"
+repository = "https://github.com/cyber-boost/helix"
+keywords = ["configuration", "ai", "agents", "compiler", "parser"]
+categories = ["config", "parsing", "development-tools"]
+exclude = ["admin", "cargo_logs", "osxcross", "summaries", "target", "web", "b.sh", "Cargo.lock", "install.sh", "t.sh", ".gitignore"]
+
+[lib]
+name = "helix_core"
+path = "lib.rs"
+crate-type = ["rlib"]
+
+[[bin]]
+name = "helix"
+path = "bin/helix.rs"
+required-features = ["cli"]
+
+[[bin]]
+name = "verify"
+path = "verify.rs"
+
+[[bin]]
+name = "test_edge_cases"
+path = "bin/test-utils/test_edge_cases.rs"
+
+[[bin]]
+name = "create_binaries"
+path = "bin/test-utils/create_binaries.rs"
+
+[[example]]
+name = "basic_parsing"
+path = "examples/basic_parsing.rs"
+
+[[example]]
+name = "compiler_integration"
+path = "examples/compiler_integration.rs"
+required-features = ["compiler"]
+
+[[example]]
+name = "advanced_usage"
+path = "examples/advanced_usage.rs"
+
+[[example]]
+name = "load"
+path = "examples/load.rs"
+required-features = ["compiler"]
+
+[features]
+default = ["compiler", "chrono"]
+compiler = ["bincode", "lz4_flex", "crc32fast", "memmap2"]
+cli = ["clap", "compiler", "colored", "indicatif", "notify", "dirs", "toml_edit", "tempfile", "reqwest", "sha2", "which", "chrono"]
+full = ["compiler", "cli"]
+# Musl-compatible features (exclude zstd which has glibc dependencies)
+musl = ["bincode", "lz4_flex", "crc32fast", "memmap2", "cli", "compiler"]
+
+[dependencies]
+# Core dependencies (always needed)
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+anyhow = "1.0"
+
+# Migration dependencies (for TOML/YAML support)
+toml = "0.8"
+serde_yaml = "0.9"
+
+# Compiler dependencies (optional)
+bincode = { version = "1.3", optional = true }
+lz4_flex = { version = "0.11", optional = true }
+crc32fast = { version = "1.3", optional = true }
+memmap2 = { version = "0.9", optional = true }
+zstd = { version = "0.13", optional = true }
+md5 = "0.7"
+
+# CLI dependencies (optional)
+clap = { version = "4.5", features = ["derive", "env", "wrap_help"], optional = true }
+colored = { version = "2.1", optional = true }
+indicatif = { version = "0.17", optional = true }
+notify = { version = "6.1", optional = true }
+
+# Project management dependencies
+dirs = { version = "5", optional = true }
+toml_edit = { version = "0.22", optional = true }
+tempfile = { version = "3", optional = true }
+
+# HTTP & Networking
+reqwest = { version = "0.12", features = ["blocking", "json", "rustls-tls"], default-features = false, optional = true }
+sha2 = { version = "0.10", optional = true }
+
+# Process management
+which = { version = "4.4", optional = true }
+
+# Date/time handling
+chrono = { version = "0.4", features = ["serde"], optional = true }
+
+# Development dependencies
+[dev-dependencies]
+criterion = "0.5"
+proptest = "1.4"
+pretty_assertions = "1.4"
+tempfile = "3.10"
+insta = "1.38"
+
+[[bench]]
+name = "parser_bench"
+harness = false
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+
+[profile.bench]
+inherits = "release"
+
+[profile.dev]
+opt-level = 0
+debug = true
