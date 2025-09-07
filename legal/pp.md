@@ -1,9 +1,9 @@
-# Symor Privacy Policy
+# Helix Privacy Policy
 
 **Effective Date: July 15, 2025**  
 **Last Revised: July 15, 2025**
 
-CyberBoost LLC ("Licensor," "we," "us," or "our"), a Florida limited liability company, is committed to safeguarding your privacy. This Privacy Policy ("Policy") outlines our practices concerning the collection, use, and disclosure of information through our Symor software, including all source code, object code, executable files, documentation, and related services (collectively, the "Software"), and any associated offerings.
+CyberBoost LLC ("Licensor," "we," "us," or "our"), a Florida limited liability company, is committed to safeguarding your privacy. This Privacy Policy ("Policy") outlines our practices concerning the collection, use, and disclosure of information through our Helix software, including all source code, object code, executable files, documentation, and related services (collectively, the "Software"), and any associated offerings.
 
 ## Article I - Definitions
 
@@ -20,7 +20,7 @@ CyberBoost LLC ("Licensor," "we," "us," or "our"), a Florida limited liability c
 "Professional Information" means data related to company affiliation, job title, or other professional details provided in connection with the Software.
 
 ### 1.05 You or Your
-"You" or "Your" means an individual or Legal Entity (as defined in the Symor Software License Agreement) interacting with the Software or our services.
+"You" or "Your" means an individual or Legal Entity (as defined in the Helix Software License Agreement) interacting with the Software or our services.
 
 ## Article II - Information Collection
 
@@ -42,10 +42,10 @@ We collect information through:
 ### 3.01 Purposes of Processing
 We process information for the following purposes:
 - To provide, maintain, and enhance the Software and related services.
-- To administer licenses, including verifying Small Entity or Commercial Use status as defined in the Symor Software License Agreement.
+- To administer licenses, including verifying Small Entity or Commercial Use status as defined in the Helix Software License Agreement.
 - To process payments and manage financial transactions.
 - To communicate regarding Software updates, support inquiries, or licensing terms.
-- To comply with legal obligations and enforce the Symor Software License Agreement.
+- To comply with legal obligations and enforce the Helix Software License Agreement.
 - To protect the rights, property, and safety of Licensor, Software users, and others.
 
 ## Article IV - Information Disclosure
@@ -66,12 +66,12 @@ We do not sell Personal Information as defined under applicable privacy laws, in
 We implement reasonable administrative, technical, and physical safeguards to protect information collected through the Software from unauthorized access, disclosure, alteration, or destruction.
 
 ### 5.02 Limitation of Liability
-While we strive to maintain robust security measures, no system can guarantee absolute security. To the maximum extent permitted by law, Licensor shall not be liable for unauthorized access or breaches beyond our reasonable control, as provided in the Symor Software License Agreement.
+While we strive to maintain robust security measures, no system can guarantee absolute security. To the maximum extent permitted by law, Licensor shall not be liable for unauthorized access or breaches beyond our reasonable control, as provided in the Helix Software License Agreement.
 
 ## Article VI - Data Retention
 
 ### 6.01 Retention Periods
-Information will be retained only for as long as necessary to fulfill the purposes outlined in this Policy, or as required by applicable law, regulation, or the Symor Software License Agreement.
+Information will be retained only for as long as necessary to fulfill the purposes outlined in this Policy, or as required by applicable law, regulation, or the Helix Software License Agreement.
 
 ## Article VII - Individual Rights
 
@@ -79,7 +79,7 @@ Information will be retained only for as long as necessary to fulfill the purpos
 You may request access to or correction of Your Personal Information, subject to verification and applicable legal requirements.
 
 ### 7.02 Deletion
-You may request deletion of Your Personal Information, subject to legal retention obligations or legitimate business purposes, including those under the Symor Software License Agreement.
+You may request deletion of Your Personal Information, subject to legal retention obligations or legitimate business purposes, including those under the Helix Software License Agreement.
 
 ### 7.03 Portability
 Where technically feasible, You may request Your Personal Information in a structured, commonly used, and machine-readable format.
@@ -109,7 +109,7 @@ We do not knowingly collect Personal Information from individuals under the age 
 
 ### 11.01 GDPR Compliance (EEA/UK Residents)
 For individuals in the European Economic Area (EEA) or United Kingdom:
-- **Legal Basis**: Processing is based on contractual necessity (e.g., Symor Software License Agreement), legitimate interests, legal obligations, or consent.
+- **Legal Basis**: Processing is based on contractual necessity (e.g., Helix Software License Agreement), legitimate interests, legal obligations, or consent.
 - **Data Protection Rights**: You have rights to access, rectify, erase, restrict, or port Your data, and to object to processing.
 - **Supervisory Authority**: You may lodge complaints with Your local data protection authority.
 
@@ -138,7 +138,7 @@ To the extent permitted by law, each party waives its right to a jury trial in a
 ## Article XIV - General Provisions
 
 ### 14.01 Entire Agreement
-This Policy, together with the Symor Software License Agreement, constitutes the entire agreement between the parties with respect to the subject matter herein and supersedes all prior or contemporaneous agreements, understandings, or discussions, whether oral or written.
+This Policy, together with the Helix Software License Agreement, constitutes the entire agreement between the parties with respect to the subject matter herein and supersedes all prior or contemporaneous agreements, understandings, or discussions, whether oral or written.
 
 ### 14.02 Amendment
 This Policy may only be amended by a written instrument signed by an authorized representative of Licensor. Licensor reserves the right to modify this Policy for future versions of the Software.

@@ -1,9 +1,9 @@
-# Symor Software License Terms of Service
+# Helix Software License Terms of Service
 
 **Effective Date: July 15, 2025**  
 **Version: 1.0**
 
-These Terms of Service ("Agreement") constitute a legal agreement between you (an individual or Legal Entity, referred to as "Licensee") and CyberBoost LLC ("Licensor") for the use of the Symor software ("Software").
+These Terms of Service ("Agreement") constitute a legal agreement between you (an individual or Legal Entity, referred to as "Licensee") and CyberBoost LLC ("Licensor") for the use of the Helix software ("Software").
 
 ## Article I - Definitions
 
@@ -46,7 +46,7 @@ These Terms of Service ("Agreement") constitute a legal agreement between you (a
 "Small Entity" means any individual or Legal Entity that does not meet the criteria for Commercial Use and uses the Software solely for internal business operations, research, development, testing, or personal purposes, not in connection with any revenue-generating commercial product or service.
 
 ### 1.10 Software
-"Software" means the Symor software program, including all source code, object code, executable files, documentation, configuration files, data files, and any Modifications thereto, in any form and on any media, including updates, upgrades, bug fixes, patches, or new versions provided by Licensor.
+"Software" means the Helix software program, including all source code, object code, executable files, documentation, configuration files, data files, and any Modifications thereto, in any form and on any media, including updates, upgrades, bug fixes, patches, or new versions provided by Licensor.
 
 ### 1.11 You or Your
 "You" or "Your" means an individual or Legal Entity exercising permissions granted by this Agreement.
@@ -117,7 +117,7 @@ Licensor is under no obligation to accept, incorporate, or use any Contribution.
 ## Article V - Trademark Rights and Restrictions
 
 ### 5.01 Licensor Trademarks
-Licensor owns all rights in the trademarks and service marks “Symor,” “CyberBoost,” and associated logos or branding elements (“Licensor Marks”).
+Licensor owns all rights in the trademarks and service marks “Helix,” “CyberBoost,” and associated logos or branding elements (“Licensor Marks”).
 
 ### 5.02 Limited Trademark License
 You are granted a limited, non-exclusive, non-transferable license to use the Licensor Marks solely to:

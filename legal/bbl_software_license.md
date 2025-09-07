@@ -1,4 +1,4 @@
-# Symor SOFTWARE LICENSE AGREEMENT
+# Helix SOFTWARE LICENSE AGREEMENT
 
 **Version 1.0**  
 **Effective Date: July 15th, 2025**  
@@ -28,7 +28,7 @@ For purposes of this License Agreement ("Agreement"), the following terms shall 
 
 • **"Small Entity"** means any individual or Legal Entity that does not meet the criteria for Commercial Use as defined herein, and that uses the Software solely for internal business operations, research, development, testing, or personal purposes, and not in connection with any revenue-generating commercial product or service.
 
-• **"Software"** means the Symor software program (a product of CyberBoost LLC d/b/a Symor), including all source code, object code, executable files, documentation, configuration files, data files, and any Modifications thereto, whether in whole or in part, in any form, and on any media, including any updates, upgrades, bug fixes, patches, or new versions provided by Licensor.
+• **"Software"** means the Helix software program (a product of CyberBoost LLC d/b/a Helix), including all source code, object code, executable files, documentation, configuration files, data files, and any Modifications thereto, whether in whole or in part, in any form, and on any media, including any updates, upgrades, bug fixes, patches, or new versions provided by Licensor.
 
 • **"You"** or **"Your"** means an individual or Legal Entity exercising permissions granted by this Agreement.
 
@@ -98,7 +98,7 @@ For purposes of this License Agreement ("Agreement"), the following terms shall 
 
 ## 5. TRADEMARK RIGHTS AND RESTRICTIONS
 
-**5.1 Licensor Trademarks.** Licensor owns and retains all rights in the following trademarks and service marks: "Symor," "CyberBoost," and any associated logos or branding elements (collectively, the "Licensor Marks").
+**5.1 Licensor Trademarks.** Licensor owns and retains all rights in the following trademarks and service marks: "Helix," "CyberBoost," and any associated logos or branding elements (collectively, the "Licensor Marks").
 
 **5.2 Limited Trademark License.** You are granted a limited, non-exclusive, non-transferable license to use the Licensor Marks solely:
 
@@ -171,9 +171,9 @@ For purposes of this License Agreement ("Agreement"), the following terms shall 
 
 ## 9. PROFIT DISTRIBUTION TO CONTRIBUTORS
 
-**9.1 Revenue Sharing Commitment.** CyberBoost LLC commits to distributing commercial licensing revenue from the Symor Software according to the following allocation structure:
+**9.1 Revenue Sharing Commitment.** CyberBoost LLC commits to distributing commercial licensing revenue from the Helix Software according to the following allocation structure:
 
-(a) Up to thirty-three percent (33%) of net profits from Symor commercial licensing shall be distributed quarterly to Approved Active Contributors as defined below;  
+(a) Up to thirty-three percent (33%) of net profits from Helix commercial licensing shall be distributed quarterly to Approved Active Contributors as defined below;  
 (b) Thirty-three percent (33%) of net profits shall be allocated for operational overhead and business expenses;  
 (c) Thirty-three percent (33%) of net profits shall be allocated for investments, reserves, and business development; and  
 (d) The remaining one percent (1%) shall be retained for administrative costs related to profit distribution.
