@@ -163,12 +163,12 @@ fn export_to_docker(
         r#"# Dockerfile for HELIX project: {}
 FROM ubuntu:22.04
 
-# Install MSO runtime
+# Install hlx runtime
 RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install MSO compiler
+# Install hlx compiler
 RUN curl -sSL https://helix.dev/install.sh | bash
 
 # Set working directory
@@ -225,7 +225,7 @@ spec:
         ports:
         - containerPort: 8080
         env:
-        - name: MSO_ENV
+        - name: hlx_ENV
           value: "production"
 ---
 apiVersion: v1

@@ -12,7 +12,7 @@ pub fn format_files(files: Vec<PathBuf>, check: bool, verbose: bool) -> Result<(
         for entry in entries {
             let entry = entry?;
             let path = entry.path();
-            if path.extension().and_then(|s| s.to_str()) == Some("mso") {
+            if path.extension().and_then(|s| s.to_str()) == Some("hlx") {
                 format_single_file(&path, check, verbose)?;
             }
         }
@@ -61,7 +61,7 @@ pub fn lint_files(files: Vec<PathBuf>, verbose: bool) -> Result<()> {
         for entry in entries {
             let entry = entry?;
             let path = entry.path();
-            if path.extension().and_then(|s| s.to_str()) == Some("mso") {
+            if path.extension().and_then(|s| s.to_str()) == Some("hlx") {
                 lint_single_file(&path, verbose)?;
             }
         }

@@ -9,7 +9,7 @@ pub fn run_benchmarks(
 ) -> Result<()> {
     let project_dir = find_project_root()?;
     if verbose {
-        println!("⚡ Running MSO benchmarks:");
+        println!("⚡ Running hlx benchmarks:");
         println!("  Project: {}", project_dir.display());
         println!("  Pattern: {}", pattern.as_deref().unwrap_or("all"));
         println!("  Iterations: {}", iterations.unwrap_or(100));
@@ -20,7 +20,7 @@ pub fn run_benchmarks(
     let benchmark_files = find_benchmark_files(&project_dir, &pattern)?;
     if benchmark_files.is_empty() {
         println!("ℹ️  No benchmark files found.");
-        println!("  Create benchmark files in benches/ directory with .mso extension");
+        println!("  Create benchmark files in benches/ directory with .hlx extension");
         println!("  Or add benchmark functions to your source files");
         return Ok(());
     }

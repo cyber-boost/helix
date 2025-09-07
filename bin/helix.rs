@@ -11,7 +11,7 @@ fn main() {
                 eprintln!("   Location: {}:{}", location.file(), location.line());
             }
             eprintln!("\n   This is a bug. Please report it at:");
-            eprintln!("   https://github.com/maestro/helix-config/issues");
+            eprintln!("   https://github.com/cyber-boost/helix/issues");
         }),
     );
     if let Err(e) = cli::run() {

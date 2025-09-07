@@ -34,7 +34,7 @@ workflow "test-flow" {
 }
 
 memory {
-    provider = "mso_db"
+    provider = "hlx_db"
     connection = "memory.db"
     embedding_model = "text-embedding-3"
     embedding_dimensions = 1536
@@ -96,10 +96,10 @@ fn test_migration_from_json() {
         }
     }"#;
     let migrator = migrate::Migrator::new();
-    let mso = migrator.migrate_json(json).expect("Failed to migrate JSON");
-    assert!(mso.contains("agent \"coder\""));
-    assert!(mso.contains("workflow \"build\""));
-    assert!(mso.contains("temperature = 0.7"));
+    let hlx = migrator.migrate_json(json).expect("Failed to migrate JSON");
+    assert!(hlx.contains("agent \"coder\""));
+    assert!(hlx.contains("workflow \"build\""));
+    assert!(hlx.contains("temperature = 0.7"));
 }
 #[test]
 fn test_migration_from_toml() {
@@ -116,10 +116,10 @@ temperature = 0.7
 trigger = "manual"
 "#;
     let migrator = migrate::Migrator::new();
-    let mso = migrator.migrate_toml(toml).expect("Failed to migrate TOML");
-    assert!(mso.contains("project"));
-    assert!(mso.contains("agent \"assistant\""));
-    assert!(mso.contains("workflow"));
+    let hlx = migrator.migrate_toml(toml).expect("Failed to migrate TOML");
+    assert!(hlx.contains("project"));
+    assert!(hlx.contains("agent \"assistant\""));
+    assert!(hlx.contains("workflow"));
 }
 #[test]
 fn test_migration_from_env() {
@@ -130,11 +130,11 @@ DEBUG=true
 MAX_TOKENS=100000
 "#;
     let migrator = migrate::Migrator::new();
-    let mso = migrator.migrate_env(env).expect("Failed to migrate env");
-    assert!(mso.contains("context \"environment\""));
-    assert!(mso.contains("database_url"));
-    assert!(mso.contains("api_key = $API_KEY"));
-    assert!(mso.contains("max_tokens"));
+    let hlx = migrator.migrate_env(env).expect("Failed to migrate env");
+    assert!(hlx.contains("context \"environment\""));
+    assert!(hlx.contains("database_url"));
+    assert!(hlx.contains("api_key = $API_KEY"));
+    assert!(hlx.contains("max_tokens"));
 }
 #[test]
 fn test_bundle_creation() {

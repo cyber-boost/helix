@@ -15,19 +15,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         helix_core::compiler::OptimizationLevel::Two), ("three",
         helix_core::compiler::OptimizationLevel::Three),
     ];
-    for (mso_path, description) in &examples {
-        if !Path::new(mso_path).exists() {
-            println!("⚠️  Skipping {} (file not found)", mso_path);
+    for (hlx_path, description) in &examples {
+        if !Path::new(hlx_path).exists() {
+            println!("⚠️  Skipping {} (file not found)", hlx_path);
             continue;
         }
-        println!("📄 Processing: {} ({})", mso_path, description);
-        let source = fs::read_to_string(mso_path)?;
+        println!("📄 Processing: {} ({})", hlx_path, description);
+        let source = fs::read_to_string(hlx_path)?;
         let source_size = source.len();
         for (level_name, level) in &opt_levels {
             let compiler = helix_core::compiler::Compiler::new(*level);
             match compiler.compile_source(&source, None) {
                 Ok(binary) => {
-                    let filename = Path::new(mso_path)
+                    let filename = Path::new(hlx_path)
                         .file_stem()
                         .unwrap()
                         .to_str()

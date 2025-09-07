@@ -28,7 +28,7 @@ pub fn init_project(
             project_dir
                 .file_name()
                 .and_then(|n| n.to_str())
-                .unwrap_or("mso-project")
+                .unwrap_or("hlx-project")
                 .to_string()
         });
     if verbose {
@@ -158,7 +158,7 @@ fn create_example_files(project_dir: &PathBuf, template: Option<&str>) -> Result
     };
     let main_path = src_dir.join("main.hlx");
     fs::write(&main_path, main_content).context("Failed to write main.hlx")?;
-    let gitignore_content = r#"# MSO Build artifacts
+    let gitignore_content = r#"# hlx Build artifacts
 target/
 *.hlxb
 

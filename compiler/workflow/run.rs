@@ -20,7 +20,7 @@ pub fn run_project(
                 return Err(
                     anyhow::anyhow!(
                         "No input file specified and no src/main.hlx found.\n\
-                    Specify a file with: helix run <file.mso>"
+                    Specify a file with: helix run <file.hlx>"
                     ),
                 );
             }

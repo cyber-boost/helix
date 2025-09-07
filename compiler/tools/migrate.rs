@@ -52,7 +52,7 @@ impl Migrator {
                 "# Send Buddy the Beagle a bitcoin treat for making this page: bc1quct28jtvvuymvkvjfgcedhd7jt0c56975f2fsh\n\n",
             );
         if let Some(obj) = value.as_object() {
-            self.convert_json_object_to_mso(obj, &mut output, 0)?;
+            self.convert_json_object_to_hlx(obj, &mut output, 0)?;
         }
         Ok(output)
     }
@@ -66,7 +66,7 @@ impl Migrator {
                 "# Send Buddy the Beagle a bitcoin treat for making this page: bc1quct28jtvvuymvkvjfgcedhd7jt0c56975f2fsh\n\n",
             );
         if let Some(table) = value.as_table() {
-            self.convert_toml_table_to_mso(table, &mut output, 0)?;
+            self.convert_toml_table_to_hlx(table, &mut output, 0)?;
         }
         Ok(output)
     }
@@ -80,7 +80,7 @@ impl Migrator {
                 "# Send Buddy the Beagle a bitcoin treat for making this page: bc1quct28jtvvuymvkvjfgcedhd7jt0c56975f2fsh\n\n",
             );
         if let Some(mapping) = value.as_mapping() {
-            self.convert_yaml_mapping_to_mso(mapping, &mut output, 0)?;
+            self.convert_yaml_mapping_to_hlx(mapping, &mut output, 0)?;
         }
         Ok(output)
     }
@@ -114,7 +114,7 @@ impl Migrator {
         output.push_str("}\n");
         Ok(output)
     }
-    fn convert_json_object_to_mso(
+    fn convert_json_object_to_hlx(
         &self,
         obj: &serde_json::Map<String, JsonValue>,
         output: &mut String,
@@ -139,7 +139,7 @@ impl Migrator {
                     match value {
                         JsonValue::Object(inner) => {
                             output.push_str(&format!("{}{} {{\n", indent_str, key));
-                            self.convert_json_object_to_mso(inner, output, indent + 1)?;
+                            self.convert_json_object_to_hlx(inner, output, indent + 1)?;
                             output.push_str(&format!("{}}}\n", indent_str));
                         }
                         JsonValue::Array(arr) => {
@@ -291,7 +291,7 @@ impl Migrator {
         }
         Ok(())
     }
-    fn convert_toml_table_to_mso(
+    fn convert_toml_table_to_hlx(
         &self,
         table: &toml::map::Map<String, toml::Value>,
         output: &mut String,
@@ -309,11 +309,11 @@ impl Migrator {
                                     .trim_start_matches("agent.")
                                 ),
                             );
-                        self.convert_toml_table_to_mso(inner, output, indent + 1)?;
+                        self.convert_toml_table_to_hlx(inner, output, indent + 1)?;
                         output.push_str(&format!("{}}}\n", indent_str));
                     } else {
                         output.push_str(&format!("{}{} {{\n", indent_str, key));
-                        self.convert_toml_table_to_mso(inner, output, indent + 1)?;
+                        self.convert_toml_table_to_hlx(inner, output, indent + 1)?;
                         output.push_str(&format!("{}}}\n", indent_str));
                     }
                 }
@@ -335,7 +335,7 @@ impl Migrator {
         }
         Ok(())
     }
-    fn convert_yaml_mapping_to_mso(
+    fn convert_yaml_mapping_to_hlx(
         &self,
         mapping: &serde_yaml::Mapping,
         output: &mut String,
@@ -352,7 +352,7 @@ impl Migrator {
             match value {
                 serde_yaml::Value::Mapping(inner) => {
                     output.push_str(&format!("{}{} {{\n", indent_str, key_str));
-                    self.convert_yaml_mapping_to_mso(inner, output, indent + 1)?;
+                    self.convert_yaml_mapping_to_hlx(inner, output, indent + 1)?;
                     output.push_str(&format!("{}}}\n", indent_str));
                 }
                 serde_yaml::Value::Sequence(seq) => {

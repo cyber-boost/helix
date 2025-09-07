@@ -8,7 +8,7 @@ pub fn run_diagnostics(verbose: bool) -> Result<()> {
     let mut issues = Vec::new();
     let mut warnings = Vec::new();
     check_system_requirements(&mut issues, &mut warnings, verbose)?;
-    check_mso_installation(&mut issues, &mut warnings, verbose)?;
+    check_hlx_installation(&mut issues, &mut warnings, verbose)?;
     check_project_structure(&mut issues, &mut warnings, verbose)?;
     check_dependencies(&mut issues, &mut warnings, verbose)?;
     check_configuration(&mut issues, &mut warnings, verbose)?;
@@ -84,7 +84,7 @@ fn check_system_requirements(
     }
     Ok(())
 }
-fn check_mso_installation(
+fn check_hlx_installation(
     issues: &mut Vec<String>,
     warnings: &mut Vec<String>,
     verbose: bool,
@@ -107,7 +107,7 @@ fn check_mso_installation(
             if output.status.success() {
                 let version = String::from_utf8_lossy(&output.stdout);
                 if verbose {
-                    println!("  ✅ MSO version: {}", version.trim());
+                    println!("  ✅ hlx version: {}", version.trim());
                 }
             } else {
                 issues.push("HELIX compiler not working properly".to_string());
@@ -236,7 +236,7 @@ fn check_configuration(
 fn print_diagnostic_results(issues: &[String], warnings: &[String], verbose: bool) {
     println!();
     if issues.is_empty() && warnings.is_empty() {
-        println!("✅ All checks passed! Your MSO environment is healthy.");
+        println!("✅ All checks passed! Your hlx environment is healthy.");
         return;
     }
     if !issues.is_empty() {

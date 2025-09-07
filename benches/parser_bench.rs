@@ -3,13 +3,13 @@ use helix_config::{parse, compile::Compiler, compiler::loader::BinaryLoader};
 use std::fs;
 use std::path::Path;
 use tempfile::TempDir;
-const SMALL_MSO: &str = r#"
+const SMALL_hlx: &str = r#"
 agent "test" {
     model = "gpt-4"
     temperature = 0.7
 }
 "#;
-const MEDIUM_MSO: &str = r#"
+const MEDIUM_hlx: &str = r#"
 project "benchmark" {
     version = "1.0.0"
     author = "tester"
@@ -49,10 +49,10 @@ crew "review-team" {
     process = "sequential"
 }
 "#;
-fn generate_large_mso(agents: usize, workflows: usize) -> String {
-    let mut mso = String::from("project \"large\" { version = \"1.0.0\" }\n\n");
+fn generate_large_hlx(agents: usize, workflows: usize) -> String {
+    let mut hlx = String::from("project \"large\" { version = \"1.0.0\" }\n\n");
     for i in 0..agents {
-        mso.push_str(
+        hlx.push_str(
             &format!(
                 r#"
 agent "agent_{}" {{
@@ -67,7 +67,7 @@ agent "agent_{}" {{
         );
     }
     for i in 0..workflows {
-        mso.push_str(
+        hlx.push_str(
             &format!(
                 r#"
 workflow "workflow_{}" {{
@@ -82,7 +82,7 @@ workflow "workflow_{}" {{
             ),
         );
     }
-    mso
+    hlx
 }
 fn benchmark_parsing(c: &mut Criterion) {
     let mut group = c.benchmark_group("parsing");
@@ -91,7 +91,7 @@ fn benchmark_parsing(c: &mut Criterion) {
             "small",
             |b| {
                 b.iter(|| {
-                    let _ = parse(black_box(SMALL_MSO));
+                    let _ = parse(black_box(SMALL_hlx));
                 });
             },
         );
@@ -100,17 +100,17 @@ fn benchmark_parsing(c: &mut Criterion) {
             "medium",
             |b| {
                 b.iter(|| {
-                    let _ = parse(black_box(MEDIUM_MSO));
+                    let _ = parse(black_box(MEDIUM_hlx));
                 });
             },
         );
-    let large_mso = generate_large_mso(50, 100);
+    let large_hlx = generate_large_hlx(50, 100);
     group
         .bench_function(
             "large",
             |b| {
                 b.iter(|| {
-                    let _ = parse(black_box(&large_mso));
+                    let _ = parse(black_box(&large_hlx));
                 });
             },
         );
@@ -124,7 +124,7 @@ fn benchmark_compilation(c: &mut Criterion) {
             "small",
             |b| {
                 b.iter(|| {
-                    let _ = compiler.compile_source(black_box(SMALL_MSO), None);
+                    let _ = compiler.compile_source(black_box(SMALL_hlx), None);
                 });
             },
         );
@@ -133,17 +133,17 @@ fn benchmark_compilation(c: &mut Criterion) {
             "medium",
             |b| {
                 b.iter(|| {
-                    let _ = compiler.compile_source(black_box(MEDIUM_MSO), None);
+                    let _ = compiler.compile_source(black_box(MEDIUM_hlx), None);
                 });
             },
         );
-    let large_mso = generate_large_mso(50, 100);
+    let large_hlx = generate_large_hlx(50, 100);
     group
         .bench_function(
             "large",
             |b| {
                 b.iter(|| {
-                    let _ = compiler.compile_source(black_box(&large_mso), None);
+                    let _ = compiler.compile_source(black_box(&large_hlx), None);
                 });
             },
         );
@@ -154,7 +154,7 @@ fn benchmark_binary_vs_text_loading(c: &mut Criterion) {
     let temp_dir = TempDir::new().unwrap();
     let text_path = temp_dir.path().join("test.hlxbb");
     let binary_path = temp_dir.path().join("test.hlxb");
-    fs::write(&text_path, MEDIUM_MSO).unwrap();
+    fs::write(&text_path, MEDIUM_hlx).unwrap();
     let compiler = Compiler::new(helix_config::compile::OptimizationLevel::Two);
     let binary = compiler.compile_file(&text_path).unwrap();
     let serializer = helix_config::compiler::serializer::BinarySerializer::new(true);
@@ -193,7 +193,7 @@ fn benchmark_binary_vs_text_loading(c: &mut Criterion) {
 }
 fn benchmark_optimization_levels(c: &mut Criterion) {
     let mut group = c.benchmark_group("optimization");
-    let large_mso = generate_large_mso(30, 60);
+    let large_hlx = generate_large_hlx(30, 60);
     for level in 0..=3 {
         let opt_level = match level {
             0 => helix_config::compile::OptimizationLevel::Zero,
@@ -208,7 +208,7 @@ fn benchmark_optimization_levels(c: &mut Criterion) {
                 |b, &opt_level| {
                     let compiler = Compiler::new(opt_level);
                     b.iter(|| {
-                        let _ = compiler.compile_source(black_box(&large_mso), None);
+                        let _ = compiler.compile_source(black_box(&large_hlx), None);
                     });
                 },
             );
@@ -217,9 +217,9 @@ fn benchmark_optimization_levels(c: &mut Criterion) {
 }
 fn benchmark_string_interning(c: &mut Criterion) {
     let mut group = c.benchmark_group("string_interning");
-    let mut mso_with_duplicates = String::new();
+    let mut hlx_with_duplicates = String::new();
     for i in 0..100 {
-        mso_with_duplicates
+        hlx_with_duplicates
             .push_str(
                 &format!(
                     r#"
@@ -241,7 +241,7 @@ agent "agent_{}" {{
             |b| {
                 b.iter(|| {
                     let _ = opt_compiler
-                        .compile_source(black_box(&mso_with_duplicates), None);
+                        .compile_source(black_box(&hlx_with_duplicates), None);
                 });
             },
         );
@@ -252,7 +252,7 @@ agent "agent_{}" {{
             |b| {
                 b.iter(|| {
                     let _ = no_opt_compiler
-                        .compile_source(black_box(&mso_with_duplicates), None);
+                        .compile_source(black_box(&hlx_with_duplicates), None);
                 });
             },
         );

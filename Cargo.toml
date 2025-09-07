@@ -16,7 +16,7 @@ path = "lib.rs"
 crate-type = ["rlib"]
 
 [[bin]]
-name = "helix"
+name = "hlx"
 path = "bin/helix.rs"
 required-features = ["cli"]
 

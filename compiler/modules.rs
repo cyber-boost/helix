@@ -105,7 +105,7 @@ impl ModuleResolver {
         Self {
             search_paths: vec![
                 PathBuf::from("."), PathBuf::from("./configs"),
-                PathBuf::from("./mso_modules"),
+                PathBuf::from("./hlx_modules"),
             ],
             cache: HashMap::new(),
         }
@@ -119,7 +119,7 @@ impl ModuleResolver {
         }
         let patterns = vec![
             format!("{}.hlx", module_name), format!("{}/mod.hlx", module_name),
-            format!("mso/{}.hlx", module_name),
+            format!("hlx/{}.hlx", module_name),
         ];
         for search_path in &self.search_paths {
             for pattern in &patterns {
@@ -215,10 +215,10 @@ impl ModuleSystem {
     ) -> Result<PathBuf, HelixError> {
         if import_path.starts_with("./") || import_path.starts_with("../") {
             let base_dir = from_module.parent().unwrap_or(Path::new("."));
-            return Ok(base_dir.join(import_path).with_extension("mso"));
+            return Ok(base_dir.join(import_path).with_extension("hlx"));
         }
         if import_path.starts_with("/") {
-            return Ok(PathBuf::from(import_path).with_extension("mso"));
+            return Ok(PathBuf::from(import_path).with_extension("hlx"));
         }
         Ok(PathBuf::from(format!("{}.hlx", import_path)))
     }

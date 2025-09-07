@@ -295,7 +295,7 @@ mod integration_tests {
 #[cfg(test)]
 mod fuzzing_tests {
     use crate::{lexer, parser};
-    fn generate_test_mso(size: usize) -> String {
+    fn generate_test_hlx(size: usize) -> String {
         let mut result = String::new();
         let keywords = ["agent", "workflow", "memory", "context", "crew"];
         let operators = ["=", "->", "{", "}", "[", "]"];
@@ -330,14 +330,14 @@ mod fuzzing_tests {
     #[test]
     fn fuzz_lexer() {
         for _ in 0..100 {
-            let input = generate_test_mso(100);
+            let input = generate_test_hlx(100);
             let _ = lexer::tokenize(&input);
         }
     }
     #[test]
     fn fuzz_parser() {
         for _ in 0..100 {
-            let input = generate_test_mso(50);
+            let input = generate_test_hlx(50);
             if let Ok(tokens) = lexer::tokenize(&input) {
                 let mut parser = parser::Parser::new(tokens);
                 let _ = parser.parse();

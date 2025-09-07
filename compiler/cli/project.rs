@@ -8,7 +8,7 @@ pub fn init_project(
     verbose: bool,
 ) -> Result<()> {
     let template_name = template.unwrap_or_else(|| "minimal".to_string());
-    let project_name = name.unwrap_or_else(|| "my-mso-project".to_string());
+    let project_name = name.unwrap_or_else(|| "my-hlx-project".to_string());
     let project_dir = dir
         .unwrap_or_else(|| {
             std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."))

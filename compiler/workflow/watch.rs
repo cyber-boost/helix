@@ -87,7 +87,7 @@ impl HelixWatcher {
         match event.kind {
             EventKind::Modify(_) | EventKind::Create(_) => {
                 for path in event.paths {
-                    if path.extension().and_then(|s| s.to_str()) != Some("mso") {
+                    if path.extension().and_then(|s| s.to_str()) != Some("hlx") {
                         continue;
                     }
                     let callbacks = callbacks.lock().unwrap();
@@ -157,7 +157,7 @@ impl CompileWatcher {
                                 out_dir.join(format!("{}.hlxb", file_name))
                             } else {
                                 let mut p = path.to_path_buf();
-                                p.set_extension("msob");
+                                p.set_extension("hlxb");
                                 p
                             };
                             let serializer = crate::compiler::BinarySerializer::new(

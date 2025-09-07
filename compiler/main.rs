@@ -234,7 +234,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let output_path = output
                 .unwrap_or_else(|| {
                     let mut path = input.clone();
-                    path.set_extension("msob");
+                    path.set_extension("hlxb");
                     path
                 });
             let mut compiler = Compiler::new(optimize);
@@ -262,24 +262,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let output_path = output
                 .unwrap_or_else(|| {
                     let mut path = input.clone();
-                    path.set_extension("mso");
+                    path.set_extension("hlx");
                     path
                 });
             let data = fs::read(&input)?;
             let binary: HelixBinary = bincode::deserialize(&data)?;
-            let helix_content = reconstruct_mso(&binary)?;
+            let helix_content = reconstruct_hlx(&binary)?;
             fs::write(&output_path, helix_content)?;
             println!("✓ Decompiled {} -> {}", input.display(), output_path.display());
         }
         Commands::Validate { file, verbose } => {
             let extension = file.extension().and_then(|s| s.to_str());
             match extension {
-                Some("mso") => {
+                Some("hlx") => {
                     let content = fs::read_to_string(&file)?;
-                    validate_mso(&content, verbose)?;
+                    validate_hlx(&content, verbose)?;
                     println!("✓ Valid HELIX file: {}", file.display());
                 }
-                Some("msob") => {
+                Some("hlxb") => {
                     let data = fs::read(&file)?;
                     let binary: HelixBinary = bincode::deserialize(&data)?;
                     validate_binary(&binary, verbose)?;
@@ -296,7 +296,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             for entry in fs::read_dir(&dir)? {
                 let entry = entry?;
                 let path = entry.path();
-                if path.extension().and_then(|s| s.to_str()) == Some("mso") {
+                if path.extension().and_then(|s| s.to_str()) == Some("hlx") {
                     let name = path.file_name().unwrap().to_str().unwrap();
                     if should_include(name, &include, &exclude) {
                         println!("  + {}", name);
@@ -337,10 +337,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     Ok(())
 }
-fn reconstruct_mso(_binary: &HelixBinary) -> Result<String, String> {
+fn reconstruct_hlx(_binary: &HelixBinary) -> Result<String, String> {
     Ok("# Reconstructed HELIX file\n".to_string())
 }
-fn validate_mso(_content: &str, _verbose: bool) -> Result<(), String> {
+fn validate_hlx(_content: &str, _verbose: bool) -> Result<(), String> {
     Ok(())
 }
 fn validate_binary(_binary: &HelixBinary, _verbose: bool) -> Result<(), String> {

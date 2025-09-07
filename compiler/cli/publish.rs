@@ -199,13 +199,13 @@ fn export_to_docker(output: &PathBuf, include_deps: bool, verbose: bool) -> Resu
 RUN apk add --no-cache libc6-compat
 COPY . /app
 WORKDIR /app
-CMD ["./mso-runtime"]
+CMD ["./hlx-runtime"]
 "#
     } else {
         r#"FROM alpine:latest
 COPY . /app
 WORKDIR /app
-CMD ["./mso-runtime"]
+CMD ["./hlx-runtime"]
 "#
     };
     std::fs::write(output, docker_content)?;
@@ -222,30 +222,30 @@ fn export_to_k8s(output: &PathBuf, include_deps: bool, verbose: bool) -> Result<
         r#"apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mso-app
+  name: hlx-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mso-app
+      app: hlx-app
   template:
     metadata:
       labels:
-        app: mso-app
+        app: hlx-app
     spec:
       containers:
-      - name: mso-app
-        image: mso-app:latest
+      - name: hlx-app
+        image: hlx-app:latest
         ports:
         - containerPort: 8080
         envFrom:
         - configMapRef:
-            name: mso-config
+            name: hlx-config
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mso-config
+  name: hlx-config
 data:
   DEPENDENCIES: "serde=1.0,anyhow=1.0"
 "#
@@ -253,20 +253,20 @@ data:
         r#"apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mso-app
+  name: hlx-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mso-app
+      app: hlx-app
   template:
     metadata:
       labels:
-        app: mso-app
+        app: hlx-app
     spec:
       containers:
-      - name: mso-app
-        image: mso-app:latest
+      - name: hlx-app
+        image: hlx-app:latest
         ports:
         - containerPort: 8080
 "#

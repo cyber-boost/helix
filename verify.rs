@@ -2,7 +2,7 @@ use std::fs;
 use std::path::Path;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🔍 Verifying HELIX Language Implementation...\n");
-    println!("Test 1: Parsing MSO file...");
+    println!("Test 1: Parsing hlx file...");
     let content = fs::read_to_string("test_example.hlxbb")?;
     let ast = helix_core::parse(&content)?;
     println!("✅ Successfully parsed {} declarations", ast.declarations.len());
@@ -40,12 +40,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let merged = loader.merge_configs(vec![& config]);
     println!("✅ Config merging works");
     println!("   - Merged agents: {}", merged.agents.len());
-    println!("\nTest 8: JSON to MSO migration...");
+    println!("\nTest 8: JSON to hlx migration...");
     let json_config = r#"{"agents": {"test": {"model": "gpt-4"}}}"#;
     let migrator = helix_core::Migrator::new();
-    let mso_content = migrator.migrate_json(json_config)?;
+    let hlx_content = migrator.migrate_json(json_config)?;
     println!("✅ Migration successful");
-    println!("   Generated MSO: {} characters", mso_content.len());
+    println!("   Generated hlx: {} characters", hlx_content.len());
     println!("\n🎉 All verification tests passed!");
     println!("✅ Core parsing works");
     println!("✅ AST validation works");

@@ -17,7 +17,7 @@ use tools::*;
 use publish::*;
 use config::*;
 #[derive(Parser)]
-#[command(name = "helix")]
+#[command(name = "hlx")]
 #[command(version = env!("CARGO_PKG_VERSION"))]
 #[command(about = "HELIX Compiler - Configuration without the pain")]
 #[command(long_about = None)]
@@ -404,7 +404,7 @@ fn compile_command(
     let output_path = output
         .unwrap_or_else(|| {
             let mut path = input.clone();
-            path.set_extension("msob");
+            path.set_extension("hlxb");
             path
         });
     if verbose {
@@ -442,7 +442,7 @@ fn decompile_command(
     let output_path = output
         .unwrap_or_else(|| {
             let mut path = input.clone();
-            path.set_extension("mso");
+            path.set_extension("hlx");
             path
         });
     if verbose {
@@ -462,7 +462,7 @@ fn validate_command(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let extension = file.extension().and_then(|s| s.to_str());
     match extension {
-        Some("mso") => {
+        Some("hlx") => {
             let source = std::fs::read_to_string(&file)?;
             let ast = crate::parse(&source)?;
             crate::validate(&ast)?;
@@ -471,7 +471,7 @@ fn validate_command(
                 println!("  Declarations: {}", ast.declarations.len());
             }
         }
-        Some("msob") => {
+        Some("hlxb") => {
             let loader = BinaryLoader::new();
             let binary = loader.load_file(&file)?;
             binary.validate()?;
@@ -483,7 +483,7 @@ fn validate_command(
             }
         }
         _ => {
-            return Err("Unknown file type (expected .mso or .hlxb)".into());
+            return Err("Unknown file type (expected .hlx or .hlxb)".into());
         }
     }
     Ok(())
@@ -720,7 +720,7 @@ fn init_command(
         let content_size = template_content.len();
         println!("  Size: {} bytes", content_size);
         let description = match template.as_str() {
-            "minimal" => "Simple MSO configuration with basic agent and workflow",
+            "minimal" => "Simple hlx configuration with basic agent and workflow",
             "ai-dev" => {
                 "Complete AI development team with specialized agents for full-stack development"
             }
@@ -741,7 +741,7 @@ fn init_command(
     println!("  1. Review and customize the configuration");
     println!("  2. Set up your API keys and environment variables");
     println!("  3. Compile with: helix compile {}", filename);
-    println!("  4. Run with your MSO runtime");
+    println!("  4. Run with your hlx runtime");
     Ok(())
 }
 fn install_command(
@@ -750,7 +750,7 @@ fn install_command(
     verbose: bool,
 ) -> Result<(), Box<dyn std::error::Error>> {
     if verbose {
-        println!("🔧 Installing MSO compiler globally...");
+        println!("🔧 Installing Helix compiler globally...");
     }
     let current_exe = std::env::current_exe()
         .map_err(|e| format!("Failed to get current executable path: {}", e))?;
@@ -761,7 +761,7 @@ fn install_command(
         .map_err(|e| format!("Failed to get HOME directory: {}", e))?;
     let baton_dir = PathBuf::from(&home_dir).join(".baton");
     let baton_bin_dir = baton_dir.join("bin");
-    let target_binary = baton_bin_dir.join("mso");
+    let target_binary = baton_bin_dir.join("hlx");
     if verbose {
         println!("  Target: {}", target_binary.display());
     }
@@ -795,11 +795,11 @@ fn install_command(
     if verbose {
         println!("  ✅ Copied binary to: {}", target_binary.display());
     }
-    println!("✅ MSO compiler installed successfully!");
+    println!("✅ Helix compiler installed successfully!");
     println!("  Location: {}", target_binary.display());
     if local_only {
         println!("\n📋 Local installation complete!");
-        println!("  Add {} to your PATH to use 'mso' command", baton_bin_dir.display());
+        println!("  Add {} to your PATH to use 'hlx' command", baton_bin_dir.display());
         println!("  Or run: export PATH=\"{}:$PATH\"", baton_bin_dir.display());
         return Ok(());
     }
@@ -811,7 +811,7 @@ fn install_command(
     let mut symlink_created = false;
     for global_bin in global_bin_paths {
         if global_bin.exists() && global_bin.is_dir() {
-            let symlink_path = global_bin.join("mso");
+            let symlink_path = global_bin.join("hlx");
             if symlink_path.exists() && !force {
                 if verbose {
                     println!(
@@ -863,18 +863,18 @@ fn install_command(
     }
     if symlink_created {
         println!("\n🎉 Global installation complete!");
-        println!("  You can now use 'mso' command from anywhere");
-        println!("  Try: mso --help");
+        println!("  You can now use 'hlx' command from anywhere");
+        println!("  Try: hlx --help");
     } else {
         println!("\n📋 Installation complete, but global symlink creation failed");
         println!("  This might be due to insufficient permissions");
         println!(
-            "  You can still use MSO by adding {} to your PATH", baton_bin_dir.display()
+            "  You can still use hlx by adding {} to your PATH", baton_bin_dir.display()
         );
         println!("  Or run: export PATH=\"{}:$PATH\"", baton_bin_dir.display());
         if verbose {
             println!("\n💡 To create global symlink manually:");
-            println!("  sudo ln -sf {} /usr/local/bin/mso", target_binary.display());
+            println!("  sudo ln -sf {} /usr/local/bin/hlx", target_binary.display());
         }
     }
     Ok(())
@@ -898,7 +898,7 @@ fn build_project(
                 return Err(
                     anyhow::anyhow!(
                         "No input file specified and no src/main.hlx found.\n\
-                    Specify a file with: helix build <file.mso>"
+                    Specify a file with: helix build <file.hlx>"
                     )
                         .into(),
                 );

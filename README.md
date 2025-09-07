@@ -11,7 +11,7 @@ Helix Configuration is a purpose-built configuration language designed for AI sy
 **Current Status**: W.I.P. not production-ready with but do have a full compiler, CLI tools, and comprehensive language features.
 
 ## Why Helix Configuration?
-
+Crates install: cargo build --release --features full && 
 ### The Problems We Solved
 
 **TOML Problems:**

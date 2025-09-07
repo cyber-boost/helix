@@ -8,7 +8,7 @@ pub fn run_tests(
 ) -> Result<()> {
     let project_dir = find_project_root()?;
     if verbose {
-        println!("🧪 Running MSO tests:");
+        println!("🧪 Running hlx tests:");
         println!("  Project: {}", project_dir.display());
         println!("  Pattern: {}", pattern.as_deref().unwrap_or("all"));
         println!("  Integration: {}", integration);
@@ -19,7 +19,7 @@ pub fn run_tests(
     let test_files = find_test_files(&project_dir, &pattern)?;
     if test_files.is_empty() {
         println!("ℹ️  No test files found.");
-        println!("  Create test files in tests/ directory with .mso extension");
+        println!("  Create test files in tests/ directory with .hlx extension");
         println!("  Or add test functions to your source files");
         return Ok(());
     }
