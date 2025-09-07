@@ -1,3 +1,7 @@
+<p align="center">
+    <img src="https://raw.githubusercontent.com/cyber-boost/helix/refs/heads/master/media/logo.png" alt="Helix Logo" width="400"/>
+</p>
+
 # Helix Configuration - Configuration Without the Headaches
 
 ## Overview

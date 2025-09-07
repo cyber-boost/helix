@@ -1,6 +1,7 @@
 admin/
 cargo_logs/
 osxcross/
+osxcross
 summaries/
 target/
 web/

@@ -1,4 +1,6 @@
-<img src="https://raw.githubusercontent.com/cyber-boost/symor/refs/heads/main/buddy.jpeg" alt="Symor" width="400">
+<p align="center">
+    <img src="https://raw.githubusercontent.com/cyber-boost/helix/refs/heads/master/media/buddy.jpeg" alt="Helix Chief k9" width="400"/>
+</p>
 
 # URGENT: THE GREAT TREAT SHORTAGE
 
