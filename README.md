@@ -775,7 +775,7 @@ Priority areas for contribution:
 
 ## License
 
-MIT - Configuration should enable, not constrain.
+BBL - Configuration should enable, not constrain.
 
 ## Contributing
 
