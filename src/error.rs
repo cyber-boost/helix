@@ -1,6 +1,155 @@
-use std::fmt;
 use std::path::PathBuf;
+use std::fmt;
+use thiserror::Error;
 use crate::lexer::SourceLocation;
+
+#[derive(Error, Debug)]
+pub enum HlxError {
+    #[error("Configuration conversion failed: {field} - {details}")]
+    ConfigConversion {
+        field: String,
+        details: String,
+        suggestion: String
+    },
+
+    #[error("Dataset processing failed: {message}")]
+    DatasetProcessing {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("Dataset quality validation failed: score {score:.2}")]
+    QualityValidation {
+        score: f64,
+        issues: Vec<String>,
+        suggestions: Vec<String>
+    },
+
+    #[error("Format conversion failed: {from} → {to}")]
+    FormatConversion {
+        from: String,
+        to: String,
+        suggestion: String
+    },
+
+    #[error("Algorithm '{algorithm}' not supported")]
+    UnsupportedAlgorithm {
+        algorithm: String,
+        supported: Vec<String>
+    },
+
+    #[error("Dataset not found: {path}")]
+    DatasetNotFound {
+        path: PathBuf,
+        suggestion: String
+    },
+
+    #[error("HLX processing failed: {message}")]
+    HlxProcessing {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("Forge integration failed: {message}")]
+    ForgeIntegration {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("Configuration validation failed: {field} = {value}")]
+    ConfigValidation {
+        field: String,
+        value: String,
+        suggestion: String
+    },
+}
+
+impl HlxError {
+    /// Create a configuration conversion error with suggestion
+    pub fn config_conversion(field: impl Into<String>, details: impl Into<String>) -> Self {
+        let field = field.into();
+        let details = details.into();
+        let suggestion = format!("Check your Forge.toml configuration for the '{}' field", field);
+        Self::ConfigConversion { field, details, suggestion }
+    }
+
+    /// Create a dataset processing error with suggestion
+    pub fn dataset_processing(message: impl Into<String>) -> Self {
+        let message = message.into();
+        let suggestion = "Try running 'forge hlx dataset validate' to check dataset compatibility".to_string();
+        Self::DatasetProcessing { message, suggestion }
+    }
+
+    /// Create a quality validation error
+    pub fn quality_validation(score: f64, issues: Vec<String>) -> Self {
+        let suggestions = vec![
+            "Run 'forge hlx dataset analyze' for detailed quality metrics".to_string(),
+            "Consider filtering or augmenting low-quality samples".to_string(),
+            "Check dataset format and required columns".to_string(),
+        ];
+        Self::QualityValidation { score, issues, suggestions }
+    }
+
+    /// Create a format conversion error
+    pub fn format_conversion(from: impl Into<String>, to: impl Into<String>) -> Self {
+        let from = from.into();
+        let to = to.into();
+        let suggestion = format!("Ensure your dataset contains the required fields for {} format", to);
+        Self::FormatConversion { from, to, suggestion }
+    }
+
+    /// Create an unsupported algorithm error
+    pub fn unsupported_algorithm(algorithm: impl Into<String>) -> Self {
+        let algorithm = algorithm.into();
+        let supported = vec!["bco", "dpo", "ppo", "sft"]
+            .into_iter()
+            .map(String::from)
+            .collect();
+        Self::UnsupportedAlgorithm { algorithm, supported }
+    }
+
+    /// Create a dataset not found error
+    pub fn dataset_not_found(path: PathBuf) -> Self {
+        let suggestion = format!("Ensure the dataset file exists at: {}", path.display());
+        Self::DatasetNotFound { path, suggestion }
+    }
+
+    /// Get recovery suggestions for this error
+    pub fn suggestions(&self) -> Vec<String> {
+        match self {
+            Self::ConfigConversion { suggestion, .. } => vec![suggestion.clone()],
+            Self::DatasetProcessing { suggestion, .. } => vec![suggestion.clone()],
+            Self::QualityValidation { suggestions, .. } => suggestions.clone(),
+            Self::FormatConversion { suggestion, .. } => vec![suggestion.clone()],
+            Self::UnsupportedAlgorithm { supported, .. } => {
+                vec![format!("Supported algorithms: {}", supported.join(", "))]
+            }
+            Self::DatasetNotFound { suggestion, .. } => vec![suggestion.clone()],
+            Self::HlxProcessing { suggestion, .. } => vec![suggestion.clone()],
+            Self::ForgeIntegration { suggestion, .. } => vec![suggestion.clone()],
+            Self::ConfigValidation { suggestion, .. } => vec![suggestion.clone()],
+        }
+    }
+
+    /// Check if this error is recoverable
+    pub fn is_recoverable(&self) -> bool {
+        match self {
+            Self::ConfigConversion { .. } => true,
+            Self::DatasetProcessing { .. } => true,
+            Self::QualityValidation { score, .. } => *score > 0.3, // Recoverable if quality isn't terrible
+            Self::FormatConversion { .. } => true,
+            Self::UnsupportedAlgorithm { .. } => false,
+            Self::DatasetNotFound { .. } => false,
+            Self::HlxProcessing { .. } => true,
+            Self::ForgeIntegration { .. } => true,
+            Self::ConfigValidation { .. } => true,
+        }
+    }
+}
+
+/// Result type for HLX operations
+pub type HlxResult<T> = std::result::Result<T, HlxError>;
+
 #[derive(Debug)]
 pub enum HelixError {
     Lexer(LexerError),

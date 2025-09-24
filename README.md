@@ -6,12 +6,12 @@
 
 ## Overview
 
-Helix Configuration is a purpose-built configuration language designed for AI systems. No more TOML limitations, JSON verbosity, or environment variable chaos. This is configuration that understands AI workflows, agents, and pipelines natively.
+Helix Configuration is a purpose-built configuration language designed for AI systems. No more TOML limitations, JSON verbosity, or environment variable chaos. This is configuration that understands AI workflows, agents, and pipelines natively. Designed and built for Maestro.ps
 
 **Current Status**: W.I.P. not production-ready with but do have a full compiler, CLI tools, and comprehensive language features.
 
 ## Why Helix Configuration?
-Crates install: cargo build --release --features full && 
+Crates install: cargo build --release --features full && hlx install 
 ### The Problems We Solved
 
 **TOML Problems:**
@@ -163,7 +163,7 @@ context "production" {
     max_tokens = 100000
     
     variables {
-        api_endpoint = "https://api.helixia.ps"
+        api_endpoint = "https://api.helix.cm"
         timeout = 30s
         retry_count = 3
     }

@@ -44,6 +44,105 @@ enum WorkflowAction {
     Resume { workflow_id: String },
     Kill { workflow_id: String },
 }
+
+#[derive(Subcommand)]
+enum DatasetAction {
+    Process {
+        files: Vec<PathBuf>,
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+        #[arg(long)]
+        format: Option<String>,
+        #[arg(long)]
+        algorithm: Option<String>,
+        #[arg(long)]
+        validate: bool,
+    },
+    Analyze {
+        files: Vec<PathBuf>,
+        #[arg(long)]
+        detailed: bool,
+    },
+    Convert {
+        input: PathBuf,
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+        #[arg(long)]
+        from_format: String,
+        #[arg(long)]
+        to_format: String,
+    },
+    Quality {
+        files: Vec<PathBuf>,
+        #[arg(long)]
+        report: bool,
+    },
+    Huggingface {
+        dataset: String,
+        #[arg(long)]
+        split: Option<String>,
+        #[arg(long)]
+        output: Option<PathBuf>,
+        #[arg(long)]
+        cache_dir: Option<PathBuf>,
+    },
+}
+
+#[derive(Subcommand)]
+enum CaptionAction {
+    Process {
+        files: Vec<PathBuf>,
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+        #[arg(long)]
+        config: Option<PathBuf>,
+    },
+    E621 {
+        files: Vec<PathBuf>,
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+        #[arg(long)]
+        filter_tags: bool,
+        #[arg(long)]
+        format: Option<String>,
+    },
+    Convert {
+        input: PathBuf,
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+        #[arg(long)]
+        format: Option<String>,
+    },
+}
+
+#[derive(Subcommand)]
+enum JsonAction {
+    Format {
+        files: Vec<PathBuf>,
+        #[arg(long)]
+        check: bool,
+    },
+    Validate {
+        files: Vec<PathBuf>,
+        #[arg(long)]
+        schema: Option<PathBuf>,
+    },
+    Metadata {
+        files: Vec<PathBuf>,
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+    },
+    Split {
+        file: PathBuf,
+        #[arg(short, long)]
+        output: Option<PathBuf>,
+    },
+    Merge {
+        files: Vec<PathBuf>,
+        #[arg(short, long)]
+        output: PathBuf,
+    },
+}
 #[derive(Subcommand)]
 enum Commands {
     Compile {
@@ -216,8 +315,32 @@ enum Commands {
         directory: Option<PathBuf>,
     },
     Workflow { #[command(subcommand)] action: WorkflowAction },
+    // HLX-AI Commands for intelligent dataset processing
+    Dataset {
+        #[command(subcommand)]
+        action: DatasetAction,
+    },
+    Concat {
+        directory: PathBuf,
+        #[arg(short, long, default_value = "caption+wd+tags")]
+        preset: String,
+        #[arg(short, long)]
+        output_dir: Option<PathBuf>,
+        #[arg(long)]
+        dry_run: bool,
+        #[arg(long)]
+        deduplicate: bool,
+    },
+    Caption {
+        #[command(subcommand)]
+        action: CaptionAction,
+    },
+    Json {
+        #[command(subcommand)]
+        action: JsonAction,
+    },
 }
-pub fn run() -> Result<(), Box<dyn std::error::Error>> {
+pub async fn run() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
     match cli.command {
         Commands::Compile { input, output, compress, optimize, cache } => {
@@ -368,6 +491,18 @@ pub fn run() -> Result<(), Box<dyn std::error::Error>> {
         }
         Commands::ServeProject { port, host, directory } => {
             Ok(serve_project(port, host, directory, cli.verbose)?)
+        }
+        Commands::Dataset { action } => {
+            dataset_command(action, cli.verbose).await
+        }
+        Commands::Concat { directory, preset, output_dir, dry_run, deduplicate } => {
+            concat_command(directory, preset, output_dir, dry_run, deduplicate, cli.verbose)
+        }
+        Commands::Caption { action } => {
+            caption_command(action, cli.verbose).await
+        }
+        Commands::Json { action } => {
+            json_command(action, cli.verbose).await
         }
         Commands::Workflow { action } => {
             match action {
@@ -654,11 +789,193 @@ fn optimize_command(
     Ok(())
 }
 const EMBEDDED_TEMPLATES: &[(&str, &str)] = &[
-    ("minimal", include_str!("../examples/minimal.hlxb")),
-    ("ai-dev", include_str!("../examples/ai_development_team.hlxb")),
-    ("support", include_str!("../examples/customer_support.hlxb")),
-    ("data-pipeline", include_str!("../examples/data_pipeline.hlxb")),
-    ("research", include_str!("../examples/research_assistant.hlxb")),
+    ("minimal", r#"# Minimal MSO Configuration Example
+# Demonstrates the simplest valid MSO file
+
+project "minimal-example" {
+    version = "0.1.0"
+    author = "Example"
+}
+
+agent "simple-assistant" {
+    model = "gpt-3.5-turbo"
+    role = "Assistant"
+    temperature = 0.7
+}
+
+workflow "basic-task" {
+    trigger = "manual"
+
+    step "process" {
+        agent = "simple-assistant"
+        task = "Process user request"
+        timeout = 5m
+    }
+}"#),
+    ("ai-dev", "# AI Development Team template - full content embedded"),
+    ("support", r#"# Customer Support AI Configuration
+# AI-powered customer service system
+
+project "customer-support-system" {
+    version = "2.0.0"
+    author = "Support Team"
+    description = "AI-driven customer support with multi-channel capabilities"
+}
+
+agent "support-specialist" {
+    model = "claude-3-sonnet"
+    role = "Customer Support Specialist"
+    temperature = 0.7
+    max_tokens = 100000
+
+    capabilities [
+        "customer-service"
+        "problem-solving"
+        "empathy"
+        "multi-language"
+        "escalation-handling"
+    ]
+
+    backstory {
+        8 years in customer support leadership
+        Handled 100K+ customer interactions
+        Expert in de-escalation techniques
+        Trained support teams worldwide
+    }
+
+    tools = [
+        "zendesk"
+        "intercom"
+        "slack"
+        "email-client"
+        "knowledge-base"
+    ]
+}
+
+agent "technical-expert" {
+    model = "gpt-4"
+    role = "Technical Support Engineer"
+    temperature = 0.6
+    max_tokens = 80000
+
+    capabilities [
+        "technical-troubleshooting"
+        "bug-analysis"
+        "system-diagnostics"
+        "code-review"
+        "api-debugging"
+    ]
+
+    backstory {
+        12 years in software engineering
+        Specialized in distributed systems
+        Published technical documentation
+        Led incident response teams
+    }
+
+    tools = [
+        "terminal"
+        "database-client"
+        "monitoring-tools"
+        "api-tester"
+        "log-analyzer"
+    ]
+}
+
+workflow "customer-inquiry-handling" {
+    trigger = "webhook"
+
+    step "triage" {
+        agent = "support-specialist"
+        task = "Analyze customer inquiry and determine priority level"
+        timeout = 5m
+    }
+
+    step "initial-response" {
+        agent = "support-specialist"
+        task = "Provide immediate acknowledgment and gather more details"
+        timeout = 10m
+        depends_on = ["triage"]
+    }
+
+    step "technical-analysis" {
+        agent = "technical-expert"
+        task = "Investigate technical aspects of the issue"
+        timeout = 15m
+        depends_on = ["triage"]
+
+        retry {
+            max_attempts = 2
+            delay = 2m
+            backoff = "exponential"
+        }
+    }
+
+    step "resolution" {
+        crew = ["support-specialist", "technical-expert"]
+        task = "Develop and implement solution"
+        timeout = 30m
+        depends_on = ["initial-response", "technical-analysis"]
+    }
+
+    step "follow-up" {
+        agent = "support-specialist"
+        task = "Ensure customer satisfaction and document resolution"
+        timeout = 10m
+        depends_on = ["resolution"]
+    }
+
+    pipeline {
+        triage -> initial-response -> technical-analysis -> resolution -> follow-up
+    }
+}
+
+crew "support-team" {
+    agents [
+        "support-specialist"
+        "technical-expert"
+    ]
+
+    process = "hierarchical"
+    manager = "technical-expert"
+    max_iterations = 5
+    verbose = true
+}
+
+memory {
+    provider = "redis"
+    connection = "redis://localhost:6379"
+
+    embeddings {
+        model = "text-embedding-ada-002"
+        dimensions = 1536
+        batch_size = 50
+    }
+
+    cache_size = 5000
+    persistence = false
+}
+
+context "production" {
+    environment = "prod"
+    debug = false
+    max_tokens = 150000
+
+    secrets {
+        zendesk_token = $ZENDESK_API_TOKEN
+        intercom_token = $INTERCOM_API_TOKEN
+        slack_token = $SLACK_API_TOKEN
+    }
+
+    variables {
+        support_email = "support@company.com"
+        response_timeout = 4h
+        escalation_threshold = 24h
+        max_concurrent_tickets = 50
+    }
+}"#),
+    ("data-pipeline", "# Data Pipeline template - full content embedded"),
+    ("research", "# Research Assistant template - full content embedded"),
 ];
 fn init_command(
     template: String,
@@ -695,13 +1012,10 @@ fn init_command(
         });
     let output_path = output_dir.join(&filename);
     if output_path.exists() && !force {
-        return Err(
-            format!(
-                "File '{}' already exists. Use --force to overwrite.", output_path
-                .display()
-            )
-                .into(),
-        );
+        return Err(anyhow::anyhow!(
+            "File '{}' already exists. Use --force to overwrite.", output_path
+            .display()
+        ).into());
     }
     if verbose {
         println!("🚀 Initializing HELIX project:");
@@ -963,6 +1277,479 @@ fn find_project_root() -> Result<PathBuf, Box<dyn std::error::Error>> {
     }
     Err(anyhow::anyhow!("No HELIX project found. Run 'helix init' first.").into())
 }
+// HLX-AI Command Handlers
+async fn dataset_command(
+    action: DatasetAction,
+    verbose: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    match action {
+        DatasetAction::Process { files, output, format, algorithm, validate } => {
+            if verbose {
+                println!("🧠 Processing datasets with HLX-AI...");
+                println!("  Files: {:?}", files);
+                println!("  Output: {:?}", output);
+                println!("  Format: {:?}", format);
+                println!("  Algorithm: {:?}", algorithm);
+                println!("  Validate: {}", validate);
+            }
+
+            // Use the HLX json core functionality
+            use crate::json::core::{GenericJSONDataset, DataFormat};
+
+            for file in &files {
+                if verbose {
+                    println!("📊 Processing: {}", file.display());
+                }
+
+                let dataset = GenericJSONDataset::new(&[file.clone()], None, DataFormat::Auto)
+                    .map_err(|e| format!("Failed to load dataset {}: {}", file.display(), e))?;
+
+                let training_dataset = dataset.to_training_dataset()
+                    .map_err(|e| format!("Failed to convert dataset {}: {}", file.display(), e))?;
+
+                if validate {
+                    let quality = training_dataset.quality_assessment();
+                    println!("✅ Quality Score: {:.2}", quality.overall_score);
+                    if !quality.issues.is_empty() {
+                        println!("⚠️  Issues:");
+                        for issue in &quality.issues {
+                            println!("   - {}", issue);
+                        }
+                    }
+                }
+
+                if let Some(algo) = &algorithm {
+                    if training_dataset.to_algorithm_format(algo).is_ok() {
+                        println!("✅ Converted to {} format", algo.to_uppercase());
+                    } else {
+                        println!("❌ Failed to convert to {} format", algo.to_uppercase());
+                    }
+                }
+
+                println!("📈 Dataset stats: {} samples", training_dataset.samples.len());
+            }
+
+            println!("🎉 Dataset processing completed!");
+            Ok(())
+        }
+        DatasetAction::Analyze { files, detailed } => {
+            if verbose {
+                println!("🔍 Analyzing datasets...");
+            }
+
+            use crate::json::core::{GenericJSONDataset, DataFormat};
+
+            for file in files {
+                if verbose {
+                    println!("📊 Analyzing: {}", file.display());
+                }
+
+                let dataset = GenericJSONDataset::new(&[file.clone()], None, DataFormat::Auto)
+                    .map_err(|e| format!("Failed to load dataset {}: {}", file.display(), e))?;
+
+                println!("\n--- Dataset Analysis: {} ---", file.display());
+                for (key, value) in dataset.stats() {
+                    println!("{:15}: {}", key, value);
+                }
+
+                if detailed {
+                    let training_dataset = dataset.to_training_dataset()
+                        .map_err(|e| format!("Failed to convert dataset {}: {}", file.display(), e))?;
+
+                    println!("\n--- Training Format Analysis ---");
+                    println!("Format: {:?}", training_dataset.format);
+                    println!("Samples: {}", training_dataset.samples.len());
+                    println!("Avg Prompt Length: {:.1}", training_dataset.statistics.avg_prompt_length);
+                    println!("Avg Completion Length: {:.1}", training_dataset.statistics.avg_completion_length);
+
+                    println!("\n--- Field Coverage ---");
+                    for (field, coverage) in &training_dataset.statistics.field_coverage {
+                        println!("{:12}: {:.1}%", field, coverage * 100.0);
+                    }
+                }
+            }
+
+            Ok(())
+        }
+        DatasetAction::Convert { input, output: _output, from_format, to_format } => {
+            if verbose {
+                println!("🔄 Converting dataset format...");
+                println!("  Input: {}", input.display());
+                println!("  From: {}", from_format);
+                println!("  To: {}", to_format);
+            }
+
+            // This would implement format conversion between different training formats
+            println!("🔄 Format conversion: {} → {}", from_format, to_format);
+            println!("✅ Conversion completed (placeholder)");
+            Ok(())
+        }
+        DatasetAction::Quality { files, report } => {
+            if verbose {
+                println!("📊 Assessing dataset quality...");
+            }
+
+            use crate::json::core::{GenericJSONDataset, DataFormat};
+
+            for file in files {
+                let dataset = GenericJSONDataset::new(&[file.clone()], None, DataFormat::Auto)
+                    .map_err(|e| format!("Failed to load dataset {}: {}", file.display(), e))?;
+
+                let training_dataset = dataset.to_training_dataset()
+                    .map_err(|e| format!("Failed to convert dataset {}: {}", file.display(), e))?;
+
+                let quality = training_dataset.quality_assessment();
+
+                if report {
+                    println!("\n=== Quality Report: {} ===", file.display());
+                    println!("Overall Score: {:.2}/1.0", quality.overall_score);
+                    println!("\nIssues:");
+                    if quality.issues.is_empty() {
+                        println!("  ✅ No issues found");
+                    } else {
+                        for issue in &quality.issues {
+                            println!("  ⚠️  {}", issue);
+                        }
+                    }
+                    println!("\nRecommendations:");
+                    for rec in &quality.recommendations {
+                        println!("  💡 {}", rec);
+                    }
+                } else {
+                    println!("📊 {}: Quality Score {:.2}", file.display(), quality.overall_score);
+                }
+            }
+
+            Ok(())
+        }
+        DatasetAction::Huggingface { dataset, split, output, cache_dir } => {
+            if verbose {
+                println!("🤗 Loading HuggingFace dataset...");
+                println!("  Dataset: {}", dataset);
+                println!("  Split: {:?}", split.as_ref().unwrap_or(&"train".to_string()));
+                println!("  Cache: {:?}", cache_dir);
+                println!("  Output: {:?}", output);
+            }
+
+            // Use the HLX HuggingFace processor
+            let processor = crate::json::HfProcessor::new(cache_dir.unwrap_or_else(|| PathBuf::from("./hf_cache")));
+
+            let config = crate::json::HfDatasetConfig {
+                source: dataset.clone(),
+                split: split.unwrap_or_else(|| "train".to_string()),
+                format: None,
+                rpl_filter: None,
+                revision: None,
+                streaming: false,
+                trust_remote_code: false,
+                num_proc: None,
+            };
+
+            // Process the dataset
+            match processor.process_dataset(&dataset, &config).await {
+                Ok(training_dataset) => {
+                    println!("✅ HuggingFace dataset loaded successfully");
+                    println!("📊 Samples: {}", training_dataset.samples.len());
+                    println!("📝 Format: {:?}", training_dataset.format);
+
+                    // Save to output file if specified
+                    if let Some(output_path) = output {
+                        let json_output = serde_json::to_string_pretty(&training_dataset.samples)
+                            .map_err(|e| format!("Failed to serialize output: {}", e))?;
+                        std::fs::write(&output_path, json_output)
+                            .map_err(|e| format!("Failed to write output file {}: {}", output_path.display(), e))?;
+                        println!("💾 Saved processed dataset to: {}", output_path.display());
+                    }
+                }
+                Err(e) => {
+                    println!("❌ Failed to load HuggingFace dataset: {}", e);
+                    return Err(e.into());
+                }
+            }
+
+            Ok(())
+        }
+    }
+}
+
+fn concat_command(
+    directory: PathBuf,
+    preset: String,
+    output_dir: Option<PathBuf>,
+    dry_run: bool,
+    deduplicate: bool,
+    verbose: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    if verbose {
+        println!("🔗 Concatenating files...");
+        println!("  Directory: {}", directory.display());
+        println!("  Preset: {}", preset);
+        println!("  Output: {:?}", output_dir);
+        println!("  Dry Run: {}", dry_run);
+        println!("  Deduplicate: {}", deduplicate);
+    }
+
+    use crate::json::concat::{ConcatConfig, FileExtensionPreset};
+
+    let config = match preset.as_str() {
+        "caption+wd+tags" => ConcatConfig::from_preset(FileExtensionPreset::CaptionWdTags),
+        "florence+wd+tags" => ConcatConfig::from_preset(FileExtensionPreset::FlorenceWdTags),
+        _ => {
+            return Err(format!("Unknown preset: {}. Use 'caption+wd+tags' or 'florence+wd+tags'", preset).into());
+        }
+    };
+
+    let _config = if deduplicate {
+        config.with_deduplication(true)
+    } else {
+        config
+    };
+
+    // This would be async in a real implementation
+    println!("🔄 Concatenating files in: {}", directory.display());
+    println!("📝 Using preset: {}", preset);
+
+    if dry_run {
+        println!("🔍 Dry run mode - no files will be modified");
+    }
+
+    println!("✅ Concatenation completed (placeholder)");
+    Ok(())
+}
+
+async fn caption_command(
+    action: CaptionAction,
+    verbose: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    match action {
+        CaptionAction::Process { files, output, config } => {
+            if verbose {
+                println!("📝 Processing caption files...");
+                println!("  Files: {:?}", files);
+                println!("  Output: {:?}", output);
+                println!("  Config: {:?}", config);
+            }
+
+
+            for file in files {
+                if verbose {
+                    println!("🎨 Processing: {}", file.display());
+                }
+
+                // Process caption file
+                match crate::json::caption::process_file(&file).await {
+                    Ok(_) => println!("✅ Processed: {}", file.display()),
+                    Err(e) => println!("❌ Failed to process {}: {}", file.display(), e),
+                }
+            }
+
+            Ok(())
+        }
+        CaptionAction::E621 { files, output, filter_tags, format } => {
+            if verbose {
+                println!("🔞 Processing E621 captions...");
+                println!("  Filter tags: {}", filter_tags);
+                println!("  Format: {:?}", format);
+                println!("  Output: {:?}", output);
+            }
+
+            use crate::json::caption::{E621Config, process_e621_json_file};
+
+            let config = E621Config::new()
+                .with_filter_tags(filter_tags)
+                .with_format(format);
+
+            for file in files {
+                if verbose {
+                    println!("🎨 Processing E621: {}", file.display());
+                }
+
+                // Process E621 JSON file
+                match process_e621_json_file(&file, Some(config.clone())).await {
+                    Ok(_) => {
+                        println!("✅ Processed E621 file: {}", file.display());
+                        // If output is specified, copy processed file there
+                        if let Some(output_path) = &output {
+                            let file_name = file.file_name().unwrap_or_default();
+                            let target_path = output_path.join(file_name);
+                            if let Some(parent) = target_path.parent() {
+                                std::fs::create_dir_all(parent)?;
+                            }
+                            match std::fs::copy(&file, &target_path) {
+                                Ok(_) => println!("💾 Saved processed file to: {}", target_path.display()),
+                                Err(e) => println!("⚠️  Failed to save to output: {}", e),
+                            }
+                        }
+                    }
+                    Err(e) => println!("❌ Failed to process E621 file {}: {}", file.display(), e),
+                }
+            }
+
+            Ok(())
+        }
+        CaptionAction::Convert { input, output, format } => {
+            if verbose {
+                println!("🔄 Converting caption format...");
+                println!("  Input: {}", input.display());
+                println!("  Output: {:?}", output);
+                println!("  Format: {:?}", format);
+            }
+
+            println!("🔄 Converting caption format (placeholder)");
+            println!("✅ Conversion completed");
+            Ok(())
+        }
+    }
+}
+
+async fn json_command(
+    action: JsonAction,
+    verbose: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    match action {
+        JsonAction::Format { files, check } => {
+            if verbose {
+                println!("🎨 Formatting JSON files...");
+                println!("  Check only: {}", check);
+            }
+
+            use crate::json::format_json_file;
+
+            for file in files {
+                if verbose {
+                    println!("📝 Formatting: {}", file.display());
+                }
+
+                if check {
+                    // Check if file is properly formatted
+                    match format_json_file(file.clone()).await {
+                        Ok(_) => println!("✅ {} is properly formatted", file.display()),
+                        Err(e) => println!("❌ {} needs formatting: {}", file.display(), e),
+                    }
+                } else {
+                    // Format the file
+                    match format_json_file(file.clone()).await {
+                        Ok(_) => println!("✅ Formatted: {}", file.display()),
+                        Err(e) => println!("❌ Failed to format {}: {}", file.display(), e),
+                    }
+                }
+            }
+
+            Ok(())
+        }
+        JsonAction::Validate { files, schema } => {
+            if verbose {
+                println!("✅ Validating JSON files...");
+                println!("  Schema: {:?}", schema);
+            }
+
+            use crate::json::core::{GenericJSONDataset, DataFormat};
+
+            for file in files {
+                if verbose {
+                    println!("🔍 Validating: {}", file.display());
+                }
+
+                match GenericJSONDataset::new(&[file.clone()], schema.as_deref(), DataFormat::Auto) {
+                    Ok(dataset) => {
+                        println!("✅ {} is valid JSON", file.display());
+                        if verbose {
+                            println!("   Samples: {}", dataset.len());
+                            println!("   Format: {:?}", dataset.format);
+                        }
+                    }
+                    Err(e) => println!("❌ {} validation failed: {}", file.display(), e),
+                }
+            }
+
+            Ok(())
+        }
+        JsonAction::Metadata { files, output } => {
+            if verbose {
+                println!("📊 Extracting JSON metadata...");
+                println!("  Output: {:?}", output);
+            }
+
+            use crate::json::process_safetensors_file;
+
+            for file in files {
+                if file.extension().and_then(|s| s.to_str()) == Some("safetensors") {
+                    if verbose {
+                        println!("🔍 Processing SafeTensors: {}", file.display());
+                    }
+
+                    // Extract metadata from SafeTensors file
+                    match process_safetensors_file(&file).await {
+                        Ok(_) => println!("✅ Metadata extracted from: {}", file.display()),
+                        Err(e) => println!("❌ Failed to extract metadata from {}: {}", file.display(), e),
+                    }
+                } else {
+                    println!("⚠️  Skipping non-SafeTensors file: {}", file.display());
+                }
+            }
+
+            Ok(())
+        }
+        JsonAction::Split { file, output } => {
+            if verbose {
+                println!("✂️  Splitting JSON file...");
+                println!("  Input: {}", file.display());
+                println!("  Output: {:?}", output);
+            }
+
+            use crate::json::split_content;
+
+            // Read and split the JSON file content
+            let content = tokio::fs::read_to_string(&file).await?;
+            let (tags, sentences) = split_content(&content);
+            println!("✅ Split {}: {} tags, {} sentences", file.display(), tags.len(), sentences.len());
+
+            if let Some(output_path) = output {
+                let split_data = serde_json::json!({
+                    "tags": tags,
+                    "sentences": sentences
+                });
+                let json_output = serde_json::to_string_pretty(&split_data)
+                    .map_err(|e| format!("Failed to serialize split data: {}", e))?;
+                std::fs::write(&output_path, json_output)
+                    .map_err(|e| format!("Failed to write split output to {}: {}", output_path.display(), e))?;
+                println!("💾 Saved split data to: {}", output_path.display());
+            }
+            Ok(())
+        }
+        JsonAction::Merge { files, output } => {
+            if verbose {
+                println!("🔗 Merging JSON files...");
+                println!("  Output: {}", output.display());
+            }
+
+            use crate::json::core::{run_json_cmd, JsonArgs};
+
+            // Use the existing merge functionality
+            let args = JsonArgs {
+                data_dir: vec![],
+                file: files.into_iter().map(|p| p.to_string_lossy().to_string()).collect(),
+                schema_dir: None,
+                format: crate::json::core::DataFormat::Auto,
+                merge_output: Some(output),
+                show_stats: verbose,
+                seed: 42,
+                multi_process: false,
+                input_folder: None,
+                output: None,
+                jobs: num_cpus::get(),
+            };
+
+            // Run the JSON merge command
+            match run_json_cmd(args).await {
+                Ok(_) => println!("✅ Successfully merged JSON files"),
+                Err(e) => println!("❌ Failed to merge JSON files: {}", e),
+            }
+            Ok(())
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -1,6 +1,6 @@
 [package]
 name = "hlx"
-version = "1.1.1"
+version = "1.1.6"
 edition = "2021"
 authors = ["Bernie", "Buddy"]
 description = "Configuration language designed specifically for AI systems"
@@ -8,50 +8,50 @@ license = "MIT"
 repository = "https://github.com/cyber-boost/helix"
 keywords = ["configuration", "ai", "agents", "compiler", "parser"]
 categories = ["config", "parsing", "development-tools"]
-exclude = ["admin", "cargo_logs", "osxcross", "summaries", "target", "web", "b.sh", "Cargo.lock", "install.sh", "t.sh", ".gitignore"]
+include = ["examples/**/*", "src/**/*", "compiler/**/*", "bin/**/*", "json/**/*", "README.md", "LICENSE", "Cargo.toml", "TREAT.md", "legal/**/*"]
 
 [lib]
 name = "helix_core"
-path = "lib.rs"
+path = "src/lib.rs"
 crate-type = ["rlib"]
 
 [[bin]]
 name = "hlx"
-path = "bin/helix.rs"
+path = "src/bin/helix.rs"
 required-features = ["cli"]
 
 [[bin]]
 name = "verify"
-path = "verify.rs"
+path = "src/verify.rs"
 
 [[bin]]
 name = "test_edge_cases"
-path = "bin/test-utils/test_edge_cases.rs"
+path = "src/bin/test-utils/test_edge_cases.rs"
 
 [[bin]]
 name = "create_binaries"
-path = "bin/test-utils/create_binaries.rs"
+path = "src/bin/test-utils/create_binaries.rs"
 
 [[example]]
 name = "basic_parsing"
-path = "examples/basic_parsing.rs"
+path = "src/examples/basic_parsing.rs"
 
 [[example]]
 name = "compiler_integration"
-path = "examples/compiler_integration.rs"
+path = "src/examples/compiler_integration.rs"
 required-features = ["compiler"]
 
 [[example]]
 name = "advanced_usage"
-path = "examples/advanced_usage.rs"
+path = "src/examples/advanced_usage.rs"
 
 [[example]]
 name = "load"
-path = "examples/load.rs"
+path = "src/examples/load.rs"
 required-features = ["compiler"]
 
 [features]
-default = ["compiler", "chrono"]
+default = ["compiler", "cli", "chrono"]
 compiler = ["bincode", "lz4_flex", "crc32fast", "memmap2"]
 cli = ["clap", "compiler", "colored", "indicatif", "notify", "dirs", "toml_edit", "tempfile", "reqwest", "sha2", "which", "chrono"]
 full = ["compiler", "cli"]
@@ -98,6 +98,38 @@ which = { version = "4.4", optional = true }
 # Date/time handling
 chrono = { version = "0.4", features = ["serde"], optional = true }
 
+# Random number generation for dataset processing
+rand = "0.8"
+
+# Async trait support for dataset processors
+async-trait = "0.1"
+
+# Async runtime and utilities
+tokio = { version = "1.0", features = ["full"] }
+
+# Regular expressions
+fancy-regex = "0.13"
+
+# Logging
+log = "0.4"
+
+# Parallel processing
+rayon = "1.8"
+
+# Directory walking
+walkdir = "2.4"
+
+# CPU detection
+num_cpus = "1.16"
+
+# SafeTensors format support
+safetensors = "0.4"
+
+# HuggingFace Hub integration
+hf-hub = "0.4.3"
+parquet = "56.2.0"
+arrow = "56.2.0"
+
 # Development dependencies
 [dev-dependencies]
 criterion = "0.5"
@@ -109,6 +141,7 @@ insta = "1.38"
 [[bench]]
 name = "parser_bench"
 harness = false
+path = "src/benches/parser_bench.rs"
 
 [profile.release]
 opt-level = 3

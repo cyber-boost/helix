@@ -4,7 +4,9 @@ mod ast;
 mod semantic;
 mod codegen;
 mod types;
+pub mod json;
 pub mod error;
+pub mod hlx;
 pub mod server;
 #[cfg(test)]
 mod tests;
@@ -33,6 +35,7 @@ pub use codegen::{CodeGenerator, HelixIR};
 #[cfg(feature = "compiler")]
 pub use compiler::optimizer::OptimizationLevel;
 pub use types::HelixLoader;
+pub use server::{HelixServer, ServerConfig};
 use std::path::Path;
 pub fn parse(source: &str) -> Result<HelixAst, ParseError> {
     parse_with_locations(source).or_else(|_| parse_legacy(source))
@@ -134,3 +137,4 @@ pub use compiler::{
 };
 #[cfg(feature = "cli")]
 pub use compiler::workflow::watch::{HelixWatcher, CompileWatcher, HotReloadManager};
+pub use hlx::{HlxDatasetProcessor, HlxBridge, DatasetConfig, ValidationResult, CacheStats};

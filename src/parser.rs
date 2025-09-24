@@ -296,32 +296,45 @@ impl Parser {
         let mut ast = HelixAst::new();
         while self.current_token() != &Token::Eof {
             self.skip_newlines();
-            if let Token::Keyword(keyword) = self.current_token().clone() {
-                self.recovery_points.push(self.current);
-                match self.parse_declaration(keyword.clone()) {
-                    Ok(decl) => {
-                        ast.add_declaration(decl);
-                        self.recovery_points.pop();
-                    }
-                    Err(err) => {
-                        self.add_error(
-                            err.clone(),
-                            Some(format!("valid {:?} declaration", keyword)),
-                        );
-                        self.recover_to_next_declaration();
-                        self.recovery_points.pop();
+            let current_token = self.current_token().clone();
+            match current_token {
+                Token::Keyword(keyword) => {
+                    self.recovery_points.push(self.current);
+                    match self.parse_declaration(keyword.clone()) {
+                        Ok(decl) => {
+                            ast.add_declaration(decl);
+                            self.recovery_points.pop();
+                        }
+                        Err(err) => {
+                            self.add_error(
+                                err.clone(),
+                                Some(format!("valid {:?} declaration", keyword)),
+                            );
+                            self.recover_to_next_declaration();
+                            self.recovery_points.pop();
+                        }
                     }
                 }
-            } else {
-                match self.current_token() {
-                    Token::Eof => break,
-                    _ => {
-                        self.add_error(
-                            format!("Unexpected token: {:?}", self.current_token()),
-                            Some("declaration keyword".to_string()),
-                        );
-                        self.recover_to_next_declaration();
-                    }
+                Token::Identifier(section_name) => {
+                    // Handle arbitrary identifiers as section declarations
+                    self.recovery_points.push(self.current);
+                    self.advance(); // consume the identifier
+                    self.expect(Token::LeftBrace)?;
+                    let properties = self.parse_properties()?;
+                    self.expect(Token::RightBrace)?;
+                    ast.add_declaration(Declaration::Section(SectionDecl {
+                        name: section_name.clone(),
+                        properties,
+                    }));
+                    self.recovery_points.pop();
+                }
+                Token::Eof => break,
+                _ => {
+                    self.add_error(
+                        format!("Unexpected token: {:?}", current_token),
+                        Some("declaration keyword or identifier".to_string()),
+                    );
+                    self.recover_to_next_declaration();
                 }
             }
             self.skip_newlines();

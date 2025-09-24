@@ -204,7 +204,7 @@ fn create_default_config() -> Result<GlobalConfig> {
             target_platform: "native".to_string(),
         },
         registry: RegistryConfig {
-            default_registry: "https://registry.helix.dev".to_string(),
+            default_registry: "https://registry.helix.cm".to_string(),
             auth_token: None,
             timeout: 30,
             retry_count: 3,

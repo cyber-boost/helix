@@ -1,0 +1,23 @@
+# Minimal MSO Configuration Example
+# Demonstrates the simplest valid MSO file
+
+project "minimal-example" {
+    version = "0.1.0"
+    author = "Example"
+}
+
+agent "simple-assistant" {
+    model = "gpt-3.5-turbo"
+    role = "Assistant"
+    temperature = 0.7
+}
+
+workflow "basic-task" {
+    trigger = "manual"
+
+    step "process" {
+        agent = "simple-assistant"
+        task = "Process user request"
+        timeout = 5m
+    }
+}

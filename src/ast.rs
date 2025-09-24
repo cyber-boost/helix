@@ -16,6 +16,8 @@ pub enum Declaration {
     Plugin(PluginDecl),
     Database(DatabaseDecl),
     Load(LoadDecl),
+    // Generic section declaration for dynamic sections like forge, model, tokenizer, etc.
+    Section(SectionDecl),
 }
 #[derive(Debug, Clone)]
 pub struct ProjectDecl {
@@ -241,6 +243,7 @@ impl AstPrettyPrinter {
             Declaration::Plugin(p) => self.print_plugin(p),
             Declaration::Database(d) => self.print_database(d),
             Declaration::Load(l) => self.print_load(l),
+            Declaration::Section(s) => self.print_section(s),
         }
     }
     fn print_project(&mut self, project: &ProjectDecl) -> String {
@@ -623,6 +626,22 @@ impl AstPrettyPrinter {
         result.push_str(&format!("{}}}\n", self.write_indent()));
         result
     }
+    fn print_section(&mut self, section: &SectionDecl) -> String {
+        let mut result = format!("{}{} {{\n", self.write_indent(), section.name);
+        self.indent += 1;
+        for (key, value) in &section.properties {
+            result
+                .push_str(
+                    &format!(
+                        "{}{} = {}\n", self.write_indent(), key, self
+                        .print_expression(value)
+                    ),
+                );
+        }
+        self.indent -= 1;
+        result.push_str(&format!("{}}}\n", self.write_indent()));
+        result
+    }
     fn print_pipeline(&mut self, pipeline: &PipelineDecl) -> String {
         let mut result = format!("{}pipeline {{\n", self.write_indent());
         self.indent += 1;
@@ -738,6 +757,14 @@ impl Expression {
         }
     }
 }
+
+// Generic section declaration for dynamic sections
+#[derive(Debug, Clone)]
+pub struct SectionDecl {
+    pub name: String,
+    pub properties: HashMap<String, Expression>,
+}
+
 #[allow(dead_code)]
 pub struct AstBuilder {
     ast: HelixAst,

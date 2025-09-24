@@ -1,0 +1,140 @@
+
+# Comprehensive MSO Example - All Features
+project "comprehensive-ai-system" {
+    version = "1.0.0"
+    author = "MSO Language Team"
+    description = "Demonstrates all MSO Language features"
+}
+
+agent "senior-rust-engineer" {
+    model = "claude-3-opus"
+    temperature = 0.3
+    timeout = 45m
+    max_tokens = 8000
+    
+    capabilities [
+        "rust-programming"
+        "system-architecture"
+        "performance-optimization" 
+        "security-analysis"
+    ]
+    
+    backstory {
+        role = "Senior Software Engineer"
+        experience = "15+ years in systems programming"
+        expertise = ["rust", "distributed-systems", "compilers"]
+        specialization = "High-performance backend systems"
+    }
+}
+
+agent "ai-researcher" {
+    model = "claude-3-opus"
+    temperature = 0.7
+    timeout = 30m
+    
+    capabilities [
+        "machine-learning"
+        "research-analysis"
+        "paper-review"
+        "algorithm-design"
+    ]
+}
+
+memory "codebase-knowledge" {
+    type = "vector"
+    provider = "chroma"
+    embeddings = "openai-ada-002"
+    
+    collections {
+        "rust-code" = {
+            path = "./src"
+            patterns = ["*.rs"]
+            chunk_size = 1000
+        }
+        "documentation" = {
+            path = "./docs"
+            patterns = ["*.md", "*.txt"]
+        }
+    }
+}
+
+context "development" {
+    secrets {
+        "openai-api-key" = $OPENAI_API_KEY
+        "github-token" = $GITHUB_TOKEN
+        "database-url" = $DEV_DATABASE_URL
+    }
+    
+    memory = "codebase-knowledge"
+    logging = true
+    debug = true
+}
+
+workflow "code-review-and-optimize" {
+    trigger = "pull-request"
+    timeout = 60m
+    
+    step "security-review" {
+        agent = "senior-rust-engineer"
+        task = "Review code for security vulnerabilities and unsafe practices"
+        timeout = 20m
+    }
+    
+    step "performance-analysis" {
+        agent = "senior-rust-engineer" 
+        task = "Analyze performance bottlenecks and suggest optimizations"
+        depends_on = ["security-review"]
+        timeout = 25m
+    }
+    
+    step "research-validation" {
+        agent = "ai-researcher"
+        task = "Validate algorithms against current research"
+        depends_on = ["security-review"]
+        timeout = 15m
+    }
+    
+    retry {
+        max_attempts = 3
+        delay = 5m
+        exponential_backoff = true
+    }
+}
+
+pipeline "ml-data-processing" {
+    input = "raw-data"
+    
+    stage "preprocessing" {
+        agent = "ai-researcher"
+        parallel = true
+        batch_size = 1000
+    }
+    
+    stage "feature-extraction" {
+        agent = "ai-researcher"
+        depends_on = ["preprocessing"]
+    }
+    
+    stage "validation" {
+        agent = "senior-rust-engineer"
+        depends_on = ["feature-extraction"]
+    }
+    
+    output = "processed-data"
+}
+
+crew "engineering-research-team" {
+    agents [
+        "senior-rust-engineer"
+        "ai-researcher"
+    ]
+    
+    process = "hierarchical"
+    manager = "senior-rust-engineer"
+    
+    context = "development"
+    memory = "codebase-knowledge"
+    
+    max_iterations = 10
+    consensus_threshold = 0.8
+}

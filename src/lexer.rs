@@ -51,6 +51,8 @@ pub enum Keyword {
     Parallel,
     Timeout,
     Load,
+    // Dynamic section keywords - these are handled generically
+    Section,
 }
 #[derive(Debug, Clone, PartialEq)]
 pub enum TimeUnit {
@@ -195,14 +197,16 @@ impl<'a> Lexer<'a> {
     fn read_number(&mut self) -> f64 {
         let mut num_str = String::new();
         while let Some(ch) = self.current_char {
-            if ch.is_numeric() || ch == '.' {
+            if ch.is_numeric() || ch == '.' || ch == '_' {
                 num_str.push(ch);
                 self.advance();
             } else {
                 break;
             }
         }
-        num_str.parse().unwrap_or(0.0)
+        // Remove underscores for parsing
+        let clean_num_str = num_str.replace('_', "");
+        clean_num_str.parse().unwrap_or(0.0)
     }
     fn read_identifier(&mut self) -> String {
         let mut ident = String::new();

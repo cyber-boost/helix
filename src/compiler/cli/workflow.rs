@@ -1,5 +1,9 @@
 use std::path::PathBuf;
 use anyhow::Result;
+#[cfg(feature = "cli")]
+use std::sync::mpsc::channel;
+
+#[allow(dead_code)]
 pub fn watch_command(
     directory: PathBuf,
     output: Option<PathBuf>,
@@ -13,8 +17,72 @@ pub fn watch_command(
         }
         println!("  Optimization: {}", optimize);
     }
-    println!("Press Ctrl+C to stop");
-    println!("Watch mode not yet implemented");
+
+    #[cfg(feature = "cli")]
+    {
+        use notify::{Config, RecommendedWatcher, RecursiveMode, Watcher};
+
+        println!("Press Ctrl+C to stop");
+
+        let (tx, rx) = channel();
+
+        let mut watcher = RecommendedWatcher::new(tx, Config::default())?;
+        watcher.watch(&directory, RecursiveMode::Recursive)?;
+
+        println!("✅ Watching for changes in: {}", directory.display());
+
+        loop {
+            match rx.recv() {
+                Ok(event) => {
+                    if verbose {
+                        println!("📁 File change detected: {:?}", event);
+                    }
+
+                    // Find and compile HLX files
+                    if let Err(e) = compile_changed_files(&directory, &output, optimize, verbose) {
+                        eprintln!("❌ Compilation error: {}", e);
+                    }
+                }
+                Err(e) => {
+                    eprintln!("❌ Watch error: {}", e);
+                    break;
+                }
+            }
+        }
+    }
+
+    #[cfg(not(feature = "cli"))]
+    {
+        println!("Watch mode requires CLI feature");
+    }
+
+    Ok(())
+}
+
+#[cfg(feature = "cli")]
+#[allow(dead_code)]
+fn compile_changed_files(
+    directory: &PathBuf,
+    _output: &Option<PathBuf>,
+    _optimize: u8,
+    verbose: bool,
+) -> Result<()> {
+    use walkdir::WalkDir;
+
+    for entry in WalkDir::new(directory).into_iter().filter_map(|e| e.ok()) {
+        if let Some(ext) = entry.path().extension() {
+            if ext == "hlx" {
+                if verbose {
+                    println!("🔨 Compiling: {}", entry.path().display());
+                }
+
+                // Here we would call the compile function
+                // For now, just log that we would compile
+                println!("✅ Would compile: {}", entry.path().display());
+            }
+        }
+    }
+
     Ok(())
 }
 pub fn start_hot_reload(

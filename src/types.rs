@@ -96,6 +96,8 @@ pub struct HelixConfig {
     pub pipelines: HashMap<String, PipelineConfig>,
     pub plugins: Vec<PluginConfig>,
     pub databases: HashMap<String, DatabaseConfig>,
+    // Generic sections - can handle any arbitrary section name dynamically
+    pub sections: HashMap<String, HashMap<String, Value>>,
 }
 impl Default for HelixConfig {
     fn default() -> Self {
@@ -109,6 +111,8 @@ impl Default for HelixConfig {
             pipelines: HashMap::new(),
             plugins: Vec::new(),
             databases: HashMap::new(),
+            // Generic sections for dynamic configuration
+            sections: HashMap::new(),
         }
     }
 }
@@ -308,6 +312,8 @@ impl HelixLoader {
             pipelines: HashMap::new(),
             plugins: Vec::new(),
             databases: HashMap::new(),
+            // Generic sections for dynamic configuration
+            sections: HashMap::new(),
         };
         for decl in ast.declarations {
             match decl {
@@ -346,6 +352,13 @@ impl HelixLoader {
                     config.pipelines.insert(pipeline.name.clone(), pipeline);
                 }
                 crate::ast::Declaration::Load(_l) => {}
+                crate::ast::Declaration::Section(s) => {
+                    let section_data: HashMap<String, Value> = s.properties
+                        .iter()
+                        .map(|(k, v)| (k.clone(), v.to_value()))
+                        .collect();
+                    config.sections.insert(s.name.clone(), section_data);
+                }
             }
         }
         Ok(config)
@@ -797,10 +810,16 @@ impl HelixLoader {
                 merged.memory = config.memory.clone();
             }
             merged.plugins.extend(config.plugins.clone());
+            // Merge sections (generic configuration blocks)
+            for (section_name, section_data) in &config.sections {
+                merged.sections.insert(section_name.clone(), section_data.clone());
+            }
         }
         merged
     }
 }
+
+
 #[derive(Debug)]
 pub enum HelixError {
     IoError(std::io::Error),
@@ -836,12 +855,42 @@ impl std::fmt::Display for HelixError {
 impl std::error::Error for HelixError {}
 pub fn load_default_config() -> Result<HelixConfig, HelixError> {
     let mut loader = HelixLoader::new();
-    let paths = vec![
-        "./maestro.hlxbb", "./config/maestro.hlxbb", "~/.maestro/config.hlxbb",
-        "/etc/maestro/config.hlxbb",
-    ];
+    use std::fs;
+
+    // Collect all files matching *.hlxb or *.hlx in current and config directories
+    let mut paths = Vec::new();
+    let search_dirs = vec![".", "./config", "~/.maestro", "~/.helix"];
+    for dir in &search_dirs {
+        // Expand ~ to home directory if present
+        let dir_path = if dir.starts_with("~") {
+            if let Some(home) = std::env::var_os("HOME") {
+                let mut home_path = std::path::PathBuf::from(home);
+                if dir.len() > 1 {
+                    home_path.push(&dir[2..]);
+                }
+                home_path
+            } else {
+                std::path::PathBuf::from(dir)
+            }
+        } else {
+            std::path::PathBuf::from(dir)
+        };
+
+        if let Ok(entries) = fs::read_dir(&dir_path) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
+                    if ext == "hlxb" || ext == "hlx" {
+                        if let Some(path_str) = path.to_str() {
+                            paths.push(path_str.to_string());
+                        }
+                    }
+                }
+            }
+        }
+    }
     for path in paths {
-        if Path::new(path).exists() {
+        if Path::new(&path).exists() {
             return loader.load_file(path);
         }
     }

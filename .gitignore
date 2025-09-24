@@ -6,9 +6,12 @@ summaries/
 target/
 web/
 b.sh
+build.sh
 Cargo.lock
 install.sh
 t.sh
 .env
 .buddy
 .treat
+.cargo 
+.vscode

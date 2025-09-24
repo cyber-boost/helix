@@ -1,6 +1,8 @@
 use helix_core::compiler::cli;
 use std::process;
-fn main() {
+
+#[tokio::main]
+async fn main() {
     std::panic::set_hook(
         Box::new(|panic_info| {
             eprintln!("❌ HELIX Compiler panicked!");
@@ -14,7 +16,7 @@ fn main() {
             eprintln!("   https://github.com/cyber-boost/helix/issues");
         }),
     );
-    if let Err(e) = cli::run() {
+    if let Err(e) = cli::run().await {
         eprintln!("Error: {}", e);
         let mut cause = e.source();
         while let Some(err) = cause {

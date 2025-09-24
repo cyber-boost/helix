@@ -1,0 +1,227 @@
+# Research Assistant AI Configuration
+# Academic and scientific research support system
+
+project "research-assistant-system" {
+    version = "1.5.0"
+    author = "Research Team"
+    description = "AI-powered research assistant for literature review and analysis"
+}
+
+agent "literature-reviewer" {
+    model = "claude-3-opus"
+    role = "Literature Review Specialist"
+    temperature = 0.4
+    max_tokens = 150000
+
+    capabilities [
+        "academic-research"
+        "paper-analysis"
+        "citation-management"
+        "methodology-review"
+        "gap-identification"
+        "systematic-review"
+    ]
+
+    backstory {
+        PhD in Computer Science
+        Published 50+ papers in top conferences
+        Expert reviewer for major journals
+        Led systematic literature reviews
+    }
+
+    tools = [
+        "google-scholar"
+        "semantic-scholar"
+        "zotero"
+        "mendeley"
+        "pubmed"
+        "arxiv"
+    ]
+}
+
+agent "data-analyst" {
+    model = "gpt-4"
+    role = "Research Data Analyst"
+    temperature = 0.3
+    max_tokens = 100000
+
+    capabilities [
+        "statistical-analysis"
+        "data-visualization"
+        "hypothesis-testing"
+        "correlation-analysis"
+        "regression-modeling"
+        "experimental-design"
+    ]
+
+    backstory {
+        PhD in Statistics
+        15 years in research data analysis
+        Expert in R, Python, and statistical methods
+        Published methodological papers
+    }
+
+    tools = [
+        "r-studio"
+        "python-jupyter"
+        "tableau"
+        "sas"
+        "spss"
+        "mathematica"
+    ]
+}
+
+agent "methodology-expert" {
+    model = "claude-3-sonnet"
+    role = "Research Methodology Consultant"
+    temperature = 0.5
+    max_tokens = 80000
+
+    capabilities [
+        "research-design"
+        "methodology-selection"
+        "validity-assessment"
+        "bias-analysis"
+        "ethical-review"
+        "peer-review"
+    ]
+
+    backstory {
+        Professor of Research Methods
+        25 years teaching research methodology
+        Consultant for major research institutions
+        Expert in qualitative and quantitative methods
+    }
+
+    tools = [
+        "nvivo"
+        "atlas-ti"
+        "qualtrics"
+        "survey-monkey"
+        "ethics-review-tools"
+    ]
+}
+
+workflow "research-project-workflow" {
+    trigger = "manual"
+
+    step "topic-definition" {
+        agent = "literature-reviewer"
+        task = "Define research topic and objectives clearly"
+        timeout = 1h
+    }
+
+    step "literature-search" {
+        agent = "literature-reviewer"
+        task = "Conduct comprehensive literature search and screening"
+        timeout = 4h
+        depends_on = ["topic-definition"]
+
+        retry {
+            max_attempts = 2
+            delay = 10m
+            backoff = "linear"
+        }
+    }
+
+    step "methodology-design" {
+        agent = "methodology-expert"
+        task = "Design appropriate research methodology"
+        timeout = 2h
+        depends_on = ["literature-search"]
+    }
+
+    step "data-collection-planning" {
+        agent = "data-analyst"
+        task = "Plan data collection and analysis procedures"
+        timeout = 3h
+        depends_on = ["methodology-design"]
+    }
+
+    step "pilot-study" {
+        agent = "methodology-expert"
+        task = "Conduct pilot study and refine methodology"
+        timeout = 1h
+        depends_on = ["data-collection-planning"]
+    }
+
+    step "full-data-analysis" {
+        agent = "data-analyst"
+        task = "Conduct comprehensive data analysis"
+        timeout = 6h
+        depends_on = ["pilot-study"]
+
+        retry {
+            max_attempts = 3
+            delay = 30m
+            backoff = "exponential"
+        }
+    }
+
+    step "results-interpretation" {
+        crew = ["data-analyst", "literature-reviewer", "methodology-expert"]
+        task = "Interpret results and draw conclusions"
+        timeout = 4h
+        depends_on = ["full-data-analysis"]
+    }
+
+    step "manuscript-preparation" {
+        agent = "literature-reviewer"
+        task = "Prepare manuscript for publication"
+        timeout = 8h
+        depends_on = ["results-interpretation"]
+    }
+
+    pipeline {
+        topic-definition -> literature-search -> methodology-design -> data-collection-planning -> pilot-study -> full-data-analysis -> results-interpretation -> manuscript-preparation
+    }
+}
+
+crew "research-team" {
+    agents [
+        "literature-reviewer"
+        "data-analyst"
+        "methodology-expert"
+    ]
+
+    process = "hierarchical"
+    manager = "methodology-expert"
+    max_iterations = 8
+    verbose = true
+}
+
+memory {
+    provider = "elasticsearch"
+    connection = "http://localhost:9200"
+
+    embeddings {
+        model = "text-embedding-3-large"
+        dimensions = 3072
+        batch_size = 25
+    }
+
+    cache_size = 50000
+    persistence = true
+}
+
+context "academic" {
+    environment = "research"
+    debug = true
+    max_tokens = 200000
+
+    secrets {
+        google_scholar_api = $GOOGLE_SCHOLAR_API_KEY
+        semantic_scholar_api = $SEMANTIC_SCHOLAR_API_KEY
+        pubmed_api = $PUBMED_API_KEY
+        database_access = $RESEARCH_DATABASE_ACCESS
+    }
+
+    variables {
+        literature_database = "research-literature-db"
+        citation_style = "apa"
+        peer_review_rounds = 3
+        statistical_power = 0.8
+        confidence_level = 0.95
+        sample_size_min = 100
+    }
+}

@@ -1,0 +1,20 @@
+[package]
+name = "my-hlx-project"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+helix_core = "1.1.6"
+serde_json = "1.0"  # For JSON data handling
+tokio = { version = "1.0", features = ["full"] }  # If using async
+anyhow = "1.0"  # For error handling
+
+# Optional features for additional functionality
+# helix_core = { version = "1.1.6", features = ["compiler"] }  # For binary compilation
+
+[dev-dependencies]
+tempfile = "3.0"  # For testing
+
+[[bin]]
+name = "my-hlx-app"
+path = "src/main.rs"

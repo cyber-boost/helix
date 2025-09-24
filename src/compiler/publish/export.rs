@@ -169,7 +169,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install hlx compiler
-RUN curl -sSL https://helix.dev/install.sh | bash
+RUN curl -sSL https://get.helix.cm/install.sh | bash
 
 # Set working directory
 WORKDIR /app
