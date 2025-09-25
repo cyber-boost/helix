@@ -3,13 +3,19 @@ use super::lexer::{
 };
 use super::ast::*;
 use crate::types::Duration;
+use crate::operators::OperatorEngine;
+use crate::error::HlxError;
 use std::collections::HashMap;
+use regex;
+#[cfg(feature = "js")]
+use napi;
 pub struct Parser {
     tokens: Vec<TokenWithLocation>,
     source_map: Option<SourceMap>,
     current: usize,
     errors: Vec<ParseError>,
     recovery_points: Vec<usize>,
+    operator_engine: Option<OperatorEngine>,
 }
 #[derive(Debug, Clone)]
 pub struct ParseError {
@@ -33,6 +39,21 @@ impl std::fmt::Display for ParseError {
     }
 }
 impl std::error::Error for ParseError {}
+impl AsRef<str> for ParseError {
+    fn as_ref(&self) -> &str {
+        &self.message
+    }
+}
+
+#[cfg(feature = "js")]
+impl From<ParseError> for napi::Error<ParseError> {
+    fn from(err: ParseError) -> Self {
+        // Create a typed NAPI error using the ParseError
+        napi::Error::new(err, napi::Status::GenericFailure)
+    }
+}
+
+
 impl ParseError {
     pub fn format_with_source(&self, source: &str, tokens: &[Token]) -> String {
         let mut line = 1;
@@ -113,6 +134,7 @@ impl Parser {
             current: 0,
             errors: Vec::new(),
             recovery_points: Vec::new(),
+            operator_engine: None,
         }
     }
     pub fn new_enhanced(tokens: Vec<TokenWithLocation>) -> Self {
@@ -122,6 +144,7 @@ impl Parser {
             current: 0,
             errors: Vec::new(),
             recovery_points: Vec::new(),
+            operator_engine: None,
         }
     }
     pub fn new_with_source_map(source_map: SourceMap) -> Self {
@@ -132,6 +155,7 @@ impl Parser {
             current: 0,
             errors: Vec::new(),
             recovery_points: Vec::new(),
+            operator_engine: None,
         }
     }
     fn add_error(&mut self, message: String, expected: Option<String>) {
@@ -1133,6 +1157,222 @@ impl Parser {
         }
         self.expect(Token::RightBrace)?;
         Ok(secrets)
+    }
+
+    /// Execute an operator with the given parameters
+    pub async fn execute_operator(&mut self, operator: &str, params: &str) -> Result<crate::value::Value, Box<dyn std::error::Error + Send + Sync>> {
+        // Initialize operator engine if not already done
+        if self.operator_engine.is_none() {
+            self.operator_engine = Some(OperatorEngine::new().await.map_err(|e| {
+                Box::new(e) as Box<dyn std::error::Error + Send + Sync>
+            })?);
+        }
+
+        if let Some(ref engine) = self.operator_engine {
+            match engine.execute_operator(operator, params).await {
+                Ok(value) => Ok(value),
+                Err(e) => {
+                    eprintln!("Operator execution error: {:?}", e);
+                    Ok(crate::value::Value::String(format!("@{}({})", operator, params)))
+                }
+            }
+        } else {
+            Ok(crate::value::Value::String(format!("@{}({})", operator, params)))
+        }
+    }
+
+    /// Convert expression parameters to JSON string for operator execution
+    pub async fn params_to_json(&mut self, params: &HashMap<String, Expression>) -> Result<String, Box<dyn std::error::Error + Send + Sync>> {
+        let mut json_map = serde_json::Map::new();
+        for (key, expr) in params {
+            let value = Box::pin(self.evaluate_expression(expr)).await?;
+            let json_value = self.value_to_json_value(&value);
+            json_map.insert(key.clone(), json_value);
+        }
+        let json_obj = serde_json::Value::Object(json_map);
+        Ok(serde_json::to_string(&json_obj)?)
+    }
+
+    /// Convert our Value type to serde_json::Value
+    fn value_to_json_value(&self, value: &crate::value::Value) -> serde_json::Value {
+        match value {
+            crate::value::Value::String(s) => serde_json::Value::String(s.clone()),
+            crate::value::Value::Number(n) => serde_json::Number::from_f64(*n)
+                .map(serde_json::Value::Number)
+                .unwrap_or(serde_json::Value::Null),
+            crate::value::Value::Bool(b) => serde_json::Value::Bool(*b),
+            crate::value::Value::Array(arr) => {
+                let values: Vec<serde_json::Value> = arr.iter()
+                    .map(|v| self.value_to_json_value(v))
+                    .collect();
+                serde_json::Value::Array(values)
+            },
+            crate::value::Value::Object(obj) => {
+                let mut map = serde_json::Map::new();
+                for (k, v) in obj {
+                    map.insert(k.clone(), self.value_to_json_value(v));
+                }
+                serde_json::Value::Object(map)
+            },
+            crate::value::Value::Null => serde_json::Value::Null,
+        }
+    }
+
+    /// Evaluate an AST expression with operator support
+    pub async fn evaluate_expression(&mut self, expr: &Expression) -> Result<crate::value::Value, Box<dyn std::error::Error + Send + Sync>> {
+        match expr {
+            Expression::String(s) => {
+                // Check if string contains special operators
+                if s.starts_with('@') || s.contains(" + ") || s.contains('?') {
+                    Ok(self.parse_value(s).await?)
+                } else {
+                    Ok(crate::value::Value::String(s.clone()))
+                }
+            }
+            Expression::Number(n) => Ok(crate::value::Value::Number(*n)),
+            Expression::Bool(b) => Ok(crate::value::Value::Bool(*b)),
+            Expression::Array(arr) => {
+                let mut values = Vec::new();
+                for item in arr {
+                    values.push(Box::pin(self.evaluate_expression(item)).await?);
+                }
+                Ok(crate::value::Value::Array(values))
+            }
+            Expression::Object(obj) => {
+                let mut map = HashMap::new();
+                for (key, expr) in obj {
+                    map.insert(key.clone(), Box::pin(self.evaluate_expression(expr)).await?);
+                }
+                Ok(crate::value::Value::Object(map))
+            }
+            Expression::OperatorCall(operator, params) => {
+                Err(Box::new(HlxError::validation_error("OperatorCall not supported", "Use @ prefixed operators instead")))
+            }
+            Expression::AtOperatorCall(operator, params) => {
+                let json_params = self.params_to_json(params).await?;
+                Ok(self.execute_operator(operator, &json_params).await?)
+            }
+            Expression::Identifier(name) => {
+                // Could be an operator call with no parameters
+                let params = HashMap::new();
+                let json_params = self.params_to_json(&params).await?;
+                match self.execute_operator(&name, &json_params).await {
+                    Ok(value) => Ok(value),
+                    Err(_) => Ok(crate::value::Value::String(name.clone())),
+                }
+            }
+            _ => Ok(crate::value::Value::String(format!("Unsupported expression: {:?}", expr))),
+        }
+    }
+
+    /// Parse value with operator support (similar to ops.rs)
+    pub async fn parse_value(&mut self, value: &str) -> Result<crate::value::Value, Box<dyn std::error::Error + Send + Sync>> {
+        let value = value.trim();
+
+        // Remove optional semicolon
+        let value = if value.ends_with(';') {
+            value.trim_end_matches(';').trim()
+        } else {
+            value
+        };
+
+        // Basic types
+        match value {
+            "true" => return Ok(crate::value::Value::Bool(true)),
+            "false" => return Ok(crate::value::Value::Bool(false)),
+            "null" => return Ok(crate::value::Value::Null),
+            _ => {}
+        }
+
+        // Numbers
+        if let Ok(num) = value.parse::<i64>() {
+            return Ok(crate::value::Value::Number(num as f64));
+        }
+        if let Ok(num) = value.parse::<f64>() {
+            return Ok(crate::value::Value::Number(num));
+        }
+
+        // @ operators
+        let operator_re = regex::Regex::new(r"^@([a-zA-Z_][a-zA-Z0-9_]*)\((.+)\)$").unwrap();
+        if let Some(captures) = operator_re.captures(value) {
+            let operator = captures.get(1).unwrap().as_str();
+            let params = captures.get(2).unwrap().as_str();
+            return self.execute_operator(&format!("@{}", operator), params).await;
+        }
+
+        // String concatenation
+        if value.contains(" + ") {
+            let parts: Vec<&str> = value.split(" + ").collect();
+            let mut result = String::new();
+            for part in parts {
+                let part = part.trim().trim_matches('"').trim_matches('\'');
+                result.push_str(&part);
+            }
+            return Ok(crate::value::Value::String(result));
+        }
+
+        // Conditional/ternary: condition ? true_val : false_val
+        let ternary_re = regex::Regex::new(r"(.+?)\s*\?\s*(.+?)\s*:\s*(.+)").unwrap();
+        if let Some(captures) = ternary_re.captures(value) {
+            let condition = captures.get(1).unwrap().as_str().trim();
+            let true_val = captures.get(2).unwrap().as_str().trim();
+            let false_val = captures.get(3).unwrap().as_str().trim();
+
+            if self.evaluate_condition(condition).await {
+                return Box::pin(self.parse_value(true_val)).await;
+            } else {
+                return Box::pin(self.parse_value(false_val)).await;
+            }
+        }
+
+        // Remove quotes from strings
+        if (value.starts_with('"') && value.ends_with('"')) ||
+           (value.starts_with('\'') && value.ends_with('\'')) {
+            return Ok(crate::value::Value::String(value[1..value.len()-1].to_string()));
+        }
+
+        // Return as string
+        Ok(crate::value::Value::String(value.to_string()))
+    }
+
+    /// Evaluate conditions for ternary expressions
+    async fn evaluate_condition(&mut self, condition: &str) -> bool {
+        let condition = condition.trim();
+
+        // Simple equality check
+        if let Some(eq_pos) = condition.find("==") {
+            let left = Box::pin(self.parse_value(condition[..eq_pos].trim())).await.unwrap_or(crate::value::Value::String("".to_string()));
+            let right = Box::pin(self.parse_value(condition[eq_pos+2..].trim())).await.unwrap_or(crate::value::Value::String("".to_string()));
+            return left.to_string() == right.to_string();
+        }
+
+        // Not equal
+        if let Some(ne_pos) = condition.find("!=") {
+            let left = Box::pin(self.parse_value(condition[..ne_pos].trim())).await.unwrap_or(crate::value::Value::String("".to_string()));
+            let right = Box::pin(self.parse_value(condition[ne_pos+2..].trim())).await.unwrap_or(crate::value::Value::String("".to_string()));
+            return left.to_string() != right.to_string();
+        }
+
+        // Greater than
+        if let Some(gt_pos) = condition.find('>') {
+            let left = Box::pin(self.parse_value(condition[..gt_pos].trim())).await.unwrap_or(crate::value::Value::String("".to_string()));
+            let right = Box::pin(self.parse_value(condition[gt_pos+1..].trim())).await.unwrap_or(crate::value::Value::String("".to_string()));
+
+            if let (crate::value::Value::Number(l), crate::value::Value::Number(r)) = (&left, &right) {
+                return l > r;
+            }
+            return left.to_string() > right.to_string();
+        }
+
+        // Default: check if truthy
+        let value = Box::pin(self.parse_value(condition)).await.unwrap_or(crate::value::Value::String("".to_string()));
+        match value {
+            crate::value::Value::Bool(b) => b,
+            crate::value::Value::String(s) => !s.is_empty() && s != "false" && s != "null" && s != "0",
+            crate::value::Value::Number(n) => n != 0.0,
+            crate::value::Value::Null => false,
+            _ => true,
+        }
     }
 }
 pub fn parse(tokens: Vec<Token>) -> Result<HelixAst, ParseError> {

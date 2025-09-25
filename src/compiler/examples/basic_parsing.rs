@@ -1,4 +1,4 @@
-use helix_core::{parse, validate, load_file, ast_to_config, HelixConfig, HelixAst};
+use helix::{parse, validate, load_file, ast_to_config, HelixConfig, HelixAst};
 use std::path::Path;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🔧 HELIX Language - Basic Parsing Example\n");
@@ -29,7 +29,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("⚠️  Example file {} not found, skipping file load", example_file);
     }
     println!("\n5. Pretty printing AST:");
-    let pretty = helix_core::pretty_print(&config);
+    let pretty = helix::pretty_print(&config);
     println!("{}", pretty);
     println!("\n🎉 Basic parsing example completed successfully!");
     Ok(())

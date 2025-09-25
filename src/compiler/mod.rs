@@ -14,7 +14,7 @@ pub use optimizer::{Optimizer, OptimizationLevel};
 pub use serializer::BinarySerializer;
 pub use loader::BinaryLoader;
 pub use bundle::Bundler;
-pub use modules::{ModuleSystem, DependencyBundler, ModuleResolver};
+pub use modules::{ModuleSystem, DependencyBundler, ModuleResolver, DependencyGraph};
 pub use runtime::{HelixVM, VMExecutor, VMConfig};
 use crate::{parse, validate, ast::HelixAst, codegen::{CodeGenerator, HelixIR}};
 use std::path::{Path, PathBuf};
@@ -76,7 +76,7 @@ impl Compiler {
         source_path: Option<&Path>,
     ) -> Result<HelixBinary, CompileError> {
         let ast = parse(source).map_err(|e| CompileError::ParseError(e.to_string()))?;
-        validate(&ast).map_err(|e| CompileError::ValidationError(e))?;
+        validate(&ast).map_err(|e| CompileError::ValidationError(e.to_string()))?;
         let mut generator = CodeGenerator::new();
         let ir = generator.generate(&ast);
         let optimized_ir = self.optimize_ir(ir);
@@ -287,3 +287,8 @@ mod tests {
         assert!(result.is_ok());
     }
 }
+
+
+
+
+

@@ -1,0 +1,82 @@
+project "AI Assistant Suite" {
+    version = "1.0.0"
+    author = "Helix Team"
+    description = "Comprehensive AI assistant configuration"
+}
+
+agent "primary_assistant" {
+    model = "gpt-4"
+    role = "Senior AI Assistant"
+    temperature = 0.7
+    max_tokens = 2000
+
+    capabilities = [
+        "code_generation",
+        "data_analysis",
+        "creative_writing",
+        "technical_support"
+    ]
+
+    backstory = """
+    You are Helix, an advanced AI assistant designed to help users with
+    a wide range of tasks. You have expertise in programming, data analysis,
+    creative writing, and technical problem-solving. You are helpful,
+    accurate, and always strive to provide the best possible assistance.
+    """
+}
+
+agent "data_analyst" {
+    model = "gpt-3.5-turbo"
+    role = "Data Analysis Specialist"
+    temperature = 0.3
+    max_tokens = 1500
+
+    capabilities = [
+        "data_visualization",
+        "statistical_analysis",
+        "report_generation"
+    ]
+}
+
+workflow "data_processing_pipeline" {
+    agent = "data_analyst"
+
+    steps = [
+        {
+            name = "load_data"
+            task = "Load and validate input data"
+            timeout = "30s"
+        },
+        {
+            name = "analyze_data"
+            task = "Perform statistical analysis and generate insights"
+            depends_on = ["load_data"]
+        },
+        {
+            name = "generate_report"
+            task = "Create comprehensive analysis report"
+            depends_on = ["analyze_data"]
+        }
+    ]
+
+    outputs = [
+        "analysis_report.pdf",
+        "data_insights.json"
+    ]
+}
+
+context "development" {
+    environment = "dev"
+    debug = true
+    max_tokens = 1000
+
+    variables = {
+        api_endpoint = "https://api.dev.helix.ai"
+        log_level = "debug"
+    }
+
+    secrets = {
+        api_key = "dev-api-key-12345"
+        database_url = "postgres://dev@localhost/helix_dev"
+    }
+}

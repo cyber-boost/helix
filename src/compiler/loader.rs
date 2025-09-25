@@ -302,7 +302,7 @@ mod tests {
         let loader = BinaryLoader::new();
         assert!(loader.enable_mmap);
         assert!(! loader.enable_lazy);
-        assert!(loader.cache_enabled);
+        assert!(loader._cache_enabled);
     }
     #[test]
     fn test_loader_builder() {

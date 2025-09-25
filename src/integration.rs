@@ -62,7 +62,7 @@ context "production" {
     let mut generator = codegen::CodeGenerator::new();
     let ir = generator.generate(&ast);
     assert!(ir.instructions.len() > 0);
-    let compiler = compile::Compiler::new(compiler::optimizer::OptimizationLevel::Two);
+    let compiler = crate::compiler::Compiler::new(crate::compiler::optimizer::OptimizationLevel::Two);
     let binary = compiler.compile_source(source, None).expect("Failed to compile");
     assert_eq!(binary.magic, compiler::binary::MAGIC_BYTES);
     let serializer = compiler::serializer::BinarySerializer::new(true);
@@ -95,7 +95,7 @@ fn test_migration_from_json() {
             ]
         }
     }"#;
-    let migrator = migrate::Migrator::new();
+    let migrator = crate::compiler::tools::migrate::Migrator::new();
     let hlx = migrator.migrate_json(json).expect("Failed to migrate JSON");
     assert!(hlx.contains("agent \"coder\""));
     assert!(hlx.contains("workflow \"build\""));
@@ -115,7 +115,7 @@ temperature = 0.7
 [workflow.test]
 trigger = "manual"
 "#;
-    let migrator = migrate::Migrator::new();
+    let migrator = crate::compiler::tools::migrate::Migrator::new();
     let hlx = migrator.migrate_toml(toml).expect("Failed to migrate TOML");
     assert!(hlx.contains("project"));
     assert!(hlx.contains("agent \"assistant\""));
@@ -129,7 +129,7 @@ API_KEY=secret123
 DEBUG=true
 MAX_TOKENS=100000
 "#;
-    let migrator = migrate::Migrator::new();
+    let migrator = crate::compiler::tools::migrate::Migrator::new();
     let hlx = migrator.migrate_env(env).expect("Failed to migrate env");
     assert!(hlx.contains("context \"environment\""));
     assert!(hlx.contains("database_url"));
@@ -180,7 +180,7 @@ agent "test" {
 }
 "#;
     for level in 0..=3 {
-        let compiler = compile::Compiler::new(
+        let compiler = crate::compiler::Compiler::new(
             compiler::optimizer::OptimizationLevel::from(level),
         );
         let binary = compiler
@@ -287,7 +287,7 @@ agent "test2" {
 }
 #[test]
 fn test_circular_dependency_detection() {
-    let graph = deps::DependencyGraph::new();
+    let graph = crate::compiler::DependencyGraph::new();
     let result = graph.check_circular();
     assert!(result.is_ok());
 }
@@ -299,12 +299,12 @@ agent "test" {
     description = "This is a very long description that should compress well because it has lots of repeated words repeated words repeated words"
 }
 "#;
-    let compiler = compile::Compiler::builder()
+    let compiler = crate::compiler::Compiler::builder()
         .optimization_level(compiler::optimizer::OptimizationLevel::Three)
         .compression(true)
         .build();
     let compressed = compiler.compile_source(source, None).expect("Failed to compile");
-    let compiler_no_compress = compile::Compiler::builder()
+    let compiler_no_compress = crate::compiler::Compiler::builder()
         .optimization_level(compiler::optimizer::OptimizationLevel::Three)
         .compression(false)
         .build();

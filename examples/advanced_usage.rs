@@ -1,4 +1,4 @@
-use helix_core::{
+use helix::{
     parse, validate, ast_to_config, HelixConfig, HelixAst, Declaration, AgentDecl,
     WorkflowDecl, Expression, Value, SemanticAnalyzer, CodeGenerator, HelixIR,
 };
@@ -84,7 +84,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("✅ AST processed for optimization");
     println!("\n5. Generating intermediate representation:");
     let codegen = CodeGenerator::new();
-    let ir = codegen.generate_ir(&processed_ast)?;
+    let ir = codegen.generate(&processed_ast);
     println!("✅ Generated IR with {} instructions", ir.instructions.len());
     println!("\n6. Converting to configuration:");
     let config = ast_to_config(processed_ast)?;
@@ -113,12 +113,12 @@ fn process_ast_for_optimization(
             if !agent_decl.properties.contains_key("temperature") {
                 agent_decl
                     .properties
-                    .insert("temperature".to_string(), Value::Number(0.7));
+                    .insert("temperature".to_string(), Expression::Number(0.7));
             }
             if !agent_decl.properties.contains_key("max_tokens") {
                 agent_decl
                     .properties
-                    .insert("max_tokens".to_string(), Value::Number(2000.0));
+                    .insert("max_tokens".to_string(), Expression::Number(2000.0));
             }
         }
     }
@@ -142,14 +142,16 @@ fn validate_workflow_dependencies(
     config: &HelixConfig,
 ) -> Result<(), Box<dyn std::error::Error>> {
     for (name, workflow) in &config.workflows {
-        if let Some(agent_name) = &workflow.agent {
-            if !config.agents.contains_key(agent_name) {
-                return Err(
-                    format!(
-                        "Workflow '{}' references unknown agent: {}", name, agent_name
-                    )
-                        .into(),
-                );
+        for step in &workflow.steps {
+            if let Some(agent_name) = &step.agent {
+                if !config.agents.contains_key(agent_name) {
+                    return Err(
+                        format!(
+                            "Workflow '{}' step '{}' references unknown agent: {}", name, step.name, agent_name
+                        )
+                            .into(),
+                    );
+                }
             }
         }
     }
@@ -173,9 +175,7 @@ fn generate_usage_statistics(config: &HelixConfig) -> UsageStats {
     };
     let mut model_counts = HashMap::new();
     for agent in config.agents.values() {
-        if let Some(model) = &agent.model {
-            *model_counts.entry(model.clone()).or_insert(0) += 1;
-        }
+        *model_counts.entry(agent.model.clone()).or_insert(0) += 1;
     }
     let most_common_model = model_counts
         .into_iter()

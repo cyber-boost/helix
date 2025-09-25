@@ -1,0 +1,143 @@
+project "Enterprise Workflow Suite" {
+    version = "2.1.0"
+    author = "Enterprise Team"
+    description = "Advanced workflow configurations for enterprise applications"
+}
+
+agent "orchestrator" {
+    model = "gpt-4-turbo"
+    role = "Workflow Orchestrator"
+    temperature = 0.1
+    max_tokens = 500
+
+    capabilities = [
+        "workflow_coordination",
+        "decision_making",
+        "resource_allocation"
+    ]
+}
+
+agent "executor" {
+    model = "gpt-3.5-turbo"
+    role = "Task Executor"
+    temperature = 0.5
+    max_tokens = 1000
+
+    capabilities = [
+        "task_execution",
+        "api_integration",
+        "data_processing"
+    ]
+}
+
+agent "validator" {
+    model = "gpt-4"
+    role = "Quality Assurance Specialist"
+    temperature = 0.2
+    max_tokens = 800
+
+    capabilities = [
+        "quality_assurance",
+        "validation",
+        "error_detection"
+    ]
+}
+
+workflow "document_processing_pipeline" {
+    trigger = "file_upload"
+
+    steps = [
+        {
+            name = "validate_document"
+            agent = "validator"
+            task = "Validate document format and content integrity"
+            timeout = "60s"
+            parallel = false
+        },
+        {
+            name = "extract_metadata"
+            agent = "executor"
+            task = "Extract metadata, keywords, and document structure"
+            depends_on = ["validate_document"]
+            timeout = "120s"
+        },
+        {
+            name = "process_content"
+            agent = "executor"
+            task = "Process document content and generate insights"
+            depends_on = ["extract_metadata"]
+            timeout = "300s"
+            parallel = true
+        },
+        {
+            name = "generate_summary"
+            agent = "executor"
+            task = "Generate comprehensive document summary"
+            depends_on = ["process_content"]
+            timeout = "180s"
+        },
+        {
+            name = "quality_check"
+            agent = "validator"
+            task = "Final quality assurance and validation"
+            depends_on = ["generate_summary"]
+            timeout = "90s"
+        }
+    ]
+
+    pipeline = {
+        flow = [
+            "validate_document",
+            {
+                parallel = [
+                    "extract_metadata",
+                    "process_content"
+                ]
+            },
+            "generate_summary",
+            "quality_check"
+        ]
+    }
+
+    outputs = [
+        "processed_document.json",
+        "document_summary.txt",
+        "quality_report.pdf"
+    ]
+
+    on_error = "error_handler_workflow"
+}
+
+workflow "error_handler_workflow" {
+    agent = "orchestrator"
+
+    steps = [
+        {
+            name = "analyze_error"
+            task = "Analyze the error and determine recovery strategy"
+        },
+        {
+            name = "attempt_recovery"
+            task = "Attempt to recover from the error condition"
+            depends_on = ["analyze_error"]
+        },
+        {
+            name = "notify_admin"
+            task = "Notify administrators of the error and resolution status"
+            depends_on = ["attempt_recovery"]
+        }
+    ]
+}
+
+crew "document_team" {
+    agents = [
+        "orchestrator",
+        "executor",
+        "validator"
+    ]
+
+    process_type = "hierarchical"
+    manager = "orchestrator"
+    max_iterations = 10
+    verbose = true
+}

@@ -1,5 +1,15 @@
 use std::collections::HashMap;
 use crate::types::{Value, Duration, TimeUnit};
+
+/// ======================
+//   SECTION DECLARATION
+// ======================
+#[derive(Debug, Clone)]
+pub struct SectionDecl {
+    pub name: String,
+    pub properties: HashMap<String, Expression>,
+}
+
 #[derive(Debug, Clone)]
 pub struct HelixAst {
     pub declarations: Vec<Declaration>,
@@ -131,11 +141,20 @@ pub enum SecretRef {
     Vault(String),
     File(String),
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BinaryOperator {
+    Eq, Ne, Lt, Le, Gt, Ge,
+    And, Or,
+    Add, Sub, Mul, Div,
+}
+
 #[derive(Debug, Clone)]
 pub enum Expression {
     String(String),
     Number(f64),
     Bool(bool),
+    Null,  // <-- new
     Duration(Duration),
     Array(Vec<Expression>),
     Object(HashMap<String, Expression>),
@@ -144,8 +163,14 @@ pub enum Expression {
     IndexedReference(String, String),
     Identifier(String),
     Pipeline(Vec<String>),
+    // Binary operation (left, op, right)
+    BinaryOp(Box<Expression>, BinaryOperator, Box<Expression>), // <-- new
+
+    // Legacy variants that may still be referenced
     Block(Vec<Statement>),
     TextBlock(Vec<String>),
+    OperatorCall(String, HashMap<String, Expression>),
+    AtOperatorCall(String, HashMap<String, Expression>),
 }
 #[derive(Debug, Clone)]
 pub enum Statement {
@@ -206,6 +231,7 @@ pub trait AstVisitor {
     fn visit_memory(&mut self, memory: &MemoryDecl) -> Self::Result;
     fn visit_context(&mut self, context: &ContextDecl) -> Self::Result;
     fn visit_crew(&mut self, crew: &CrewDecl) -> Self::Result;
+    fn visit_section(&mut self, section: &SectionDecl) -> Self::Result; // ← new
     fn visit_expression(&mut self, expr: &Expression) -> Self::Result;
 }
 pub struct AstPrettyPrinter {
@@ -251,7 +277,11 @@ impl AstPrettyPrinter {
             "{}project \"{}\" {{\n", self.write_indent(), project.name
         );
         self.indent += 1;
-        for (key, value) in &project.properties {
+        // Sort keys for deterministic output
+        let mut keys: Vec<_> = project.properties.keys().collect();
+        keys.sort();
+        for key in keys {
+            let value = &project.properties[key];
             result
                 .push_str(
                     &format!(
@@ -267,7 +297,11 @@ impl AstPrettyPrinter {
     fn print_agent(&mut self, agent: &AgentDecl) -> String {
         let mut result = format!("{}agent \"{}\" {{\n", self.write_indent(), agent.name);
         self.indent += 1;
-        for (key, value) in &agent.properties {
+        // Sort keys for deterministic output
+        let mut keys: Vec<_> = agent.properties.keys().collect();
+        keys.sort();
+        for key in keys {
+            let value = &agent.properties[key];
             result
                 .push_str(
                     &format!(
@@ -434,7 +468,11 @@ impl AstPrettyPrinter {
         if let Some(secrets) = &context.secrets {
             result.push_str(&format!("{}secrets {{\n", self.write_indent()));
             self.indent += 1;
-            for (key, secret_ref) in secrets {
+            // Sort keys for deterministic output
+            let mut keys: Vec<_> = secrets.keys().collect();
+            keys.sort();
+            for key in keys {
+                let secret_ref = &secrets[key];
                 result
                     .push_str(
                         &format!(
@@ -449,7 +487,11 @@ impl AstPrettyPrinter {
         if let Some(variables) = &context.variables {
             result.push_str(&format!("{}variables {{\n", self.write_indent()));
             self.indent += 1;
-            for (key, value) in variables {
+            // Sort keys for deterministic output
+            let mut keys: Vec<_> = variables.keys().collect();
+            keys.sort();
+            for key in keys {
+                let value = &variables[key];
                 result
                     .push_str(
                         &format!(
@@ -461,7 +503,11 @@ impl AstPrettyPrinter {
             self.indent -= 1;
             result.push_str(&format!("{}}}\n", self.write_indent()));
         }
-        for (key, value) in &context.properties {
+        // Sort keys for deterministic output
+        let mut keys: Vec<_> = context.properties.keys().collect();
+        keys.sort();
+        for key in keys {
+            let value = &context.properties[key];
             result
                 .push_str(
                     &format!(
@@ -627,9 +673,14 @@ impl AstPrettyPrinter {
         result
     }
     fn print_section(&mut self, section: &SectionDecl) -> String {
-        let mut result = format!("{}{} {{\n", self.write_indent(), section.name);
+        // Important: emit the keyword so the output is round‑trippable.
+        let mut result = format!("{}section {} {{\n", self.write_indent(), section.name);
         self.indent += 1;
-        for (key, value) in &section.properties {
+        // Sort keys for deterministic output
+        let mut keys: Vec<_> = section.properties.keys().collect();
+        keys.sort();
+        for key in keys {
+            let value = &section.properties[key];
             result
                 .push_str(
                     &format!(
@@ -685,23 +736,49 @@ impl AstPrettyPrinter {
             Expression::Pipeline(stages) => stages.join(" -> "),
             Expression::Array(items) => {
                 format!(
-                    "[{}]", items.iter().map(| i | self.print_expression(i)).collect::<
+                    "[{}]", items.iter().map(|i| self.print_expression(i)).collect::<
                     Vec < _ >> ().join(", ")
                 )
             }
             Expression::Object(map) => {
-                let items = map
-                    .iter()
-                    .map(|(k, v)| format!("{} = {}", k, self.print_expression(v)))
+                // Sort keys for deterministic output
+                let mut keys: Vec<_> = map.keys().collect();
+                keys.sort();
+                let items = keys
+                    .into_iter()
+                    .map(|k| format!("{} = {}", k, self.print_expression(&map[k])))
                     .collect::<Vec<_>>()
                     .join(", ");
                 format!("{{ {} }}", items)
+            }
+            Expression::Null => "null".to_string(),
+            Expression::BinaryOp(left, op, right) => {
+                let op_str = match op {
+                    BinaryOperator::Eq => "==",
+                    BinaryOperator::Ne => "!=",
+                    BinaryOperator::Lt => "<",
+                    BinaryOperator::Le => "<=",
+                    BinaryOperator::Gt => ">",
+                    BinaryOperator::Ge => ">=",
+                    BinaryOperator::And => "&&",
+                    BinaryOperator::Or => "||",
+                    BinaryOperator::Add => "+",
+                    BinaryOperator::Sub => "-",
+                    BinaryOperator::Mul => "*",
+                    BinaryOperator::Div => "/",
+                };
+                format!("{} {} {}", self.print_expression(left), op_str, self.print_expression(right))
             }
             _ => "...".to_string(),
         }
     }
 }
 impl Expression {
+    // Convenience constructor for binary ops
+    pub fn binary(left: Expression, op: BinaryOperator, right: Expression) -> Self {
+        Expression::BinaryOp(Box::new(left), op, Box::new(right))
+    }
+
     pub fn as_string(&self) -> Option<String> {
         match self {
             Expression::String(s) => Some(s.clone()),
@@ -738,6 +815,7 @@ impl Expression {
             Expression::String(s) => Value::String(s.clone()),
             Expression::Number(n) => Value::Number(*n),
             Expression::Bool(b) => Value::Bool(*b),
+            Expression::Null => Value::Null,
             Expression::Duration(d) => Value::Duration(d.clone()),
             Expression::Array(arr) => {
                 Value::Array(arr.iter().map(|e| e.to_value()).collect())
@@ -752,18 +830,37 @@ impl Expression {
             Expression::IndexedReference(file, key) => {
                 Value::Reference(format!("@{}[{}]", file, key))
             }
-            Expression::Identifier(i) => Value::String(i.clone()),
+            Expression::Identifier(i) => Value::Identifier(i.clone()),
+            Expression::BinaryOp(left, op, right) => {
+                // The runtime may not understand a binary op directly.
+                // For now we stringify it – you can replace with a proper
+                // `Value::BinaryOp` type if you need to evaluate later.
+                let op_str = match op {
+                    BinaryOperator::Eq => "==",
+                    BinaryOperator::Ne => "!=",
+                    BinaryOperator::Lt => "<",
+                    BinaryOperator::Le => "<=",
+                    BinaryOperator::Gt => ">",
+                    BinaryOperator::Ge => ">=",
+                    BinaryOperator::And => "&&",
+                    BinaryOperator::Or => "||",
+                    BinaryOperator::Add => "+",
+                    BinaryOperator::Sub => "-",
+                    BinaryOperator::Mul => "*",
+                    BinaryOperator::Div => "/",
+                };
+                Value::String(format!(
+                    "{} {} {}",
+                    format!("{:?}", left.to_value()),
+                    op_str,
+                    format!("{:?}", right.to_value())
+                ))
+            }
             _ => Value::String("".to_string()),
         }
     }
 }
 
-// Generic section declaration for dynamic sections
-#[derive(Debug, Clone)]
-pub struct SectionDecl {
-    pub name: String,
-    pub properties: HashMap<String, Expression>,
-}
 
 #[allow(dead_code)]
 pub struct AstBuilder {
@@ -794,6 +891,37 @@ impl AstBuilder {
         self.ast.add_declaration(Declaration::Context(context));
         self
     }
+
+    // New builder helpers for all declaration types
+    pub fn add_memory(mut self, memory: MemoryDecl) -> Self {
+        self.ast.add_declaration(Declaration::Memory(memory));
+        self
+    }
+    pub fn add_crew(mut self, crew: CrewDecl) -> Self {
+        self.ast.add_declaration(Declaration::Crew(crew));
+        self
+    }
+    pub fn add_pipeline(mut self, pipeline: PipelineDecl) -> Self {
+        self.ast.add_declaration(Declaration::Pipeline(pipeline));
+        self
+    }
+    pub fn add_plugin(mut self, plugin: PluginDecl) -> Self {
+        self.ast.add_declaration(Declaration::Plugin(plugin));
+        self
+    }
+    pub fn add_database(mut self, database: DatabaseDecl) -> Self {
+        self.ast.add_declaration(Declaration::Database(database));
+        self
+    }
+    pub fn add_load(mut self, load: LoadDecl) -> Self {
+        self.ast.add_declaration(Declaration::Load(load));
+        self
+    }
+    pub fn add_section(mut self, section: SectionDecl) -> Self {
+        self.ast.add_declaration(Declaration::Section(section));
+        self
+    }
+
     pub fn build(self) -> HelixAst {
         self.ast
     }

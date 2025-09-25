@@ -1,0 +1,20 @@
+// ------------------------------------------------
+// The tiny language used in the ulator DSL
+// ------------------------------------------------
+
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
+
+program         = { reproducibility }
+reproducibility = { "reproducibility" ~ "{" ~ statement* ~ "}" }
+
+statement     =  { identifier ~ "=" ~ expr }
+expr          =  { term ~ (operator_expr ~ term)* }
+operator_expr =  { "+" | "-" }
+term          =  { factor ~ (operator_term ~ factor)* }
+operator_term =  { "x" | "*" }
+factor        = _{ reference | signed_number | identifier | "(" ~ expr ~ ")" }
+
+reference     =  { "@" ~ identifier ~ ("#" ~ number)? }
+identifier    = @{ ASCII_ALPHANUMERIC+ }
+signed_number =  { ("-")? ~ number }
+number        = @{ (ASCII_DIGIT | "_")+ }

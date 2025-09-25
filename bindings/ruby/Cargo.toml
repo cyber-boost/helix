@@ -1,0 +1,18 @@
+[package]
+name = "helix-ruby"
+version = "1.1.8"
+edition = "2021"
+authors = ["Bernie", "Buddy"]
+description = "Ruby bindings for Helix configuration language"
+license = "MIT"
+repository = "https://github.com/cyber-boost/helix"
+keywords = ["configuration", "ai", "agents", "ruby", "bindings"]
+categories = ["api-bindings", "config"]
+
+[lib]
+name = "helix"
+crate-type = ["cdylib"]
+
+[dependencies]
+magnus = "0.7"
+hlx = { path = "../.." }

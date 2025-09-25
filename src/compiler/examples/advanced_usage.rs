@@ -1,4 +1,4 @@
-use helix_core::{
+use helix::{
     parse, validate, ast_to_config, HelixConfig, HelixAst, Declaration, AgentDecl,
     WorkflowDecl, Expression, Value, SemanticAnalyzer, CodeGenerator, HelixIR,
 };

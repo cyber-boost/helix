@@ -3,7 +3,7 @@ use std::fmt;
 use thiserror::Error;
 use crate::lexer::SourceLocation;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, Clone)]
 pub enum HlxError {
     #[error("Configuration conversion failed: {field} - {details}")]
     ConfigConversion {
@@ -62,6 +62,102 @@ pub enum HlxError {
         value: String,
         suggestion: String
     },
+
+    #[error("Invalid input: {message}")]
+    InvalidInput {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("Execution error: {message}")]
+    ExecutionError {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("Invalid parameters: {message}")]
+    InvalidParameters {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("Unknown operator: {message}")]
+    UnknownOperator {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("Validation error: {message}")]
+    ValidationError {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("Hash error: {message}")]
+    HashError {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("JSON error: {message}")]
+    JsonError {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("Base64 error: {message}")]
+    Base64Error {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("Unknown error: {message}")]
+    Unknown {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("Compilation error: {message}")]
+    Compilation {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("IO error: {message}")]
+    Io {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("Serialization error: {message}")]
+    SerializationError {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("Deserialization error: {message}")]
+    DeserializationError {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("Compression error: {message}")]
+    CompressionError {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("Decompression error: {message}")]
+    DecompressionError {
+        message: String,
+        suggestion: String
+    },
+
+    #[error("Feature not available: {feature}")]
+    FeatureError {
+        feature: String,
+        message: String
+    },
 }
 
 impl HlxError {
@@ -114,6 +210,119 @@ impl HlxError {
         Self::DatasetNotFound { path, suggestion }
     }
 
+    /// Create an execution error
+    pub fn execution_error(message: impl Into<String>, suggestion: impl Into<String>) -> Self {
+        let message = message.into();
+        let suggestion = suggestion.into();
+        Self::ExecutionError { message, suggestion }
+    }
+
+    /// Create an invalid input error
+    pub fn invalid_input(message: impl Into<String>, suggestion: impl Into<String>) -> Self {
+        let message = message.into();
+        let suggestion = suggestion.into();
+        Self::InvalidInput { message, suggestion }
+    }
+
+    /// Create an invalid parameters error
+    pub fn invalid_parameters(operator: &str, params: &str) -> Self {
+        let message = format!("Invalid parameters for operator '{}': {}", operator, params);
+        let suggestion = format!("Check the operator '{}' parameter format", operator);
+        Self::InvalidParameters { message, suggestion }
+    }
+
+    /// Create an unknown operator error
+    pub fn unknown_operator(operator: impl Into<String>) -> Self {
+        let operator = operator.into();
+        let message = format!("Unknown operator: {}", operator);
+        let suggestion = "Check the operator name and ensure it is supported".to_string();
+        Self::UnknownOperator { message, suggestion }
+    }
+
+    /// Create a validation error
+    pub fn validation_error(message: impl Into<String>, suggestion: impl Into<String>) -> Self {
+        let message = message.into();
+        let suggestion = suggestion.into();
+        Self::ValidationError { message, suggestion }
+    }
+
+    /// Create a hash error
+    pub fn hash_error(message: impl Into<String>, suggestion: impl Into<String>) -> Self {
+        let message = message.into();
+        let suggestion = suggestion.into();
+        Self::HashError { message, suggestion }
+    }
+
+    /// Create a JSON error
+    pub fn json_error(message: impl Into<String>, suggestion: impl Into<String>) -> Self {
+        let message = message.into();
+        let suggestion = suggestion.into();
+        Self::JsonError { message, suggestion }
+    }
+
+    /// Create a Base64 error
+    pub fn base64_error(message: impl Into<String>, suggestion: impl Into<String>) -> Self {
+        let message = message.into();
+        let suggestion = suggestion.into();
+        Self::Base64Error { message, suggestion }
+    }
+
+    /// Create an unknown error
+    pub fn unknown_error(message: impl Into<String>, suggestion: impl Into<String>) -> Self {
+        let message = message.into();
+        let suggestion = suggestion.into();
+        Self::Unknown { message, suggestion }
+    }
+
+    /// Create a compilation error
+    pub fn compilation_error(message: impl Into<String>, suggestion: impl Into<String>) -> Self {
+        let message = message.into();
+        let suggestion = suggestion.into();
+        Self::Compilation { message, suggestion }
+    }
+
+    /// Create an IO error
+    pub fn io_error(message: impl Into<String>, suggestion: impl Into<String>) -> Self {
+        let message = message.into();
+        let suggestion = suggestion.into();
+        Self::Io { message, suggestion }
+    }
+
+    /// Create a serialization error
+    pub fn serialization_error(message: impl Into<String>, suggestion: impl Into<String>) -> Self {
+        let message = message.into();
+        let suggestion = suggestion.into();
+        Self::SerializationError { message, suggestion }
+    }
+
+    /// Create a deserialization error
+    pub fn deserialization_error(message: impl Into<String>, suggestion: impl Into<String>) -> Self {
+        let message = message.into();
+        let suggestion = suggestion.into();
+        Self::DeserializationError { message, suggestion }
+    }
+
+    /// Create a compression error
+    pub fn compression_error(message: impl Into<String>, suggestion: impl Into<String>) -> Self {
+        let message = message.into();
+        let suggestion = suggestion.into();
+        Self::CompressionError { message, suggestion }
+    }
+
+    /// Create a decompression error
+    pub fn decompression_error(message: impl Into<String>, suggestion: impl Into<String>) -> Self {
+        let message = message.into();
+        let suggestion = suggestion.into();
+        Self::DecompressionError { message, suggestion }
+    }
+
+    /// Create a feature error
+    pub fn feature_error(feature: impl Into<String>, message: impl Into<String>) -> Self {
+        let feature = feature.into();
+        let message = message.into();
+        Self::FeatureError { feature, message }
+    }
+
     /// Get recovery suggestions for this error
     pub fn suggestions(&self) -> Vec<String> {
         match self {
@@ -128,6 +337,22 @@ impl HlxError {
             Self::HlxProcessing { suggestion, .. } => vec![suggestion.clone()],
             Self::ForgeIntegration { suggestion, .. } => vec![suggestion.clone()],
             Self::ConfigValidation { suggestion, .. } => vec![suggestion.clone()],
+            Self::InvalidInput { suggestion, .. } => vec![suggestion.clone()],
+            Self::ExecutionError { suggestion, .. } => vec![suggestion.clone()],
+            Self::InvalidParameters { suggestion, .. } => vec![suggestion.clone()],
+            Self::UnknownOperator { suggestion, .. } => vec![suggestion.clone()],
+            Self::ValidationError { suggestion, .. } => vec![suggestion.clone()],
+            Self::HashError { suggestion, .. } => vec![suggestion.clone()],
+            Self::JsonError { suggestion, .. } => vec![suggestion.clone()],
+            Self::Base64Error { suggestion, .. } => vec![suggestion.clone()],
+            Self::Unknown { suggestion, .. } => vec![suggestion.clone()],
+            Self::Compilation { suggestion, .. } => vec![suggestion.clone()],
+            Self::Io { suggestion, .. } => vec![suggestion.clone()],
+            Self::SerializationError { suggestion, .. } => vec![suggestion.clone()],
+            Self::DeserializationError { suggestion, .. } => vec![suggestion.clone()],
+            Self::CompressionError { suggestion, .. } => vec![suggestion.clone()],
+            Self::DecompressionError { suggestion, .. } => vec![suggestion.clone()],
+            Self::FeatureError { message, .. } => vec![message.clone()],
         }
     }
 
@@ -143,22 +368,38 @@ impl HlxError {
             Self::HlxProcessing { .. } => true,
             Self::ForgeIntegration { .. } => true,
             Self::ConfigValidation { .. } => true,
+            Self::InvalidInput { .. } => true,
+            Self::ExecutionError { .. } => true,
+            Self::InvalidParameters { .. } => true,
+            Self::UnknownOperator { .. } => true,
+            Self::ValidationError { .. } => true,
+            Self::HashError { .. } => true,
+            Self::JsonError { .. } => true,
+            Self::Base64Error { .. } => true,
+            Self::Unknown { .. } => true,
+            Self::Compilation { .. } => true,
+            Self::Io { .. } => true,
+            Self::SerializationError { .. } => true,
+            Self::DeserializationError { .. } => true,
+            Self::CompressionError { .. } => true,
+            Self::DecompressionError { .. } => true,
+            Self::FeatureError { .. } => false,
         }
     }
 }
 
-/// Result type for HLX operations
-pub type HlxResult<T> = std::result::Result<T, HlxError>;
-
-#[derive(Debug)]
-pub enum HelixError {
-    Lexer(LexerError),
-    Parser(ParserError),
-    Semantic(SemanticError),
-    Compilation(CompilationError),
-    Runtime(RuntimeError),
-    Io(IoError),
+impl From<std::io::Error> for HlxError {
+    fn from(err: std::io::Error) -> Self {
+        Self::io_error(err.to_string(), "Check file permissions and paths")
+    }
 }
+
+impl From<serde_json::Error> for HlxError {
+    fn from(err: serde_json::Error) -> Self {
+        Self::json_error(err.to_string(), "Check JSON format and structure")
+    }
+}
+
 #[derive(Debug)]
 pub struct LexerError {
     pub message: String,
@@ -182,6 +423,7 @@ pub struct SemanticError {
     pub entity: String,
     pub context: Vec<String>,
 }
+
 #[derive(Debug)]
 pub enum SemanticErrorKind {
     UndefinedReference,
@@ -238,18 +480,6 @@ pub enum IoOperation {
     Delete,
     Rename,
     Metadata,
-}
-impl fmt::Display for HelixError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            HelixError::Lexer(e) => write!(f, "{}", e),
-            HelixError::Parser(e) => write!(f, "{}", e),
-            HelixError::Semantic(e) => write!(f, "{}", e),
-            HelixError::Compilation(e) => write!(f, "{}", e),
-            HelixError::Runtime(e) => write!(f, "{}", e),
-            HelixError::Io(e) => write!(f, "{}", e),
-        }
-    }
 }
 impl fmt::Display for LexerError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
@@ -351,23 +581,14 @@ impl fmt::Display for IoError {
         )
     }
 }
-impl std::error::Error for HelixError {}
 impl std::error::Error for LexerError {}
 impl std::error::Error for ParserError {}
 impl std::error::Error for SemanticError {}
 impl std::error::Error for CompilationError {}
 impl std::error::Error for RuntimeError {}
 impl std::error::Error for IoError {}
-impl From<std::io::Error> for HelixError {
-    fn from(err: std::io::Error) -> Self {
-        HelixError::Io(IoError {
-            operation: IoOperation::Read,
-            path: PathBuf::new(),
-            message: err.to_string(),
-        })
-    }
-}
-pub type Result<T> = std::result::Result<T, HelixError>;
+pub type Result<T> = std::result::Result<T, HlxError>;
+pub type HlxResult<T> = std::result::Result<T, HlxError>;
 pub struct ErrorRecovery;
 impl ErrorRecovery {
     pub fn suggest_for_undefined_reference(name: &str) -> Option<String> {

@@ -2,7 +2,7 @@
 //!
 //! This demonstrates the HLX integration working within the test framework.
 
-use helix_core::hlx::{HlxDatasetProcessor, HlxBridge, DatasetConfig, ValidationResult, CacheStats, HlxResult};
+use helix::hlx::{HlxDatasetProcessor, HlxBridge, DatasetConfig};
 use std::collections::HashMap;
 
 #[test]
@@ -35,7 +35,7 @@ fn demo_forge_hlx_integration() {
 }
 
 /// Demo 1: Load and parse HLX configuration files
-fn load_hlx_config_demo() -> HlxResult<()> {
+fn load_hlx_config_demo() -> Result<(), Box<dyn std::error::Error>> {
     println!("Loading HLX configuration...");
 
     // Create HLX processor
@@ -45,9 +45,15 @@ fn load_hlx_config_demo() -> HlxResult<()> {
     match processor.load_config_file("forge.hlx") {
         Ok(config) => {
             println!("✅ Successfully loaded HLX config!");
-            println!("   Name: {}", config.name.unwrap_or("Unknown".to_string()));
-            println!("   Version: {}", config.version.unwrap_or("Unknown".to_string()));
-            println!("   Description: {}", config.description.unwrap_or("No description".to_string()));
+            if let Some((_, project)) = config.projects.iter().next() {
+                println!("   Name: {}", project.name);
+                println!("   Version: {}", project.version);
+                println!("   Description: {}", project.description.as_deref().unwrap_or("No description"));
+            } else {
+                println!("   No projects found in config");
+            }
+            println!("   Agents: {}", config.agents.len());
+            println!("   Workflows: {}", config.workflows.len());
         }
         Err(e) => {
             println!("❌ Failed to load HLX config: {}", e);
@@ -61,7 +67,7 @@ fn load_hlx_config_demo() -> HlxResult<()> {
 }
 
 /// Demo 2: Process dataset configurations from HLX
-fn process_dataset_config_demo() -> HlxResult<()> {
+fn process_dataset_config_demo() -> Result<(), Box<dyn std::error::Error>> {
     println!("Processing dataset configuration...");
 
     let mut processor = HlxDatasetProcessor::new();
@@ -87,7 +93,7 @@ fn process_dataset_config_demo() -> HlxResult<()> {
 }
 
 /// Demo 3: Migrate legacy configurations to HLX
-fn migrate_legacy_config_demo() -> HlxResult<()> {
+fn migrate_legacy_config_demo() -> Result<(), Box<dyn std::error::Error>> {
     println!("Migrating legacy configuration...");
 
     // Simulate legacy configuration
@@ -97,7 +103,7 @@ fn migrate_legacy_config_demo() -> HlxResult<()> {
     legacy_config.insert("processing.batch_size".to_string(), "32".to_string());
     legacy_config.insert("processing.shuffle".to_string(), "true".to_string());
 
-    let bridge = HlxBridge::new();
+    let mut bridge = HlxBridge::new();
 
     match bridge.convert_legacy_dataset(&legacy_config) {
         Ok(dataset_config) => {
@@ -110,7 +116,7 @@ fn migrate_legacy_config_demo() -> HlxResult<()> {
         }
         Err(e) => {
             println!("❌ Migration failed: {}", e);
-            return Err(e);
+            return Err(Box::new(e));
         }
     }
 
@@ -118,7 +124,7 @@ fn migrate_legacy_config_demo() -> HlxResult<()> {
 }
 
 /// Demo 4: Validate dataset quality
-fn validate_dataset_quality_demo() -> HlxResult<()> {
+fn validate_dataset_quality_demo() -> Result<(), Box<dyn std::error::Error>> {
     println!("Validating dataset quality...");
 
     let processor = HlxDatasetProcessor::new();
@@ -161,7 +167,7 @@ fn validate_dataset_quality_demo() -> HlxResult<()> {
         }
         Err(e) => {
             println!("❌ Validation failed: {}", e);
-            return Err(e);
+            return Err(Box::new(e));
         }
     }
 
@@ -169,10 +175,10 @@ fn validate_dataset_quality_demo() -> HlxResult<()> {
 }
 
 /// Demo 5: Cache management and statistics
-fn manage_cache_demo() -> HlxResult<()> {
+fn manage_cache_demo() -> Result<(), Box<dyn std::error::Error>> {
     println!("Managing cache...");
 
-    let processor = HlxDatasetProcessor::new();
+    let mut processor = HlxDatasetProcessor::new();
 
     match processor.cache_stats() {
         Ok(stats) => {
@@ -192,7 +198,7 @@ fn manage_cache_demo() -> HlxResult<()> {
         }
         Err(e) => {
             println!("❌ Cache management failed: {}", e);
-            return Err(e);
+            return Err(Box::new(e));
         }
     }
 

@@ -2,8 +2,8 @@
 //!
 //! This demonstrates how to use HLX programmatically without the CLI
 
-use helix_core::hlx::{HlxDatasetProcessor, start_default_server, start_server};
-use helix_core::server::ServerConfig;
+use helix::hlx::{HlxDatasetProcessor, start_default_server, start_server};
+use helix::server::ServerConfig;
 use std::thread;
 use std::time::Duration;
 

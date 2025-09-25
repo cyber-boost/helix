@@ -1,5 +1,5 @@
 use anyhow::Result;
-use helix_core::hlx::{HlxDatasetProcessor, start_default_server};
+use helix::hlx::{HlxDatasetProcessor, start_default_server};
 
 fn main() -> Result<()> {
     println!("🚀 My HLX-Powered Application");

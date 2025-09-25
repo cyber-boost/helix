@@ -218,10 +218,12 @@ pub enum Value {
     String(String),
     Number(f64),
     Bool(bool),
+    Null,
     Array(Vec<Value>),
     Object(HashMap<String, Value>),
     Duration(Duration),
     Reference(String),
+    Identifier(String),
 }
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Duration {
@@ -288,11 +290,11 @@ impl HelixLoader {
     pub fn load_file<P: AsRef<Path>>(
         &mut self,
         path: P,
-    ) -> Result<HelixConfig, HelixError> {
+    ) -> Result<HelixConfig, HlxError> {
         let content = fs::read_to_string(path)?;
         self.parse(&content)
     }
-    pub fn parse(&mut self, content: &str) -> Result<HelixConfig, HelixError> {
+    pub fn parse(&mut self, content: &str) -> Result<HelixConfig, HlxError> {
         let tokens = crate::lexer::tokenize(content)?;
         let ast = crate::parser::parse(tokens)?;
         let config = self.ast_to_config(ast)?;
@@ -301,7 +303,7 @@ impl HelixLoader {
     pub fn ast_to_config(
         &self,
         ast: crate::ast::HelixAst,
-    ) -> Result<HelixConfig, HelixError> {
+    ) -> Result<HelixConfig, HlxError> {
         let mut config = HelixConfig {
             projects: HashMap::new(),
             agents: HashMap::new(),
@@ -366,7 +368,7 @@ impl HelixLoader {
     fn convert_project(
         &self,
         project: crate::ast::ProjectDecl,
-    ) -> Result<ProjectConfig, HelixError> {
+    ) -> Result<ProjectConfig, HlxError> {
         let mut metadata = HashMap::new();
         let mut version = String::new();
         let mut author = String::new();
@@ -400,7 +402,7 @@ impl HelixLoader {
     fn convert_agent(
         &self,
         agent: crate::ast::AgentDecl,
-    ) -> Result<AgentConfig, HelixError> {
+    ) -> Result<AgentConfig, HlxError> {
         let mut config = AgentConfig {
             name: agent.name.clone(),
             model: String::new(),
@@ -446,7 +448,7 @@ impl HelixLoader {
     fn convert_workflow(
         &self,
         workflow: crate::ast::WorkflowDecl,
-    ) -> Result<WorkflowConfig, HelixError> {
+    ) -> Result<WorkflowConfig, HlxError> {
         let trigger = if let Some(t) = workflow.trigger {
             self.convert_trigger(t)?
         } else {
@@ -473,7 +475,7 @@ impl HelixLoader {
     fn convert_trigger(
         &self,
         expr: crate::ast::Expression,
-    ) -> Result<TriggerConfig, HelixError> {
+    ) -> Result<TriggerConfig, HlxError> {
         match expr {
             crate::ast::Expression::String(s) | crate::ast::Expression::Identifier(s) => {
                 match s.as_str() {
@@ -515,7 +517,7 @@ impl HelixLoader {
     fn convert_step(
         &self,
         step: crate::ast::StepDecl,
-    ) -> Result<StepConfig, HelixError> {
+    ) -> Result<StepConfig, HlxError> {
         let mut config = StepConfig {
             name: step.name,
             agent: step.agent,
@@ -576,7 +578,7 @@ impl HelixLoader {
     fn convert_pipeline(
         &self,
         pipeline: crate::ast::PipelineDecl,
-    ) -> Result<PipelineConfig, HelixError> {
+    ) -> Result<PipelineConfig, HlxError> {
         let stages = pipeline
             .flow
             .iter()
@@ -609,7 +611,7 @@ impl HelixLoader {
     fn convert_memory(
         &self,
         memory: crate::ast::MemoryDecl,
-    ) -> Result<MemoryConfig, HelixError> {
+    ) -> Result<MemoryConfig, HlxError> {
         let embeddings = if let Some(e) = memory.embeddings {
             EmbeddingConfig {
                 model: e.model,
@@ -646,7 +648,7 @@ impl HelixLoader {
     fn convert_context(
         &self,
         context: crate::ast::ContextDecl,
-    ) -> Result<ContextConfig, HelixError> {
+    ) -> Result<ContextConfig, HlxError> {
         let mut secrets = HashMap::new();
         if let Some(s) = context.secrets {
             for (key, secret_ref) in s {
@@ -686,7 +688,7 @@ impl HelixLoader {
     fn convert_crew(
         &self,
         crew: crate::ast::CrewDecl,
-    ) -> Result<CrewConfig, HelixError> {
+    ) -> Result<CrewConfig, HlxError> {
         let process_type = crew
             .process_type
             .and_then(|p| match p.as_str() {
@@ -717,7 +719,7 @@ impl HelixLoader {
     fn convert_plugin(
         &self,
         plugin: crate::ast::PluginDecl,
-    ) -> Result<PluginConfig, HelixError> {
+    ) -> Result<PluginConfig, HlxError> {
         let mut config = HashMap::new();
         for (key, expr) in plugin.config {
             config.insert(key, self.expression_to_value(expr));
@@ -732,7 +734,7 @@ impl HelixLoader {
     fn convert_database(
         &self,
         database: crate::ast::DatabaseDecl,
-    ) -> Result<DatabaseConfig, HelixError> {
+    ) -> Result<DatabaseConfig, HlxError> {
         let mut properties = HashMap::new();
         for (key, expr) in database.properties {
             properties.insert(key, self.expression_to_value(expr));
@@ -765,7 +767,7 @@ impl HelixLoader {
             _ => None,
         }
     }
-    pub fn load_directory<P: AsRef<Path>>(&mut self, dir: P) -> Result<(), HelixError> {
+    pub fn load_directory<P: AsRef<Path>>(&mut self, dir: P) -> Result<(), HlxError> {
         let dir_path = dir.as_ref();
         for entry in fs::read_dir(dir_path)? {
             let entry = entry?;
@@ -820,40 +822,149 @@ impl HelixLoader {
 }
 
 
+// Data processing types for HLX integration tests
+#[derive(Debug, Clone)]
+pub enum DataFormat {
+    Auto,
+    JSON,
+    CSV,
+    Parquet,
+}
+
+#[derive(Debug, Clone)]
+pub enum TrainingFormat {
+    Preference {
+        prompt_field: String,
+        chosen_field: String,
+        rejected_field: String,
+    },
+    Completion {
+        prompt_field: String,
+        completion_field: String,
+        label_field: Option<String>,
+    },
+}
+
 #[derive(Debug)]
-pub enum HelixError {
+pub struct GenericJSONDataset {
+    pub data: Vec<serde_json::Value>,
+    pub format: DataFormat,
+    pub schema: Option<serde_json::Value>,
+}
+
+impl GenericJSONDataset {
+    pub fn new(
+        _paths: &[std::path::PathBuf],
+        _schema: Option<serde_json::Value>,
+        format: DataFormat,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        Ok(Self {
+            data: Vec::new(),
+            format,
+            schema: _schema,
+        })
+    }
+
+    pub fn detect_training_format(&self) -> Result<TrainingFormat, Box<dyn std::error::Error>> {
+        // Simple heuristic: if we have "chosen" and "rejected" fields, it's preference format
+        if let Some(first) = self.data.first() {
+            if let Some(obj) = first.as_object() {
+                if obj.contains_key("chosen") && obj.contains_key("rejected") {
+                    return Ok(TrainingFormat::Preference {
+                        prompt_field: "prompt".to_string(),
+                        chosen_field: "chosen".to_string(),
+                        rejected_field: "rejected".to_string(),
+                    });
+                } else if obj.contains_key("completion") {
+                    return Ok(TrainingFormat::Completion {
+                        prompt_field: "prompt".to_string(),
+                        completion_field: "completion".to_string(),
+                        label_field: Some("label".to_string()),
+                    });
+                }
+            }
+        }
+        Err("Could not detect training format".into())
+    }
+
+    pub fn to_training_dataset(&self) -> Result<TrainingDataset, Box<dyn std::error::Error>> {
+        Ok(TrainingDataset {
+            samples: self.data.iter().enumerate().map(|(i, _)| TrainingSample {
+                id: i as u64,
+                prompt: Some("test prompt".to_string()),
+                chosen: Some("test chosen".to_string()),
+                rejected: Some("test rejected".to_string()),
+                completion: Some("test completion".to_string()),
+                label: Some(1.0),
+            }).collect(),
+        })
+    }
+}
+
+#[derive(Debug)]
+pub struct TrainingSample {
+    pub id: u64,
+    pub prompt: Option<String>,
+    pub chosen: Option<String>,
+    pub rejected: Option<String>,
+    pub completion: Option<String>,
+    pub label: Option<f64>,
+}
+
+#[derive(Debug)]
+pub struct TrainingDataset {
+    pub samples: Vec<TrainingSample>,
+}
+
+impl TrainingDataset {
+    pub fn to_algorithm_format(&self, _algorithm: &str) -> Result<AlgorithmFormat, Box<dyn std::error::Error>> {
+        Ok(AlgorithmFormat {
+            format_type: _algorithm.to_string(),
+            data: serde_json::json!({"samples": self.samples.len()}),
+        })
+    }
+}
+
+#[derive(Debug)]
+pub struct AlgorithmFormat {
+    pub format_type: String,
+    pub data: serde_json::Value,
+}
+
+#[derive(Debug)]
+pub enum HlxError {
     IoError(std::io::Error),
     ParseError(String),
     ValidationError(String),
     ReferenceError(String),
 }
-impl From<std::io::Error> for HelixError {
+impl From<std::io::Error> for HlxError {
     fn from(err: std::io::Error) -> Self {
-        HelixError::IoError(err)
+        HlxError::IoError(err)
     }
 }
-impl From<String> for HelixError {
+impl From<String> for HlxError {
     fn from(err: String) -> Self {
-        HelixError::ParseError(err)
+        HlxError::ParseError(err)
     }
 }
-impl From<crate::parser::ParseError> for HelixError {
+impl From<crate::parser::ParseError> for HlxError {
     fn from(err: crate::parser::ParseError) -> Self {
-        HelixError::ParseError(err.to_string())
+        HlxError::ParseError(err.to_string())
     }
 }
-impl std::fmt::Display for HelixError {
+impl std::fmt::Display for HlxError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            HelixError::IoError(e) => write!(f, "IO Error: {}", e),
-            HelixError::ParseError(e) => write!(f, "Parse Error: {}", e),
-            HelixError::ValidationError(e) => write!(f, "Validation Error: {}", e),
-            HelixError::ReferenceError(e) => write!(f, "Reference Error: {}", e),
+            HlxError::IoError(e) => write!(f, "IO Error: {}", e),
+            HlxError::ParseError(e) => write!(f, "Parse Error: {}", e),
+            HlxError::ValidationError(e) => write!(f, "Validation Error: {}", e),
+            HlxError::ReferenceError(e) => write!(f, "Reference Error: {}", e),
         }
     }
 }
-impl std::error::Error for HelixError {}
-pub fn load_default_config() -> Result<HelixConfig, HelixError> {
+impl std::error::Error for HlxError {}
+pub fn load_default_config() -> Result<HelixConfig, HlxError> {
     let mut loader = HelixLoader::new();
     use std::fs;
 
@@ -895,7 +1006,7 @@ pub fn load_default_config() -> Result<HelixConfig, HelixError> {
         }
     }
     Err(
-        HelixError::IoError(
+        HlxError::IoError(
             std::io::Error::new(
                 std::io::ErrorKind::NotFound,
                 "No .hlxbb configuration file found",

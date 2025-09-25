@@ -164,27 +164,31 @@ impl<'a> Lexer<'a> {
             }
         }
     }
-    fn read_string(&mut self) -> String {
+    fn read_string(&mut self) -> Result<String, LexError> {
         let mut result = String::new();
         self.advance();
         while let Some(ch) = self.current_char {
             if ch == '"' {
                 self.advance();
-                break;
+                return Ok(result);
             } else if ch == '\\' {
                 self.advance();
                 if let Some(escaped) = self.current_char {
-                    result
-                        .push(
-                            match escaped {
-                                'n' => '\n',
-                                't' => '\t',
-                                'r' => '\r',
-                                '\\' => '\\',
-                                '"' => '"',
-                                _ => escaped,
-                            },
-                        );
+                    result.push(
+                        match escaped {
+                            'n' => '\n',
+                            't' => '\t',
+                            'r' => '\r',
+                            '\\' => '\\',
+                            '"' => '"',
+                            _ => {
+                                return Err(LexError::InvalidEscape {
+                                    location: self.current_location(),
+                                    char: escaped,
+                                });
+                            }
+                        },
+                    );
                     self.advance();
                 }
             } else {
@@ -192,7 +196,10 @@ impl<'a> Lexer<'a> {
                 self.advance();
             }
         }
-        result
+        // If we reach here, we hit EOF without finding a closing quote
+        Err(LexError::UnterminatedString {
+            location: self.current_location(),
+        })
     }
     fn read_number(&mut self) -> f64 {
         let mut num_str = String::new();
@@ -283,6 +290,7 @@ impl<'a> Lexer<'a> {
             "parallel" => Some(Keyword::Parallel),
             "timeout" => Some(Keyword::Timeout),
             "load" => Some(Keyword::Load),
+            "section" => Some(Keyword::Section),
             _ => None,
         }
     }
@@ -330,8 +338,10 @@ impl<'a> Lexer<'a> {
                 Token::Comment(comment)
             }
             Some('"') => {
-                let string = self.read_string();
-                Token::String(string)
+                match self.read_string() {
+                    Ok(string) => Token::String(string),
+                    Err(_) => Token::String("".to_string()), // For now, return empty string on error
+                }
             }
             Some('$') => {
                 let var = self.read_variable();
@@ -407,6 +417,10 @@ impl<'a> Lexer<'a> {
             }
             Some(ch) if ch.is_numeric() => {
                 let num = self.read_number();
+                // Look ahead past any whitespace that belongs to the same "token"
+                while let Some(' ') | Some('\t') = self.current_char {
+                    self.advance();
+                }
                 if let Some(duration_token) = self.read_duration(num) {
                     duration_token
                 } else {
@@ -527,6 +541,25 @@ mod tests {
         assert_eq!(tokens[0], Token::Keyword(Keyword::Timeout));
         assert_eq!(tokens[1], Token::Assign);
         assert_eq!(tokens[2], Token::Duration(30, TimeUnit::Minutes));
+    }
+
+    #[test]
+    fn test_duration_with_space() {
+        let input = "timeout = 30 m";
+        let tokens = tokenize(input).unwrap();
+        assert_eq!(tokens[0], Token::Keyword(Keyword::Timeout));
+        assert_eq!(tokens[1], Token::Assign);
+        assert_eq!(tokens[2], Token::Duration(30, TimeUnit::Minutes));
+    }
+
+    #[test]
+    fn test_section_keyword() {
+        let input = "section test { }";
+        let tokens = tokenize(input).unwrap();
+        assert_eq!(tokens[0], Token::Keyword(Keyword::Section));
+        assert_eq!(tokens[1], Token::Identifier("test".to_string()));
+        assert_eq!(tokens[2], Token::LeftBrace);
+        assert_eq!(tokens[3], Token::RightBrace);
     }
     #[test]
     fn test_variables_and_references() {

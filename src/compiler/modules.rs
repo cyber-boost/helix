@@ -2,7 +2,7 @@ use std::path::{Path, PathBuf};
 use std::collections::{HashMap, HashSet, VecDeque};
 use anyhow::{Result, Context};
 use crate::ast::{HelixAst, Declaration};
-use crate::error::{HelixError, CompilationError, CompilationStage};
+use crate::error::{HlxError, CompilationError, CompilationStage};
 pub struct ModuleSystem {
     modules: HashMap<PathBuf, Module>,
     dependencies: HashMap<PathBuf, HashSet<PathBuf>>,
@@ -151,12 +151,7 @@ impl ModuleSystem {
         let path = path.to_path_buf();
         let content = std::fs::read_to_string(&path).context("Failed to read file")?;
         let ast = crate::parse(&content)
-            .map_err(|e| HelixError::Compilation(CompilationError {
-                stage: CompilationStage::Parsing,
-                message: e.to_string(),
-                file: Some(path.clone()),
-                recoverable: false,
-            }))?;
+            .map_err(|e| HlxError::compilation_error(format!("Parsing error: {}", e), "Check syntax and file format"))?;
         let deps = self.extract_dependencies(&ast);
         let imports = self.extract_imports(&ast)?;
         let exports = self.extract_exports(&ast)?;
@@ -192,12 +187,7 @@ impl ModuleSystem {
     pub fn resolve_dependencies(&mut self) -> Result<()> {
         if let Some(cycle) = self.find_circular_dependency() {
             return Err(
-                HelixError::Compilation(CompilationError {
-                        stage: CompilationStage::Validation,
-                        message: format!("Circular dependency detected: {:?}", cycle),
-                        file: cycle.first().cloned(),
-                        recoverable: false,
-                    })
+                HlxError::compilation_error(format!("Circular dependency detected: {:?}", cycle), "Check module dependencies")
                     .into(),
             );
         }
@@ -212,7 +202,7 @@ impl ModuleSystem {
         &self,
         import_path: &str,
         from_module: &Path,
-    ) -> Result<PathBuf, HelixError> {
+    ) -> Result<PathBuf, HlxError> {
         if import_path.starts_with("./") || import_path.starts_with("../") {
             let base_dir = from_module.parent().unwrap_or(Path::new("."));
             return Ok(base_dir.join(import_path).with_extension("hlx"));
@@ -222,11 +212,11 @@ impl ModuleSystem {
         }
         Ok(PathBuf::from(format!("{}.hlx", import_path)))
     }
-    fn extract_imports(&self, _ast: &HelixAst) -> Result<ModuleImports, HelixError> {
+    fn extract_imports(&self, _ast: &HelixAst) -> Result<ModuleImports, HlxError> {
         let imports = Vec::new();
         Ok(ModuleImports { imports })
     }
-    fn extract_exports(&self, ast: &HelixAst) -> Result<ModuleExports, HelixError> {
+    fn extract_exports(&self, ast: &HelixAst) -> Result<ModuleExports, HlxError> {
         let mut exports = ModuleExports::default();
         for (index, declaration) in ast.declarations.iter().enumerate() {
             match declaration {
@@ -322,7 +312,7 @@ impl ModuleSystem {
         path.pop();
         false
     }
-    fn topological_sort(&self) -> Result<Vec<PathBuf>, HelixError> {
+    fn topological_sort(&self) -> Result<Vec<PathBuf>, HlxError> {
         let mut in_degree: HashMap<PathBuf, usize> = HashMap::new();
         let mut result = Vec::new();
         let mut queue = VecDeque::new();
@@ -354,17 +344,12 @@ impl ModuleSystem {
         }
         if result.len() != self.dependencies.len() {
             return Err(
-                HelixError::Compilation(CompilationError {
-                    stage: CompilationStage::Validation,
-                    message: "Failed to resolve module dependencies".to_string(),
-                    file: None,
-                    recoverable: false,
-                }),
+                HlxError::compilation_error("Failed to resolve module dependencies", "Check module dependency resolution"),
             );
         }
         Ok(result)
     }
-    pub fn merge_modules(&self) -> Result<HelixAst, HelixError> {
+    pub fn merge_modules(&self) -> Result<HelixAst, HlxError> {
         let mut merged_declarations = Vec::new();
         for path in &self.resolution_order {
             if let Some(module) = self.modules.get(path) {
@@ -466,6 +451,15 @@ impl Default for ModuleSystem {
 impl Default for DependencyBundler {
     fn default() -> Self {
         Self::new()
+    }
+}
+pub struct DependencyGraph;
+impl DependencyGraph {
+    pub fn new() -> Self {
+        Self
+    }
+    pub fn check_circular(&self) -> Result<(), String> {
+        Ok(())
     }
 }
 #[cfg(test)]

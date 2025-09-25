@@ -1,6 +1,6 @@
 #[cfg(feature = "compiler")]
-use helix_core::compiler::{Compiler, OptimizationLevel};
-use helix_core::{parse, validate, ast_to_config, HelixConfig};
+use helix::compiler::{Compiler, OptimizationLevel};
+use helix::{parse, validate, ast_to_config, HelixConfig};
 use std::collections::HashMap;
 use std::path::Path;
 use std::fs;
@@ -133,7 +133,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         f64) * 100.0
     );
     if successful_compilations > 0 {
-        println!("\n🎉 REMOTE COMPILATION TEST PASSED!");
+        println!("\n🎉 REMOTE COMPILATION test PASSED!");
         println!("   ✅ rlib integration working");
         println!("   ✅ HTTP fetching working");
         println!("   ✅ Compilation pipeline working");
@@ -143,7 +143,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("   - {} → {} bytes", filename, binary.size());
         }
     } else {
-        println!("\n❌ REMOTE COMPILATION TEST FAILED");
+        println!("\n❌ REMOTE COMPILATION test FAILED");
         println!("   - No files were successfully compiled");
         println!("   - Check server is running and HLX files exist");
     }

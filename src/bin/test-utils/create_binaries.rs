@@ -10,10 +10,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "AI development team"),
     ];
     let opt_levels = vec![
-        ("zero", helix_core::compiler::OptimizationLevel::Zero), ("one",
-        helix_core::compiler::OptimizationLevel::One), ("two",
-        helix_core::compiler::OptimizationLevel::Two), ("three",
-        helix_core::compiler::OptimizationLevel::Three),
+        ("zero", helix::compiler::OptimizationLevel::Zero), ("one",
+        helix::compiler::OptimizationLevel::One), ("two",
+        helix::compiler::OptimizationLevel::Two), ("three",
+        helix::compiler::OptimizationLevel::Three),
     ];
     for (hlx_path, description) in &examples {
         if !Path::new(hlx_path).exists() {
@@ -24,7 +24,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let source = fs::read_to_string(hlx_path)?;
         let source_size = source.len();
         for (level_name, level) in &opt_levels {
-            let compiler = helix_core::compiler::Compiler::new(*level);
+            let compiler = helix::compiler::Compiler::new(*level);
             match compiler.compile_source(&source, None) {
                 Ok(binary) => {
                     let filename = Path::new(hlx_path)
@@ -35,7 +35,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     let binary_path = format!(
                         "binaries/{}_opt_{}.hlxb", filename, level_name
                     );
-                    let serializer = helix_core::compiler::serializer::BinarySerializer::new(
+                    let serializer = helix::compiler::serializer::BinarySerializer::new(
                         true,
                     );
                     serializer.write_to_file(&binary, Path::new(&binary_path))?;
@@ -202,13 +202,13 @@ crew "engineering-research-team" {
     let source_size = comprehensive_example.len();
     println!("  📊 Source: {} bytes", source_size);
     for (level_name, level) in &opt_levels {
-        let compiler = helix_core::compiler::Compiler::new(*level);
+        let compiler = helix::compiler::Compiler::new(*level);
         match compiler.compile_source(comprehensive_example, None) {
             Ok(binary) => {
                 let binary_path = format!(
                     "binaries/comprehensive_opt_{}.hlxb", level_name
                 );
-                let serializer = helix_core::compiler::serializer::BinarySerializer::new(
+                let serializer = helix::compiler::serializer::BinarySerializer::new(
                     true,
                 );
                 serializer.write_to_file(&binary, Path::new(&binary_path))?;

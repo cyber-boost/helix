@@ -1,0 +1,55 @@
+# Large Dataset Template for HLXC Compression
+# This file demonstrates the structure that would be compressed into .hlxc format
+
+{
+  "metadata": {
+    "version": "1.0",
+    "created": "2024-01-15T11:00:00Z",
+    "source": "performance_test_suite",
+    "record_count": 100000,
+    "description": "Large dataset suitable for HLXC compression testing"
+  },
+  "schema": {
+    "fields": [
+      {"name": "timestamp", "type": "datetime", "nullable": false},
+      {"name": "user_id", "type": "integer", "nullable": false},
+      {"name": "event_type", "type": "string", "nullable": false},
+      {"name": "value", "type": "number", "nullable": true},
+      {"name": "category", "type": "string", "nullable": false},
+      {"name": "tags", "type": "array", "nullable": true},
+      {"name": "metadata", "type": "object", "nullable": true}
+    ]
+  },
+  "compression_hint": {
+    "recommended_format": "hlxc",
+    "expected_compression_ratio": 0.3,
+    "estimated_hlxc_size_mb": 25,
+    "original_size_mb": 85
+  },
+  "sample_records": [
+    {
+      "timestamp": "2024-01-15T10:00:00Z",
+      "user_id": 1001,
+      "event_type": "page_view",
+      "value": 45.67,
+      "category": "engagement",
+      "tags": ["homepage", "mobile"],
+      "metadata": {"session_id": "sess_123", "user_agent": "mobile_app"}
+    },
+    {
+      "timestamp": "2024-01-15T10:01:15Z",
+      "user_id": 1002,
+      "event_type": "purchase",
+      "value": 299.99,
+      "category": "conversion",
+      "tags": ["checkout", "premium"],
+      "metadata": {"order_id": "ord_456", "payment_method": "credit_card"}
+    }
+  ],
+  "usage_notes": [
+    "This dataset is designed for testing HLXC compression performance",
+    "Contains 100K records with mixed data types",
+    "Suitable for columnar storage and random access patterns",
+    "Use HLXC format for optimal compression and query performance"
+  ]
+}

@@ -1,4 +1,4 @@
-use helix_core::compiler::cli;
+use helix::compiler::cli;
 use std::process;
 
 #[tokio::main]

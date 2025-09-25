@@ -1,0 +1,114 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created": "2024-01-15T10:30:00Z",
+    "source": "helix_test_suite",
+    "record_count": 5
+  },
+  "schema": {
+    "fields": [
+      {
+        "name": "id",
+        "type": "integer",
+        "nullable": false
+      },
+      {
+        "name": "name",
+        "type": "string",
+        "nullable": false
+      },
+      {
+        "name": "category",
+        "type": "string",
+        "nullable": false
+      },
+      {
+        "name": "value",
+        "type": "number",
+        "nullable": true
+      },
+      {
+        "name": "active",
+        "type": "boolean",
+        "nullable": false
+      },
+      {
+        "name": "tags",
+        "type": "array",
+        "nullable": true
+      },
+      {
+        "name": "metadata",
+        "type": "object",
+        "nullable": true
+      }
+    ]
+  },
+  "data": [
+    {
+      "id": 1,
+      "name": "Sample Item A",
+      "category": "electronics",
+      "value": 299.99,
+      "active": true,
+      "tags": ["premium", "wireless", "bluetooth"],
+      "metadata": {
+        "brand": "TechCorp",
+        "warranty": "2 years",
+        "weight": "0.5kg"
+      }
+    },
+    {
+      "id": 2,
+      "name": "Sample Item B",
+      "category": "books",
+      "value": 24.95,
+      "active": true,
+      "tags": ["fiction", "bestseller", "award-winner"],
+      "metadata": {
+        "author": "Jane Smith",
+        "pages": 384,
+        "isbn": "978-0123456789"
+      }
+    },
+    {
+      "id": 3,
+      "name": "Sample Item C",
+      "category": "clothing",
+      "value": 89.99,
+      "active": false,
+      "tags": ["casual", "cotton", "summer"],
+      "metadata": {
+        "brand": "FashionCo",
+        "size": "M",
+        "color": "blue"
+      }
+    },
+    {
+      "id": 4,
+      "name": "Sample Item D",
+      "category": "electronics",
+      "value": null,
+      "active": true,
+      "tags": ["budget", "basic"],
+      "metadata": {
+        "brand": "GenericBrand",
+        "condition": "new"
+      }
+    },
+    {
+      "id": 5,
+      "name": "Sample Item E",
+      "category": "books",
+      "value": 15.50,
+      "active": true,
+      "tags": ["non-fiction", "educational", "reference"],
+      "metadata": {
+        "author": "Dr. Knowledge",
+        "pages": 256,
+        "isbn": "978-0987654321",
+        "edition": "3rd"
+      }
+    }
+  ]
+}

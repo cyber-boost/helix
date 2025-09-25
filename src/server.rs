@@ -565,9 +565,6 @@ pub fn start_default_server() -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs::File;
-    use std::io::Write;
-    use tempfile::TempDir;
     #[test]
     fn test_server_config_default() {
         let config = ServerConfig::default();

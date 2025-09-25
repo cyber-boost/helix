@@ -3,12 +3,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🧪 Testing HELIX Language Edge Cases and Error Handling...\n");
     println!("Test 1: Invalid syntax error handling...");
     let invalid_content = fs::read_to_string("test_invalid.hlxbb")?;
-    match helix_core::parse(&invalid_content) {
+    match helix::parse(&invalid_content) {
         Ok(_) => println!("❌ Should have failed to parse invalid syntax"),
         Err(e) => println!("✅ Correctly caught parse error: {}", e.message),
     }
     println!("\nTest 2: Empty file handling...");
-    match helix_core::parse("") {
+    match helix::parse("") {
         Ok(ast) => {
             println!(
                 "✅ Empty file parsed with {} declarations", ast.declarations.len()
@@ -18,7 +18,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     println!("\nTest 3: Comments-only file handling...");
     let comments_only = "# This is just a comment\n# Another comment";
-    match helix_core::parse(comments_only) {
+    match helix::parse(comments_only) {
         Ok(ast) => {
             println!(
                 "✅ Comments-only file parsed with {} declarations", ast.declarations
@@ -34,20 +34,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         "agent \"test\" { timeout = 0s }",
     ];
     for (i, test) in duration_tests.iter().enumerate() {
-        match helix_core::parse(test) {
+        match helix::parse(test) {
             Ok(_) => println!("✅ Duration test {} passed", i + 1),
             Err(e) => println!("❌ Duration test {} failed: {}", i + 1, e.message),
         }
     }
     println!("\nTest 5: Large numbers...");
     let large_num_test = "agent \"test\" { max_tokens = 999999999 }";
-    match helix_core::parse(large_num_test) {
+    match helix::parse(large_num_test) {
         Ok(_) => println!("✅ Large numbers handled correctly"),
         Err(e) => println!("❌ Large number parsing failed: {}", e.message),
     }
     println!("\nTest 6: Unicode string handling...");
     let unicode_test = r#"agent "test" { model = "🤖 GPT-4 émojis åçcénts" }"#;
-    match helix_core::parse(unicode_test) {
+    match helix::parse(unicode_test) {
         Ok(_) => println!("✅ Unicode strings handled correctly"),
         Err(e) => println!("❌ Unicode parsing failed: {}", e.message),
     }
@@ -64,13 +64,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
     "#;
-    match helix_core::parse(complex_test) {
+    match helix::parse(complex_test) {
         Ok(_) => println!("✅ Complex nested structures handled"),
         Err(e) => println!("❌ Complex nesting failed: {}", e.message),
     }
     println!("\nTest 8: Config conversion with minimal data...");
     let minimal_test = "agent \"minimal\" { model = \"gpt-3.5\" }";
-    match helix_core::parse_and_validate(minimal_test) {
+    match helix::parse_and_validate(minimal_test) {
         Ok(config) => {
             println!("✅ Minimal config created");
             println!("   - Agents: {}", config.agents.len());
@@ -81,12 +81,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     println!("\nTest 9: VM with minimal binary...");
     let source = "agent \"vm_test\" { model = \"test\" }";
-    let compiler = helix_core::compiler::Compiler::new(
-        helix_core::compiler::OptimizationLevel::Zero,
+    let compiler = helix::compiler::Compiler::new(
+        helix::compiler::OptimizationLevel::Zero,
     );
     match compiler.compile_source(source, None) {
         Ok(binary) => {
-            let mut vm = helix_core::HelixVM::new();
+            let mut vm = helix::HelixVM::new();
             match vm.execute_binary(&binary) {
                 Ok(_) => println!("✅ VM execution completed"),
                 Err(e) => println!("❌ VM execution failed: {}", e.message),
@@ -96,9 +96,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     println!("\nTest 10: All optimization levels...");
     let opt_levels = vec![
-        ("Zero", helix_core::OptimizationLevel::Zero), ("One",
-        helix_core::OptimizationLevel::One), ("Two", helix_core::OptimizationLevel::Two),
-        ("Three", helix_core::OptimizationLevel::Three),
+        ("Zero", helix::OptimizationLevel::Zero), ("One",
+        helix::OptimizationLevel::One), ("Two", helix::OptimizationLevel::Two),
+        ("Three", helix::OptimizationLevel::Three),
     ];
     let test_source = r#"
         agent "opt_test" { model = "gpt-4" }
@@ -108,7 +108,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     "#;
     for (name, level) in opt_levels {
-        let compiler = helix_core::compiler::Compiler::new(level);
+        let compiler = helix::compiler::Compiler::new(level);
         match compiler.compile_source(test_source, None) {
             Ok(binary) => println!("✅ {} optimization: {} bytes", name, binary.size()),
             Err(e) => println!("❌ {} optimization failed: {}", name, e),

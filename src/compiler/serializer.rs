@@ -324,6 +324,8 @@ impl BinarySerializer {
             crate::types::Value::Array(_) => Value::Null,
             crate::types::Value::Object(_) => Value::Null,
             crate::types::Value::Reference(_) => Value::Null,
+            crate::types::Value::Null => Value::Null,
+            crate::types::Value::Identifier(_) => Value::Null,
         }
     }
     #[allow(dead_code)]

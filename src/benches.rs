@@ -1,5 +1,4 @@
 use std::time::{Duration, Instant};
-use std::collections::HashMap;
 pub struct Benchmark {
     name: String,
     iterations: usize,

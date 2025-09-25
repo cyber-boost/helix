@@ -1,0 +1,119 @@
+# =============================================================================
+# Forge metadata
+# =============================================================================
+forge {
+    name        = "my great model"
+    model_id    = "HuggingFaceTB/SmolLM2-135M"
+    version     = "1.0.0"
+    description = "BCO training of SmolLM2‑135M"
+}
+
+# =============================================================================
+# Global execution mode flags
+# =============================================================================
+mode {
+    continuous          = true
+    relay               = true
+    random_trainer      = false
+}
+
+# =============================================================================
+# Core training configuration (mirrors TrainingArguments / BCOConfig)
+# =============================================================================
+training {
+    trainer                 = "bco"
+    base_output_dir         = "./outputs"
+    train_split             = "reward"
+    train_file              = "bco_format_normalized.json"
+    eval_file               = "validate.json"
+    dataset_name            = "bco"
+    scrambling              = false
+    max_retries             = 3
+    enable_wandb            = false
+    max_data_points         = 2000
+    update_interval_secs    = 0.5
+    gpu_update_interval_secs= 1.0
+    training_script         = "training_pipeline.py"
+
+    log_buffer_size         = 500
+    per_device_train_batch  = 16
+    per_device_eval_batch   = 16
+    num_train_epochs        = 3
+    max_steps               = 100_000
+    save_steps              = 500
+    save_total_limit        = 2
+    eval_strategy           = "steps"
+    eval_steps              = 1_000
+    logging_steps           = 100
+    fp16                    = false
+    bf16                    = true
+    max_length              = 1_024
+    gradient_checkpointing  = true
+    dataloader_pin_memory   = true
+    dataloader_persistent_workers = true
+    dataloader_num_workers  = 8
+}
+
+# =============================================================================
+# profiling & anomaly detection
+# =============================================================================
+diagnostics {
+    enable_profiling          = true
+    enable_anomaly_detection  = true
+    anomaly_threshold         = 3.0
+    smoothing_window          = 5
+}
+
+# =============================================================================
+# Safety / alerting
+# =============================================================================
+safety {
+    alert_on_nan                 = true
+    alert_on_gradient_explosion  = true
+    gradient_explosion_threshold = 100.0
+}
+
+# =============================================================================
+# Distributed / communication settings
+# =============================================================================
+communication {
+    broadcast_interval_secs = 0.5
+    max_connections         = 100
+}
+
+# =============================================================================
+# Filesystem locations (expanded by the runtime, `~` resolved to $HOME)
+# =============================================================================
+paths {
+    export_dir      = "~/.factory/exports"
+    checkpoint_dir  = "~/.factory/checkpoints"
+    configs_dir     = "~/.factory/configs"
+}
+
+# =============================================================================
+# Dataset configurations
+# =============================================================================
+local_dataset {
+    source = "/path/to/your/dataset"
+    split = "train"
+    format = "jsonl"
+    required_columns = ["prompt", "completion", "label"]
+    optional_columns = ["metadata", "source", "difficulty"]
+    src_filter = ["col1", "col2", "col3"]
+    rpl_filter = ["col1", "col2", "col3"]
+}
+
+hf_dataset {
+    source = "HuggingFace/Dataset"
+    split = "train"
+    format = "jsonl"
+    required_columns = ["prompt", "completion", "label"]
+    optional_columns = ["metadata", "source", "difficulty"]
+    src_filter = ["col1", "col2", "col3"]
+    rpl_filter = ["col1", "col2", "col3"]
+}
+
+cache {
+    cache_path = "~/.factory/dataset_cache.arrow"
+    cache_max_size_gb = 5
+}

@@ -1,6 +1,6 @@
 # HELIX Language - Rust Library Integration Examples
 
-This directory contains Rust code examples showing how to integrate `helix_core` as a library dependency in your Rust projects.
+This directory contains Rust code examples showing how to integrate `helix` as a library dependency in your Rust projects.
 
 ## Examples Overview
 
@@ -73,7 +73,7 @@ helix = { path = "path/to/helix", features = ["compiler"] }   # With compiler
 ### 2. Basic Usage
 
 ```rust
-use helix_core::{parse, validate, load_file, ast_to_config};
+use helix::{parse, validate, load_file, ast_to_config};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Parse from string
@@ -97,7 +97,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ```rust
 #[cfg(feature = "compiler")]
-use helix_core::compiler::{Compiler, OptimizationLevel};
+use helix::compiler::{Compiler, OptimizationLevel};
 
 #[cfg(feature = "compiler")]
 fn compile_config() -> Result<(), Box<dyn std::error::Error>> {
@@ -120,13 +120,13 @@ fn compile_config() -> Result<(), Box<dyn std::error::Error>> {
 
 The main public API is available through:
 
-- `helix_core::parse()` - Parse HELIX source to AST
-- `helix_core::validate()` - Validate AST for correctness
-- `helix_core::load_file()` - Load configuration from file
-- `helix_core::ast_to_config()` - Convert AST to configuration struct
-- `helix_core::compiler::Compiler` - Compiler with optimization
-- `helix_core::compiler::BinarySerializer` - Binary serialization
-- `helix_core::compiler::BinaryLoader` - Binary loading
+- `helix::parse()` - Parse HELIX source to AST
+- `helix::validate()` - Validate AST for correctness
+- `helix::load_file()` - Load configuration from file
+- `helix::ast_to_config()` - Convert AST to configuration struct
+- `helix::compiler::Compiler` - Compiler with optimization
+- `helix::compiler::BinarySerializer` - Binary serialization
+- `helix::compiler::BinaryLoader` - Binary loading
 
 ## Testing the Examples
 

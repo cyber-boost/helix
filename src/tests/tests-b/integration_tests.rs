@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod integration_tests {
     use crate::{parse, validate, ast_to_config};
-    use crate::compile::Compiler;
+    use crate::compiler::Compiler;
     use crate::compiler::optimizer::OptimizationLevel;
     use crate::compiler::{serializer::BinarySerializer, loader::BinaryLoader};
     use tempfile::TempDir;
@@ -144,10 +144,14 @@ mod integration_tests {
             ConstantPool,
         };
         use crate::compiler::optimizer::{Optimizer, OptimizationLevel};
+        let mut string_pool = StringPool::new();
+        let prop_name_idx = string_pool.intern("model");
+        let value1_idx = string_pool.intern("gpt-4");
+        let value2_idx = string_pool.intern("gpt-3.5");
         let ir_instructions = vec![
-            Instruction::DeclareAgent(1), Instruction::SetProperty { target : 1, key : 0,
-            value : ConstantValue::String(1) }, Instruction::SetProperty { target : 1,
-            key : 0, value : ConstantValue::String(2) }, Instruction::SetProperty {
+            Instruction::DeclareAgent(1), Instruction::SetProperty { target : 1, key : prop_name_idx,
+            value : ConstantValue::String(value1_idx) }, Instruction::SetProperty { target : 1,
+            key : prop_name_idx, value : ConstantValue::String(value2_idx) }, Instruction::SetProperty {
             target : 1, key : 1, value : ConstantValue::Number(0.7) },
         ];
         let mut ir = HelixIR {
@@ -155,7 +159,7 @@ mod integration_tests {
             metadata: Metadata::default(),
             symbol_table: SymbolTable::default(),
             instructions: ir_instructions,
-            string_pool: StringPool::new(),
+            string_pool,
             constants: ConstantPool::new(),
         };
         let initial_count = ir.instructions.len();

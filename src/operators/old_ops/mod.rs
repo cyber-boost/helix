@@ -1,0 +1,40 @@
+// Old operators module - contains legacy operator implementations
+// These modules are being phased out in favor of the new modular operator system
+
+pub mod enterprise;
+pub mod amqp;
+pub mod websocket;
+pub mod istio;
+pub mod cloud;
+pub mod graphql;
+pub mod database;
+pub mod jaeger;
+pub mod consul;
+pub mod service_mesh;
+pub mod grpc;
+pub mod sqlite;
+pub mod nats;
+pub mod grafana;
+pub mod validation;
+pub mod temporal;
+pub mod mongodb;
+pub mod advanced;
+pub mod core;
+pub mod prometheus;
+pub mod etcd;
+pub mod postgresql;
+pub mod zipkin;
+pub mod kafka;
+pub mod integrations;
+pub mod mysql;
+pub mod conditional;
+pub mod monitoring;
+pub mod elasticsearch;
+pub mod string_processing;
+pub mod security;
+pub mod sse;
+pub mod vault;
+pub mod communication;
+pub mod redis;
+pub mod fundamental;
+pub mod disabledmod;

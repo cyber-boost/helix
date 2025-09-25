@@ -70,13 +70,13 @@ impl std::fmt::Display for SemanticError {
     }
 }
 pub struct SemanticAnalyzer {
-    agents: HashMap<String, AgentDecl>,
-    workflows: HashMap<String, WorkflowDecl>,
-    contexts: HashMap<String, ContextDecl>,
-    crews: HashMap<String, CrewDecl>,
-    expected_env_vars: HashSet<String>,
-    _expected_memory_refs: HashSet<String>,
-    errors: Vec<SemanticError>,
+    pub agents: HashMap<String, AgentDecl>,
+    pub workflows: HashMap<String, WorkflowDecl>,
+    pub contexts: HashMap<String, ContextDecl>,
+    pub crews: HashMap<String, CrewDecl>,
+    pub expected_env_vars: HashSet<String>,
+    pub _expected_memory_refs: HashSet<String>,
+    pub errors: Vec<SemanticError>,
 }
 impl AstVisitor for SemanticAnalyzer {
     type Result = ();
@@ -106,6 +106,11 @@ impl AstVisitor for SemanticAnalyzer {
     }
     fn visit_context(&mut self, _context: &ContextDecl) -> Self::Result {}
     fn visit_crew(&mut self, _crew: &CrewDecl) -> Self::Result {}
+    fn visit_section(&mut self, section: &SectionDecl) -> Self::Result {
+        for (_key, expr) in &section.properties {
+            self.visit_expression(expr);
+        }
+    }
     fn visit_expression(&mut self, expr: &Expression) -> Self::Result {
         match expr {
             Expression::Variable(var) => {

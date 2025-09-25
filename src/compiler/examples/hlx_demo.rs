@@ -1,5 +1,5 @@
 use anyhow::Result;
-use helix_core::json::*;
+use helix::json::*;
 use serde_json::json;
 
 /// Demonstration of HLX-AI capabilities for intelligent dataset processing

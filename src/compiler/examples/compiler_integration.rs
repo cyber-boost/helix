@@ -1,6 +1,6 @@
 #[cfg(feature = "compiler")]
-use helix_core::compiler::{Compiler, OptimizationLevel, BinarySerializer, BinaryLoader};
-use helix_core::{parse, validate, ast_to_config, HelixConfig};
+use helix::compiler::{Compiler, OptimizationLevel, BinarySerializer, BinaryLoader};
+use helix::{parse, validate, ast_to_config, HelixConfig};
 use std::path::Path;
 #[cfg(feature = "compiler")]
 fn main() -> Result<(), Box<dyn std::error::Error>> {

@@ -11,7 +11,7 @@ use crate::{HelixConfig, parse, validate, ast_to_config};
 #[cfg(feature = "compiler")]
 use crate::compiler::{BinaryLoader, Compiler, OptimizationLevel};
 
-/// HLX-powered dataset processor that integrates helix_core with dataset processing
+/// HLX-powered dataset processor that integrates helix with dataset processing
 pub struct HlxDatasetProcessor {
     #[cfg(feature = "compiler")]
     compiler: Compiler,
@@ -89,7 +89,7 @@ impl HlxDatasetProcessor {
         let config = ast_to_config(ast)
             .map_err(|e| HlxError::ConfigConversion {
                 field: "ast_to_config".to_string(),
-                details: e,
+                details: e.to_string(),
                 suggestion: "Check HLX configuration structure and required fields".to_string(),
             })?;
 
@@ -126,7 +126,7 @@ impl HlxDatasetProcessor {
         let config = ast_to_config(ast)
             .map_err(|e| HlxError::ConfigConversion {
                 field: "binary_decompile".to_string(),
-                details: e,
+                details: e.to_string(),
                 suggestion: "Check if the binary was compiled with a compatible HLX version".to_string(),
             })?;
 
@@ -283,6 +283,15 @@ pub struct ProcessingOptions {
     pub batch_size: usize,
     pub shuffle: bool,
     pub filter_duplicates: bool,
+}
+impl Default for ProcessingOptions {
+    fn default() -> Self {
+        Self {
+            batch_size: 32,
+            shuffle: true,
+            filter_duplicates: true,
+        }
+    }
 }
 
 /// Validation result for datasets

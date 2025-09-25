@@ -1,7 +1,7 @@
 use std::fs;
 use std::io::Write;
 use std::path::Path;
-use helix_core::compiler::loader::BinaryLoader;
+use helix::compiler::loader::BinaryLoader;
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("🧪 Testing HLX to HLXB conversion and binary loading...");
     println!("📡 Server should be running on http://localhost:4592");
@@ -47,8 +47,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("❌ Binary version is incorrect: {}", binary.version);
             }
             println!("\n🔄 Test 3: Decompiling binary back to source");
-            use helix_core::compiler::Compiler;
-            let compiler = Compiler::new(helix_core::compiler::OptimizationLevel::Two);
+            use helix::compiler::Compiler;
+            let compiler = Compiler::new(helix::compiler::OptimizationLevel::Two);
             match compiler.decompile(&binary) {
                 Ok(source) => {
                     println!("✅ Successfully decompiled!");
