@@ -1,0 +1,15 @@
+# 11‑backup-policy.hlx
+backup {
+    name      = "daily‑db‑backup"
+    schedule  = "0 2 * * *"      # 02:00 UTC daily
+    retention = "30d"
+}
+sources = [
+    { type = "postgres", dsn = $POSTGRES_DSN, name = "main‑db" },
+    { type = "files",    path = "/var/www/html", name = "web‑data" }
+]
+destinations = [
+    { type = "s3",    bucket = "my‑backups", prefix = "db/" },
+    { type = "local", path = "/mnt/backup" }
+]
+notifications { on_success = "slack"; slack_webhook = $SLACK_WEBHOOK_URL }

@@ -1,0 +1,14 @@
+# 44‑service-mesh.hlx
+mesh {
+    name = "istio"
+    version = "1.22"
+}
+sidecar {
+    inbound_port = 15006
+    outbound_port = 15001
+    metrics_port = 15020
+}
+policy {
+    mtls = "STRICT"
+    http_retry = { attempts = 3; per_try_timeout = "2s" }
+}

@@ -1,0 +1,8 @@
+# 03‑todolist.hlx
+todolist { owner = "alice@example.com" }
+tasks = [
+    { title = "Sketch UI mockups",   completed = false; due = "2025‑10‑05" },
+    { title = "Implement auth flow", completed = false; due = "2025‑10‑12" },
+    { title = "Write README",        completed = true;  done = "2025‑09‑30" }
+]
+sections { tags = { "high‑priority" = true; "backend" = true } }

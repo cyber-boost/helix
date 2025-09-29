@@ -1,0 +1,85 @@
+# Complex configuration testing all features
+project "complex_app" < 
+    name = !APP_NAME!
+    version = !APP_VERSION!
+    environment = @env['DEPLOYMENT_ENV']
+    build_time = !BUILD_TIME!
+>
+
+# Environment-aware configuration
+~deployment < 
+    region = @env["AWS_REGION"]
+    account = @env['AWS_ACCOUNT']
+    environment = @env['ENVIRONMENT']
+    instance_type = !INSTANCE_TYPE!
+    instance_count = !INSTANCE_COUNT!
+>
+
+# Feature flags with variable markers
+~features < 
+    debug_mode = !DEBUG_ENABLED!
+    tracing_enabled = !TRACING_ENABLED!
+    metrics_enabled = !METRICS_ENABLED!
+    logging_level = !LOG_LEVEL!
+    experimental_features = !EXPERIMENTAL!
+>
+
+# Database configuration with environment variables
+~database < 
+    host = @env['DB_HOST']
+    port = !DB_PORT!
+    database = !DB_NAME!
+    username = @env['DB_USER']
+    password = @env['DB_PASSWORD']
+    ssl_mode = !SSL_MODE!
+    connection_timeout = !CONNECTION_TIMEOUT!
+>
+
+# API configuration mixing all features
+~api < 
+    base_url = @env['API_BASE_URL'] + "/api/v1"
+    timeout = !API_TIMEOUT!
+    retries = !API_RETRIES!
+    rate_limit = !RATE_LIMIT!
+    allowed_origins = [
+        @env['ALLOWED_ORIGIN_1'],
+        @env['ALLOWED_ORIGIN_2'],
+        !ADDITIONAL_ORIGIN!
+    ]
+    headers = {
+        "X-API-Key" = !API_KEY!,
+        "X-Client-ID" = !CLIENT_ID!,
+        "Authorization" = "Bearer " + @env['AUTH_TOKEN']
+    }
+>
+
+# Task scheduling with runtime variables
+task "data_cleanup" < 
+    schedule = !CLEANUP_SCHEDULE!
+    enabled = !CLEANUP_ENABLED!
+    batch_size = !BATCH_SIZE!
+    retention_days = !RETENTION_DAYS!
+    parallel_jobs = !PARALLEL_JOBS!
+>
+
+task "health_check" < 
+    schedule = !HEALTH_CHECK_INTERVAL!
+    enabled = !HEALTH_CHECKS_ENABLED!
+    endpoints = [
+        !HEALTH_ENDPOINT_1!,
+        !HEALTH_ENDPOINT_2!
+    ]
+>
+
+# Cache configuration
+~cache < 
+    enabled = !CACHE_ENABLED!
+    provider = !CACHE_PROVIDER!
+    ttl = !CACHE_TTL!
+    max_size = !MAX_CACHE_SIZE!
+    redis_config = {
+        host = !REDIS_HOST!,
+        port = !REDIS_PORT!,
+        password = @env['REDIS_PASSWORD']
+    }
+>

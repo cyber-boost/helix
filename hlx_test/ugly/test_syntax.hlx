@@ -1,0 +1,21 @@
+project "awesome-app" {
+    name        = "awesome-app"
+    version     = "0.1.0"
+    description = "A starter project with a clear roadmap"
+    owner       = "alice@example.com"
+    start_date  = "2025-09-30"
+    license     = "MIT"
+}
+
+agent "roadmap-manager" {
+    model = "gpt-4"
+    temperature = 0.7
+}
+
+workflow "project-setup" {
+    trigger = "manual"
+    step "planning" {
+        agent = "roadmap-manager"
+        task = "Create project roadmap"
+    }
+}

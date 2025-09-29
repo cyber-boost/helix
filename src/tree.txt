@@ -1,0 +1,194 @@
+src/
+├── dna/                                    # Core DNA modules containing main compiler components
+│   ├── atp/                               # Abstract syntax tree processing and language parsing
+│   │   ├── ast.rs                        # Abstract syntax tree node definitions and structures
+│   │   ├── interpreter.rs                # AST interpretation and execution engine
+│   │   ├── lexer.rs                      # Tokenization and lexical analysis
+│   │   ├── mod.rs                        # Module exports for ATP components
+│   │   ├── ops.rs                        # Operator parsing and processing
+│   │   ├── output.rs                     # AST output formatting and serialization
+│   │   ├── parser.rs                     # Grammar parsing and AST construction
+│   │   ├── types.rs                      # Core type definitions and data structures
+│   │   ├── value.rs                      # Value representation and manipulation
+│   │   └── verify.rs                     # AST validation and verification
+│   ├── bch/                              # Benchmarking and performance testing utilities
+│   │   ├── mod.rs                        # Benchmark module exports
+│   │   └── parser_bench.rs               # Parser performance benchmarking
+│   ├── bin/                              # Binary executables and test utilities
+│   │   ├── helix.rs                      # Main Helix binary entry point
+│   │   └── test-utils/                   # Test utility functions
+│   │       ├── create_binaries.rs        # Binary creation utilities
+│   │       └── test_edge_cases.rs        # Edge case testing utilities
+│   ├── cmd/                              # CLI command implementations for hlx tool
+│   │   ├── add.rs                        # Add command implementation
+│   │   ├── a_example.rs                  # Example command template
+│   │   ├── bench.rs                      # Benchmark command
+│   │   ├── binary.rs                     # Binary management command
+│   │   ├── build.rs                      # Build command with optimization
+│   │   ├── bundle.rs                     # Bundle creation command
+│   │   ├── cache.rs                      # Cache management command
+│   │   ├── clean.rs                      # Cleanup command
+│   │   ├── compile.rs                    # Compilation command
+│   │   ├── completions.rs                # Shell completion generation
+│   │   ├── config.rs                     # Configuration management
+│   │   ├── dataset.rs                    # Dataset handling command
+│   │   ├── decompile.rs                  # Decompilation command
+│   │   ├── diagnostics.rs                # Diagnostic information command
+│   │   ├── diff.rs                       # File difference comparison
+│   │   ├── doctor.rs                     # System health check command
+│   │   ├── export.rs                     # Export functionality
+│   │   ├── filter.rs                     # Data filtering command
+│   │   ├── fmt.rs                        # Code formatting command
+│   │   ├── generate.rs                   # Code generation command
+│   │   ├── import.rs                     # Import functionality
+│   │   ├── info.rs                       # Information display command
+│   │   ├── init.rs                       # Project initialization command
+│   │   ├── json.rs                       # JSON processing command
+│   │   ├── lint.rs                       # Code linting command
+│   │   ├── loader.rs                     # File loading utilities
+│   │   ├── migrate.rs                    # Migration command
+│   │   ├── mod.rs                        # Command module exports
+│   │   ├── optimizer.rs                  # Optimization command
+│   │   ├── preview.rs                    # Preview functionality
+│   │   ├── project.rs                    # Project management
+│   │   ├── publish.rs                    # Publishing command
+│   │   ├── reset.rs                      # Reset command
+│   │   ├── rm.rs                         # Remove command
+│   │   ├── runtime.rs                    # Runtime management
+│   │   ├── schema.rs                     # Schema validation
+│   │   ├── search.rs                     # Search functionality
+│   │   ├── serializer.rs                 # Serialization utilities
+│   │   ├── serve.rs                      # Server command
+│   │   ├── sign.rs                       # Code signing command
+│   │   ├── templates.rs                  # Template management
+│   │   ├── test.rs                       # Testing command
+│   │   ├── tools.rs                      # Development tools
+│   │   ├── validate.rs                   # Validation command
+│   │   ├── watch.rs                      # File watching command
+│   │   └── workflow.rs                   # Workflow management
+│   ├── exp/                              # Experimental features and parsing experiments
+│   │   ├── basic_parsing.rs              # Basic parsing experiments
+│   │   ├── hlx_format copy.rs            # HLX format experiments
+│   │   └── mod.rs                        # Experimental module exports
+│   ├── ffi/                              # Foreign function interface bindings for other languages
+│   │   ├── csharp.rs                     # C# language bindings
+│   │   └── mod.rs                        # FFI module exports
+│   ├── hel/                              # Core Helix language runtime and error handling
+│   │   ├── dispatch.rs                   # Command dispatch system
+│   │   ├── dna_hlx.rs                    # DNA-Helix integration
+│   │   ├── error.rs                      # Error handling and types
+│   │   ├── hlx.rs                        # Core Helix functionality
+│   │   ├── integration.rs                # System integration
+│   │   └── mod.rs                        # Helix core module exports
+│   ├── json/                             # JSON processing and metadata handling
+│   │   ├── caption.rs                    # JSON caption handling
+│   │   ├── concat.rs                     # JSON concatenation
+│   │   ├── core.rs                       # Core JSON processing
+│   │   ├── hf.rs                         # HuggingFace JSON format
+│   │   ├── metadata.rs                   # JSON metadata handling
+│   │   ├── mod.rs                        # JSON module exports
+│   │   ├── reasoning.rs                  # JSON reasoning logic
+│   │   └── st.rs                         # JSON string templates
+│   ├── mds/                              # Multi-domain system implementations and optimizations
+│   │   ├── add.rs                        # MDS add functionality
+│   │   ├── a_example.rs                  # MDS example template
+│   │   ├── benches.rs                    # MDS benchmarking
+│   │   ├── bench.rs                      # MDS benchmark command
+│   │   ├── binary.rs                     # MDS binary handling
+│   │   ├── build.rs                      # MDS build system
+│   │   ├── bundle copy.rs                # MDS bundle backup
+│   │   ├── bundle.rs                     # MDS bundle creation
+│   │   ├── cache.rs                      # MDS cache management
+│   │   ├── clean.rs                      # MDS cleanup
+│   │   ├── codegen.rs                    # MDS code generation
+│   │   ├── compile.rs                    # MDS compilation
+│   │   ├── completions.rs                # MDS completions
+│   │   ├── config.rs                     # MDS configuration
+│   │   ├── dataset.rs                    # MDS dataset handling
+│   │   ├── decompile.rs                  # MDS decompilation
+│   │   ├── diagnostics.rs                # MDS diagnostics
+│   │   ├── diff.rs                       # MDS diff functionality
+│   │   ├── doctor.rs                     # MDS health checks
+│   │   ├── export.rs                     # MDS export
+│   │   ├── filter.rs                     # MDS filtering
+│   │   ├── fmt.rs                        # MDS formatting
+│   │   ├── generate.rs                   # MDS generation
+│   │   ├── import.rs                     # MDS import
+│   │   ├── info.rs                       # MDS information
+│   │   ├── init.rs                       # MDS initialization
+│   │   ├── json.rs                       # MDS JSON processing
+│   │   ├── lint.rs                       # MDS linting
+│   │   ├── loader.rs                     # MDS loading
+│   │   ├── migrate.rs                    # MDS migration
+│   │   ├── mod.rs                        # MDS module exports
+│   │   ├── optimizer.rs                  # MDS optimization
+│   │   ├── preview.rs                    # MDS preview
+│   │   ├── project.rs                    # MDS project management
+│   │   ├── publish.rs                    # MDS publishing
+│   │   ├── reset.rs                      # MDS reset
+│   │   ├── rm.rs                         # MDS removal
+│   │   ├── run.rs                        # MDS execution
+│   │   ├── runtime.rs                    # MDS runtime
+│   │   ├── schema.rs                     # MDS schema
+│   │   ├── search.rs                     # MDS search
+│   │   ├── semantic.rs                   # MDS semantic analysis
+│   │   ├── serializer.rs                 # MDS serialization
+│   │   ├── server.rs                     # MDS server
+│   │   ├── serve.rs                      # MDS serving
+│   │   ├── sign.rs                       # MDS signing
+│   │   ├── templates.rs                  # MDS templates
+│   │   ├── test copy.rs                  # MDS test backup
+│   │   ├── test.rs                       # MDS testing
+│   │   ├── tools.rs                      # MDS tools
+│   │   ├── validate.rs                   # MDS validation
+│   │   ├── watch copy.rs                 # MDS watch backup
+│   │   ├── watch.rs                      # MDS file watching
+│   │   └── workflow.rs                   # MDS workflow
+│   ├── mod.rs                            # DNA module exports
+│   ├── ngs/                              # Next-generation system integrations
+│   │   ├── mod.rs                        # NGS module exports
+│   │   └── python.rs                     # Python integration
+│   ├── ops/                              # Operator implementations and execution engine
+│   │   ├── conditional.rs                # Conditional operations
+│   │   ├── eval.rs                       # Expression evaluation
+│   │   ├── fundamental.rs                # Core @-prefixed operators
+│   │   ├── math.rs                       # Mathematical operations
+│   │   ├── mod.rs                        # Operations module exports
+│   │   ├── parser.rs                     # Operation parsing
+│   │   ├── string_processing.rs          # String manipulation
+│   │   ├── ulator.pest                   # Pest grammar file
+│   │   └── validation.rs                 # Input validation
+│   ├── out/                              # Output format generators and serializers
+│   │   ├── helix_format.rs               # Helix format output
+│   │   ├── hlxb_config_format.rs         # HLXB config format
+│   │   ├── hlxc_format.rs                # HLXC format output
+│   │   ├── hlx_config_format.rs          # HLX config format
+│   │   └── mod.rs                        # Output module exports
+│   └── tst/                              # Test suites and integration testing
+│       ├── calculator_integration_tests.rs # Calculator integration tests
+│       ├── debug_parse.rs                # Parse debugging utilities
+│       ├── debug_semantic.rs             # Semantic debugging
+│       ├── e621_tests.rs                 # E621 API tests
+│       ├── forge_integration_demo.rs     # Forge integration demo
+│       ├── fundamental_ops.rs            # Fundamental operations tests
+│       ├── hlxc_try.rs                   # HLXC testing
+│       ├── hlx_integration_tests.rs      # HLX integration tests
+│       ├── integration_tests.rs          # General integration tests
+│       ├── load.rs                       # Loading tests
+│       ├── mod.rs                        # Test module exports
+│       ├── test_binary_loading.rs        # Binary loading tests
+│       ├── test_duration_space.rs        # Duration space tests
+│       ├── test_lexer_fixes.rs           # Lexer fix tests
+│       ├── tests-b/                      # Backup test directory
+│       │   ├── debug_parse.rs            # Parse debugging backup
+│       │   ├── debug_semantic.rs         # Semantic debugging backup
+│       │   ├── forge_integration_demo.rs # Forge integration backup
+│       │   ├── integration_tests.rs      # Integration tests backup
+│       │   ├── mod.rs                    # Test backup module exports
+│       │   └── test_binary_loading.rs    # Binary loading tests backup
+│       ├── tests.rs                      # General test suite
+│       ├── text_tests.rs                 # Text processing tests
+│       └── t-r-y-h-l-x.rs                # Try HLX tests
+├── hlx.rs                                # Main Helix binary
+├── lib.rs                                # Library root and exports
+└── src_tree.txt                          # Source tree documentation

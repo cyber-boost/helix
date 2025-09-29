@@ -1,0 +1,11 @@
+# 47‑graph-db.hlx
+graphdb {
+    type = "neo4j"
+    uri  = "bolt://neo4j.example.com:7687"
+    user = "neo4j"
+    password = $NEO4J_PASSWORD
+}
+pool {
+    max_connections = 20
+    idle_timeout    = "5m"
+}

@@ -1,0 +1,16 @@
+# 08‑ci-pipeline.hlx
+ci {
+    provider = "github"
+    workflow = "ci.yml"
+}
+stages = [
+    { name = "checkout",   uses = "actions/checkout@v4" },
+    { name = "setup‑rust", uses = "actions-rs/toolchain@v1", with = { toolchain = "stable" } },
+    { name = "build",      run = "cargo build --release" },
+    { name = "test",       run = "cargo test --all-features" }
+]
+notifications {
+    on_success = "email"
+    on_failure = "slack"
+    slack_webhook = $SLACK_WEBHOOK_URL
+}

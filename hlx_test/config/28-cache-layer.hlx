@@ -1,0 +1,10 @@
+# 28‑cache-layer.hlx
+cache {
+    type      = "redis"
+    host      = "redis-cache:6379"
+    ttl       = "5m"
+    max_bytes = "256mb"
+}
+sections {
+    sentinel = { enabled = true; hosts = ["redis-sentinel-1:26379","redis-sentinel-2:26379"] }
+}

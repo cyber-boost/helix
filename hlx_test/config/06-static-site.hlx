@@ -1,0 +1,16 @@
+# 06‑static‑site.hlx
+website {
+    name       = "personal‑site"
+    theme      = "minimal"
+    output_dir = "public"
+}
+pages = [
+    { path = "index.html",   template = "home.html",   title = "Home" },
+    { path = "about.html",   template = "about.html",  title = "About" },
+    { path = "contact.html", template = "contact.html",title = "Contact" }
+]
+assets {
+    css    = ["styles/main.css", "styles/theme.css"]
+    js     = ["scripts/app.js"]
+    images = ["logo.png","portrait.jpg"]
+}

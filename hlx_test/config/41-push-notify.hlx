@@ -1,0 +1,8 @@
+# 41‑push-notify.hlx
+service {
+    name = "mobile‑push"
+    provider = "fcm"
+    api_key = $FCM_API_KEY
+}
+topics = ["news","offers","updates"]
+default_ttl = "24h"

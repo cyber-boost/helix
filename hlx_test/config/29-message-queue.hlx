@@ -1,0 +1,11 @@
+# 29‑message-queue.hlx
+queue {
+    name    = "order-events"
+    driver  = "rabbitmq"
+    url     = $RABBITMQ_URL
+    durable = true
+}
+bindings = [
+    { exchange = "orders", routing_key = "order.created",   queue = "order-events" },
+    { exchange = "orders", routing_key = "order.cancelled",queue = "order-events" }
+]

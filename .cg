@@ -1,0 +1,30 @@
+[project]
+theme = "nautical"
+auto_checklist = true
+track_performance = true
+
+[shortcuts]
+
+[auto_fix]
+format_on_save = false
+clippy_on_build = false
+auto_deps_update = false
+fix_warnings = false
+suggest_fixes = true
+
+[journey]
+auto_record = false
+share_templates = false
+max_recordings = 100
+interactive_by_default = true
+
+[build]
+default_profile = "dev"
+incremental = true
+cache_artifacts = true
+
+[hooks]
+pre_build = []
+post_build = []
+on_error = []
+on_success = []

@@ -1,0 +1,10 @@
+# 39‑redis-cluster.hlx
+cluster {
+    name = "cache‑cluster"
+    nodes = [
+        { host = "redis-01.example.com"; port = 6379 },
+        { host = "redis-02.example.com"; port = 6379 },
+        { host = "redis-03.example.com"; port = 6379 }
+    ]
+}
+replication = { replica_count = 2 }

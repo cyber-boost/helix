@@ -1,0 +1,12 @@
+# 05‑blog.hlx
+blog {
+    title    = "Alice’s Tech Blog"
+    base_url = "https://alice.dev/blog"
+    author   = "Alice"
+    language = "en"
+}
+posts = [
+    { slug = "getting‑started‑with‑helix", date = "2025‑09‑15", draft = false },
+    { slug = "rust‑async‑deep‑dive",       date = "2025‑09‑22", draft = true  }
+]
+feed { enabled = true; format = "rss" }

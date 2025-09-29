@@ -1,0 +1,16 @@
+# 17‑k8s-deployment.hlx
+deployment {
+    name      = "frontend"
+    namespace = "prod"
+    replicas  = 3
+    image     = "alice/frontend:1.2.0"
+}
+service {
+    type = "LoadBalancer"
+    ports = [{ port = 80; targetPort = 8080 }]
+}
+autoscale {
+    min_replicas = 2
+    max_replicas = 10
+    cpu_percent  = 75
+}

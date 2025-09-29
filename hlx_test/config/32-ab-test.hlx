@@ -1,0 +1,13 @@
+# 32‑ab-test.hlx
+experiment {
+    name        = "homepage‑redesign"
+    start_date  = "2025‑10‑01"
+    end_date    = "2025‑11‑01"
+    hypothesis  = "Increase conversion by 5 %"
+}
+variants = [
+    { id = "control"; traffic = "50%" },
+    { id = "variant-a"; traffic = "25%"; description = "New hero section" },
+    { id = "variant-b"; traffic = "25%"; description = "Full‑width carousel" }
+]
+metrics = ["conversion_rate","bounce_rate"]

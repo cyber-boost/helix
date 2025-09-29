@@ -1,0 +1,10 @@
+# 22‑email-server.hlx
+smtp {
+    host     = "smtp.mailgun.org"
+    port     = 587
+    username = "postmaster@example.com"
+    password = $SMTP_PASSWORD
+    tls      = true
+}
+default_from = "noreply@example.com"
+templates = ["welcome.html","reset.html","invoice.html"]

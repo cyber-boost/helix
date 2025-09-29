@@ -1,0 +1,49 @@
+# Test all syntax variations
+# All these should produce equivalent results
+
+style_test:
+    name = "Style Test"
+    version = "1.0"
+;
+
+project "style_test_braces" { 
+    varTest = "@style_test['name']" # this should be "Style Test"
+    version = "1.0"
+}
+
+project "style_test_brackets" [ 
+    name = "Style Test"
+    version = "1.0"
+]
+
+project "style_test_colon" : 
+    name = "Style Test"
+    version = "1.0"
+;
+
+# Tilde sections with different delimiters
+~config_angle < 
+    varTest = "@style_test['name']" # this should be "Style Test"
+    type = "angle_brackets"
+>
+
+~config_braces { 
+    type = "brace_blocks"
+}
+
+config_brackets [ 
+    type = ["bracket_blocks", brackets, brk]
+]
+
+~config_colon : 
+    type = "colon_syntax"
+;
+
+# Generic sections (no tilde)
+config_section < 
+    type = "generic_section"
+>
+
+config_section_braces { 
+    type = "generic_section_braces"
+}

@@ -1,0 +1,11 @@
+# 40‑tls-rotation.hlx
+certificate {
+    domain = "api.example.com"
+    provider = "letsencrypt"
+    auto_renew = true
+    renew_before = "30d"
+}
+hooks = {
+    pre_renew  = "/usr/local/bin/notify-pre.sh"
+    post_renew = "/usr/local/bin/notify-post.sh"
+}

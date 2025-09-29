@@ -1,0 +1,9 @@
+# 33‑oauth-client.hlx
+oauth {
+    client_id     = $OAUTH_CLIENT_ID
+    client_secret = $OAUTH_CLIENT_SECRET
+    provider      = "auth0"
+    redirect_uri  = "https://app.example.com/callback"
+    scopes        = ["openid","profile","email"]
+}
+token_endpoint = "https://example.auth0.com/oauth/token"

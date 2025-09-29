@@ -50,7 +50,7 @@ fn main() {
     let _ = get_or_create_helix_dir();
 
     let manifest_dir = env::var("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR not set");
-    let src_grammar = Path::new(&manifest_dir).join("src").join("operators").join("ulator.pest");
+    let src_grammar = Path::new(&manifest_dir).join("src").join("dna").join("ops").join("ulator.pest");
 
     let home = env::var("HOME")
         .or_else(|_| env::var("USERPROFILE"))

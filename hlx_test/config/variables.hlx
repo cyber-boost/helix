@@ -1,0 +1,33 @@
+# Variable marker testing
+project "variable_test" < 
+    name = !PROJECT_NAME!
+    version = !APP_VERSION!
+    environment = !DEPLOYMENT_ENV!
+>
+
+~config:
+    # Environment variables
+    api_host = @env['API_HOST']
+    api_port = @env["API_PORT"]
+    debug_mode = @env['DEBUG_MODE']
+
+    # Runtime variables
+    database_url = !DATABASE_URL!
+    redis_host = !REDIS_HOST!
+    cache_ttl = !CACHE_TTL!
+;
+
+task cleanup:
+    schedule = !CLEANUP_SCHEDULE!
+    enabled = !CLEANUP_ENABLED!
+    max_duration = !MAX_DURATION!
+;
+
+array_config [ 
+    items = [
+        !ARRAY_ITEM_1!,
+        ARRAY_ITEM_2!,
+        !ARRAY_ITEM_3!
+    ]
+]
+>

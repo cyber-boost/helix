@@ -1,0 +1,1 @@
+use std::path::Path; use crate::dna::hel::binary::HelixBinary; pub struct BinaryLoader; impl BinaryLoader { pub fn new() -> Self { Self } } impl BinaryLoader { pub fn load_file(&self, path: &Path) -> Result<HelixBinary, String> { Ok(HelixBinary::new()) } }

@@ -1,0 +1,17 @@
+# Test @transform operator for data conversion
+data_pipeline :
+    raw_data = [
+        {"prompt": "Hello", "completion": "Hi there!", "label": true},
+        {"prompt": "How are you?", "completion": "I'm fine, thanks!", "label": false}
+    ]
+    
+    # Transform to different formats
+    conversational_data = @transform("conversational", @data_pipeline.raw_data)
+    preference_data = @transform("preference", @data_pipeline.raw_data)
+    chatml_data = @transform("chatml", @data_pipeline.raw_data)
+    
+    # Transform with custom expressions
+    processed = @transform("prompt_completion", [
+        {"prompt": "What is AI?", "completion": @env["DEFAULT_COMPLETION"]},
+        {"prompt": "Explain ML", "completion": "Machine Learning is..."}
+    ])

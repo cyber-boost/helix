@@ -1,0 +1,36 @@
+style_test :
+    name = "Style Test"
+    version = "1.0"
+;
+
+project "style_test_braces" { 
+    varTest = @style_test['name']
+    version = "1.0"
+}
+
+project "style_test_brackets" [ 
+    name = "Style Test"
+    version = "1.0"
+]
+
+project "style_test_colon" : 
+    name = "Style Test"
+    version = "1.0"
+;
+
+~config_angle < 
+    varTest = @style_test['name']
+    type = "angle_brackets"
+>
+
+~config_braces { 
+    type = "brace_blocks"
+}
+
+~config_brackets [ 
+    type = "bracket_blocks"
+]
+
+~config_colon : 
+    type = "colon_syntax"
+;

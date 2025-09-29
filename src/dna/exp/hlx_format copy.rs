@@ -1,0 +1,378 @@
+use arrow::array::*;
+use arrow::datatypes::*;
+use arrow::record_batch::RecordBatch;
+use arrow::io::ipc::write::*;
+use std::io::{Write, Seek, SeekFrom};
+use std::collections::HashMap;
+use serde::{Serialize, Deserialize};
+use use dna::hlx::error::HlxError;
+pub const HLX_MAGIC: &[u8; 4] = b"HLX\x01";
+pub const HLX_FOOTER_MAGIC: &[u8; 4] = b"\xFF\xFF\xFF\xFF";
+pub const HLX_VERSION: u8 = 1;
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HlxHeader {
+    pub schema: serde_json::Value,
+    pub metadata: HashMap<String, serde_json::Value>,
+    pub flags: u8,
+    pub row_count: u64,
+    pub preview_rows: Option<Vec<serde_json::Value>>,
+}
+impl HlxHeader {
+    pub fn new(schema: Schema, metadata: HashMap<String, serde_json::Value>) -> Self {
+        Self {
+            schema: serde_json::to_value(schema).unwrap_or_default(),
+            metadata,
+            flags: 0,
+            row_count: 0,
+            preview_rows: None,
+        }
+    }
+    pub fn with_compression(mut self, compressed: bool) -> Self {
+        if compressed {
+            self.flags |= 0x01;
+        } else {
+            self.flags &= !0x01;
+        }
+        self
+    }
+    pub fn with_row_count(mut self, count: u64) -> Self {
+        self.row_count = count;
+        self
+    }
+    pub fn with_preview(mut self, preview: Vec<serde_json::Value>) -> Self {
+        self.preview_rows = Some(preview);
+        self
+    }
+    pub fn is_compressed(&self) -> bool {
+        (self.flags & 0x01) != 0
+    }
+    pub fn to_json_bytes(&self) -> Result<Vec<u8>, HlxError> {
+        serde_json::to_vec(self).map_err(|e| HlxError::json_error(e.to_string(), ""))
+    }
+    pub fn from_json_bytes(bytes: &[u8]) -> Result<Self, HlxError> {
+        serde_json::from_slice(bytes)
+            .map_err(|e| HlxError::json_error(e.to_string(), ""))
+    }
+}
+pub struct HlxWriter<W: Write + Seek> {
+    writer: W,
+    header: Option<HlxHeader>,
+    schema: Option<Schema>,
+    batches: Vec<RecordBatch>,
+    compression_enabled: bool,
+}
+impl<W: Write + Seek> HlxWriter<W> {
+    pub fn new(writer: W) -> Self {
+        Self {
+            writer,
+            header: None,
+            schema: None,
+            batches: Vec::new(),
+            compression_enabled: false,
+        }
+    }
+    pub fn with_compression(mut self, enabled: bool) -> Self {
+        self.compression_enabled = enabled;
+        self
+    }
+    pub fn with_schema(mut self, schema: Schema) -> Self {
+        self.schema = Some(schema);
+        self
+    }
+    pub fn add_batch(&mut self, batch: RecordBatch) -> Result<(), HlxError> {
+        if self.schema.is_none() {
+            self.schema = Some(batch.schema().clone());
+        } else if self.schema.as_ref().unwrap() != batch.schema() {
+            return Err(
+                HlxError::validation_error(
+                    "Schema mismatch between batches",
+                    "All batches must have the same schema",
+                ),
+            );
+        }
+        self.batches.push(batch);
+        Ok(())
+    }
+    pub fn finalize(&mut self) -> Result<(), HlxError> {
+        if self.batches.is_empty() {
+            return Err(
+                HlxError::validation_error(
+                    "No data to write",
+                    "At least one record batch is required",
+                ),
+            );
+        }
+        let schema = self.schema.as_ref().unwrap().clone();
+        let total_rows = self.batches.iter().map(|b| b.num_rows()).sum::<usize>() as u64;
+        let mut metadata = HashMap::new();
+        metadata
+            .insert(
+                "format_version".to_string(),
+                serde_json::Value::String("1.0".to_string()),
+            );
+        metadata
+            .insert(
+                "created_at".to_string(),
+                serde_json::Value::String(chrono::Utc::now().to_rfc3339()),
+            );
+        let mut header = HlxHeader::new(schema.clone(), metadata)
+            .with_compression(self.compression_enabled)
+            .with_row_count(total_rows);
+        if let Some(first_batch) = self.batches.first() {
+            let preview_count = std::cmp::min(10, first_batch.num_rows());
+            let preview_rows = extract_preview_rows(first_batch, preview_count);
+            header = header.with_preview(preview_rows);
+        }
+        self.writer.write_all(HLX_MAGIC)?;
+        let header_bytes = header.to_json_bytes()?;
+        let header_len = header_bytes.len() as u32;
+        self.writer.write_all(&header_len.to_le_bytes())?;
+        self.writer.write_all(&header_bytes)?;
+        let options = WriteOptions {
+            compression: if self.compression_enabled {
+                Some(arrow::io::ipc::Compression::ZSTD)
+            } else {
+                None
+            },
+        };
+        let mut stream_writer = StreamWriter::new(&mut self.writer, schema, options);
+        for batch in &self.batches {
+            stream_writer.write(batch, None)?;
+        }
+        stream_writer.finish()?;
+        if let Some(preview_rows) = &header.preview_rows {
+            if !preview_rows.is_empty() {
+                self.writer.write_all(HLX_FOOTER_MAGIC)?;
+                let preview_jsonl = preview_rows
+                    .iter()
+                    .map(|row| serde_json::to_string(row).unwrap_or_default())
+                    .collect::<Vec<_>>()
+                    .join("\n");
+                let footer_len = preview_jsonl.len() as u32;
+                self.writer.write_all(&footer_len.to_le_bytes())?;
+                self.writer.write_all(preview_jsonl.as_bytes())?;
+            }
+        }
+        Ok(())
+    }
+}
+fn extract_preview_rows(batch: &RecordBatch, count: usize) -> Vec<serde_json::Value> {
+    let mut preview_rows = Vec::new();
+    for row_idx in 0..count {
+        let mut row_json = serde_json::Map::new();
+        for (field_idx, field) in batch.schema().fields().iter().enumerate() {
+            if let Some(array) = batch
+                .column(field_idx)
+                .as_any()
+                .downcast_ref::<StringArray>()
+            {
+                if let Some(value) = array.get(row_idx) {
+                    row_json
+                        .insert(
+                            field.name().clone(),
+                            serde_json::Value::String(value.to_string()),
+                        );
+                }
+            } else if let Some(array) = batch
+                .column(field_idx)
+                .as_any()
+                .downcast_ref::<Float64Array>()
+            {
+                if let Some(value) = array.get(row_idx) {
+                    row_json
+                        .insert(
+                            field.name().clone(),
+                            serde_json::Value::Number(
+                                serde_json::Number::from_f64(value)
+                                    .unwrap_or(serde_json::Number::from(0)),
+                            ),
+                        );
+                }
+            } else if let Some(array) = batch
+                .column(field_idx)
+                .as_any()
+                .downcast_ref::<Int64Array>()
+            {
+                if let Some(value) = array.get(row_idx) {
+                    row_json
+                        .insert(
+                            field.name().clone(),
+                            serde_json::Value::Number(serde_json::Number::from(*value)),
+                        );
+                }
+            } else {
+                let value_str = format!(
+                    "{:?}", batch.column(field_idx).get(row_idx).unwrap_or(&
+                    arrow::datatypes::Scalar::Null)
+                );
+                row_json
+                    .insert(field.name().clone(), serde_json::Value::String(value_str));
+            }
+        }
+        preview_rows.push(serde_json::Value::Object(row_json));
+    }
+    preview_rows
+}
+pub struct HlxReader<R: std::io::Read + Seek> {
+    reader: R,
+    header: Option<HlxHeader>,
+}
+impl<R: std::io::Read + Seek> HlxReader<R> {
+    pub fn new(reader: R) -> Self {
+        Self { reader, header: None }
+    }
+    pub fn read_header(&mut self) -> Result<&HlxHeader, HlxError> {
+        if self.header.is_some() {
+            return Ok(self.header.as_ref().unwrap());
+        }
+        let mut magic = [0u8; 4];
+        self.reader.read_exact(&mut magic)?;
+        if magic != *HLX_MAGIC {
+            return Err(
+                HlxError::validation_error(
+                    "Invalid HLX magic number",
+                    "File does not appear to be a valid HLX file",
+                ),
+            );
+        }
+        let mut header_len_bytes = [0u8; 4];
+        self.reader.read_exact(&mut header_len_bytes)?;
+        let header_len = u32::from_le_bytes(header_len_bytes) as usize;
+        let mut header_bytes = vec![0u8; header_len];
+        self.reader.read_exact(&mut header_bytes)?;
+        let header: HlxHeader = HlxHeader::from_json_bytes(&header_bytes)?;
+        self.header = Some(header);
+        Ok(self.header.as_ref().unwrap())
+    }
+    pub fn get_preview(&mut self) -> Result<Option<Vec<serde_json::Value>>, HlxError> {
+        let header = self.read_header()?;
+        if let Some(preview_rows) = &header.preview_rows {
+            return Ok(Some(preview_rows.clone()));
+        }
+        if let Some(footer_rows) = self.read_footer()? {
+            return Ok(Some(footer_rows));
+        }
+        Ok(None)
+    }
+    fn read_footer(&mut self) -> Result<Option<Vec<serde_json::Value>>, HlxError> {
+        let file_size = self.reader.seek(SeekFrom::End(0))?;
+        if file_size < 8 {
+            return Ok(None);
+        }
+        self.reader.seek(SeekFrom::End(-8))?;
+        let mut footer_header = [0u8; 8];
+        self.reader.read_exact(&mut footer_header)?;
+        let magic = &footer_header[0..4];
+        if magic != *HLX_FOOTER_MAGIC {
+            return Ok(None);
+        }
+        let footer_len = u32::from_le_bytes(footer_header[4..8].try_into().unwrap())
+            as usize;
+        self.reader.seek(SeekFrom::End(-8 - footer_len as i64))?;
+        let mut footer_bytes = vec![0u8; footer_len];
+        self.reader.read_exact(&mut footer_bytes)?;
+        let footer_jsonl = String::from_utf8(footer_bytes)
+            .map_err(|_| HlxError::validation_error("Invalid UTF-8 in footer", ""))?;
+        let rows: Vec<serde_json::Value> = footer_jsonl
+            .lines()
+            .filter(|line| !line.trim().is_empty())
+            .map(|line| serde_json::from_str(line).unwrap_or(serde_json::Value::Null))
+            .collect();
+        Ok(Some(rows))
+    }
+    pub fn get_schema(&mut self) -> Result<&Schema, HlxError> {
+        let header = self.read_header()?;
+        let schema_value = &header.schema;
+        let schema_json = serde_json::to_string(schema_value)
+            .map_err(|e| HlxError::json_error(e.to_string(), ""))?;
+        Err(
+            HlxError::validation_error(
+                "Schema deserialization not implemented",
+                "Use Arrow's native IPC reader for full functionality",
+            ),
+        )
+    }
+}
+pub fn value_to_arrow_array(
+    field: &Field,
+    values: Vec<crate::value::Value>,
+) -> Result<ArrayRef, HlxError> {
+    match field.data_type() {
+        DataType::Utf8 => {
+            let string_values: Vec<Option<String>> = values
+                .into_iter()
+                .map(|v| match v {
+                    crate::value::Value::String(s) => Some(s),
+                    _ => Some(v.to_string()),
+                })
+                .collect();
+            let array = StringArray::from(string_values);
+            Ok(Arc::new(array))
+        }
+        DataType::Float64 => {
+            let float_values: Vec<Option<f64>> = values
+                .into_iter()
+                .map(|v| match v {
+                    crate::value::Value::Number(n) => Some(n),
+                    _ => v.to_string().parse().ok(),
+                })
+                .collect();
+            let array = Float64Array::from(float_values);
+            Ok(Arc::new(array))
+        }
+        DataType::Int64 => {
+            let int_values: Vec<Option<i64>> = values
+                .into_iter()
+                .map(|v| match v {
+                    crate::value::Value::Number(n) => Some(n as i64),
+                    _ => v.to_string().parse().ok(),
+                })
+                .collect();
+            let array = Int64Array::from(int_values);
+            Ok(Arc::new(array))
+        }
+        _ => {
+            let string_values: Vec<Option<String>> = values
+                .into_iter()
+                .map(|v| Some(v.to_string()))
+                .collect();
+            let array = StringArray::from(string_values);
+            Ok(Arc::new(array))
+        }
+    }
+}
+pub fn create_arrow_schema(fields: Vec<(&str, DataType)>) -> Schema {
+    let arrow_fields: Vec<Field> = fields
+        .into_iter()
+        .map(|(name, data_type)| Field::new(name, data_type, true))
+        .collect();
+    Schema::new(arrow_fields)
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Cursor;
+    #[test]
+    fn test_hlx_header_serialization() {
+        let mut metadata = HashMap::new();
+        metadata
+            .insert("test".to_string(), serde_json::Value::String("value".to_string()));
+        let schema = create_arrow_schema(
+            vec![("name", DataType::Utf8), ("age", DataType::Int64),],
+        );
+        let header = HlxHeader::new(schema, metadata)
+            .with_compression(true)
+            .with_row_count(100);
+        let json_bytes = header.to_json_bytes().unwrap();
+        let deserialized: HlxHeader = HlxHeader::from_json_bytes(&json_bytes).unwrap();
+        assert_eq!(header.row_count, deserialized.row_count);
+        assert!(header.is_compressed());
+    }
+    #[test]
+    fn test_hlx_writer_basic() {
+        let buffer = Vec::new();
+        let cursor = Cursor::new(buffer);
+        let mut writer = HlxWriter::new(cursor);
+        assert!(writer.header.is_none());
+    }
+}

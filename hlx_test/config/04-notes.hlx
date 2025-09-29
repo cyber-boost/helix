@@ -1,0 +1,16 @@
+# 04‑notes.hlx
+notes { owner = "alice" }
+entries = [
+    {
+        title   = "Rust ownership rules"
+        body    = "Three rules…"
+        tags    = ["rust","ownership"]
+        created = "2025‑09‑20"
+    },
+    {
+        title   = "Helix syntax cheat‑sheet"
+        body    = "Key = value, arrays = [a, b], sections = { … }"
+        tags    = ["helix","reference"]
+        created = "2025‑09‑25"
+    }
+]

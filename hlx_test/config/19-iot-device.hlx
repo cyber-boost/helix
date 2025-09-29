@@ -1,0 +1,16 @@
+# 19‑iot-device.hlx
+device {
+    id          = "sensor‑001"
+    type        = "temperature"
+    location    = "warehouse‑A"
+    firmware    = "v3.1.2"
+    heartbeat   = "60s"
+}
+mqtt {
+    broker   = "mqtt://broker.example.com:1883"
+    topic    = "sensors/temperature"
+    qos      = 1
+}
+sections {
+    maintenance = { last_calibrated = "2025‑08‑15" }
+}

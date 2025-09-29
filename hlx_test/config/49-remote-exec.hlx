@@ -1,0 +1,12 @@
+# 49‑remote-exec.hlx
+task {
+    name = "install‑nginx"
+    hosts = ["web‑01.example.com","web‑02.example.com"]
+    become = true
+}
+steps = [
+    { run = "apt-get update -y" },
+    { run = "apt-get install -y nginx" },
+    { copy = { src = "nginx.conf"; dest = "/etc/nginx/nginx.conf" } },
+    { run = "systemctl enable nginx && systemctl start nginx" }
+]

@@ -1,0 +1,10 @@
+# 13‑feature-flags.hlx
+features {
+    dark_mode            = true
+    beta_dashboard       = false
+    experimental_search = true
+    live_chat            = false
+}
+sections {
+    rollout = { dark_mode = "100%" ; experimental_search = "10%" }
+}

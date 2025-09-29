@@ -1,0 +1,17 @@
+# Test @operator['arg'] with variable markers
+project "test" < >
+    # Test the exact case you mentioned
+    result = @task['cleanup']set[foo!]
+
+    # Other operator cases with variable markers
+    env_var = @env['HOME']
+    set_with_prefix = @task['test']set[!runtime_value!]
+    get_with_suffix = @task['test']get[runtime_value!]
+
+    # Mixed cases
+    array_with_markers = [
+        @task['test']set[item1!],
+        @task['test']set[!item2],
+        @task['test']set[!item3!]
+    ]
+>

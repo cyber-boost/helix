@@ -1,0 +1,9 @@
+# 35‑launchdarkly.hlx
+launchdarkly {
+    sdk_key = $LD_SDK_KEY
+    environment = "production"
+}
+flags = [
+    { key = "new-search"; default = false },
+    { key = "beta‑profile"; default = true }
+]

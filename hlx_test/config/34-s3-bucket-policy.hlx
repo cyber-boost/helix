@@ -1,0 +1,12 @@
+# 34‑s3-bucket-policy.hlx
+bucket {
+    name = "my‑static‑assets"
+    region = "us-east-1"
+}
+policy {
+    version = "2012-10-17"
+    statements = [
+        { sid = "PublicRead"; effect = "Allow"; principal = "*"; action = ["s3:GetObject"]; resource = ["arn:aws:s3:::my-static-assets/*"] },
+        { sid = "DenyInsecure"; effect = "Deny"; principal = "*"; action = ["s3:*"]; condition = { "Bool": { "aws:SecureTransport": "false" } } }
+    ]
+}

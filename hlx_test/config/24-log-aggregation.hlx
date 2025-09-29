@@ -1,0 +1,13 @@
+# 24‑log-aggregation.hlx
+logshipper {
+    name    = "fluent-bit"
+    version = "3.0"
+}
+inputs = [
+    { name = "app"; path = "/var/log/app/*.log" },
+    { name = "nginx"; path = "/var/log/nginx/*.log" }
+]
+outputs = [
+    { name = "es";   host = "es.example.com"; port = 9200; index = "logs-%Y.%m.%d" },
+    { name = "s3";   bucket = "log-archive"; region = "us-east-1" }
+]

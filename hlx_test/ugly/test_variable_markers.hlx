@@ -1,0 +1,40 @@
+# Test comprehensive variable marker functionality
+project "test" < >
+    # Variable markers in string literals
+    string_with_var = !TEST_VAR!
+    string_with_suffix = TEST_VAR!
+    string_with_both = !TEST_VAR!
+
+    # Variable markers in @ operators
+    env_lookup = @env['HOME']
+    task_set = @task['test']set[!RUNTIME_VALUE!]
+    task_get = @task['test']get[!RUNTIME_VALUE!]
+
+    # Variable markers in arrays
+    array_with_vars = [
+        !ARRAY_ITEM_1!,
+        ARRAY_ITEM_2!,
+        !ARRAY_ITEM_3!
+    ]
+
+    # Variable markers in objects
+    object_with_vars = {
+        key1 = !OBJECT_KEY_1!,
+        key2 = OBJECT_KEY_2!,
+        key3 = !OBJECT_KEY_3!
+    }
+>
+
+# Test task declaration with variable markers
+task "test_task" < >
+    run_at = !SCHEDULE_TIME!
+    repeat = !REPEAT_INTERVAL!
+    force = !FORCE_CLEANUP!
+>
+
+# Test widget declaration with variable markers
+widget "test_widget" < >
+    speed = @task['test_task']set[!WIDGET_SPEED!]
+    color = !WIDGET_COLOR!
+    size = WIDGET_SIZE!
+>

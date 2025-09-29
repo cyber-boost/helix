@@ -1,0 +1,11 @@
+# 21‑db-pool.hlx
+pool {
+    driver   = "postgres"
+    dsn      = $POSTGRES_DSN
+    max_open = 25
+    max_idle = 5
+    timeout  = "30s"
+}
+sections {
+    read_replica = { dsn = $READ_REPLICA_DSN }
+}

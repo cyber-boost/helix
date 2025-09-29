@@ -1,0 +1,10 @@
+# 48‑ssg-plugins.hlx
+generator {
+    name = "hugo"
+    version = "0.124"
+}
+plugins = [
+    { name = "seo",   enabled = true },
+    { name = "image‑opt", enabled = true; quality = 85 },
+    { name = "sitemap", enabled = true }
+]

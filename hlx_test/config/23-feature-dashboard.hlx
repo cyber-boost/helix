@@ -1,0 +1,11 @@
+# 23‑feature-dashboard.hlx
+dashboard {
+    title       = "Feature Flags"
+    auth_method = "oauth2"
+    client_id   = $OAUTH_CLIENT_ID
+}
+features = [
+    { key = "new_nav"; enabled = false },
+    { key = "beta_search"; enabled = true },
+    { key = "dark_mode"; enabled = true }
+]

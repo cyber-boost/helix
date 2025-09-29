@@ -1,0 +1,11 @@
+# 38‑websocket.hlx
+ws {
+    listen = "0.0.0.0:8085"
+    path   = "/ws"
+    max_connections = 5000
+    ping_interval   = "30s"
+}
+auth {
+    token_query = "access_token"
+    secret      = $WS_SECRET
+}

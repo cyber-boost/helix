@@ -1,0 +1,55 @@
+# Demonstrate that all these syntaxes are equivalent
+# All create the same AST structure
+
+# Syntax 1: identifier + angle brackets
+project test < >
+    version = "1.0"
+    mode = production
+>
+
+# Syntax 2: quoted identifier + angle brackets
+project "test" < >
+    version = "1.0"
+    mode = production
+>
+
+# Syntax 3: just identifier + angle brackets (no "project" keyword)
+test < >
+    version = "1.0"
+    mode = production
+>
+
+# All the above create identical AST structures:
+# Declaration::Section(SectionDecl {
+#     name: "test",
+#     properties: {
+#         "version": Expression::String("1.0"),
+#         "mode": Expression::String("production")
+#     }
+# })
+
+# Same equivalence applies to other delimiters
+service api [ ]
+    endpoint = "https://api.example.com"
+>
+
+service "api" [ ]
+    endpoint = "https://api.example.com"
+>
+
+api [ ]
+    endpoint = "https://api.example.com"
+>
+
+# And for other block types
+module cache { }
+    ttl = 300
+>
+
+module "cache" { }
+    ttl = 300
+>
+
+cache { }
+    ttl = 300
+>

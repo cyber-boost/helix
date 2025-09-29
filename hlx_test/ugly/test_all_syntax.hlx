@@ -1,0 +1,245 @@
+# -------------------------------------------------------------------------
+# 1️⃣  Identifier: app
+# -------------------------------------------------------------------------
+app {}
+
+app core {}
+
+app "core" {}
+
+app core < mode = "dev" timeout = 30 >
+
+app [ ]
+
+app core [ enabled = true; retries = 3 ]
+
+app "core" [ retries = 5; backoff = "exponential" ]
+
+app : ;
+
+app core : ;
+
+app "core" : ;
+
+
+# -------------------------------------------------------------------------
+# 2️⃣  Identifier: service
+# -------------------------------------------------------------------------
+service {}
+
+service api {}
+
+service "api" {}
+
+service api < version = "v1" health = "/healthz" >
+
+service [ ]
+
+service api [ rate_limit = 100 ]
+
+service "api" [ cache = "redis" ]
+
+service : ;
+
+service api : ;
+
+service "api" : ;
+
+
+# -------------------------------------------------------------------------
+# 3️⃣  Identifier: module
+# -------------------------------------------------------------------------
+module {}
+
+module auth {}
+
+module "auth" {}
+
+module auth < provider = "oauth2" scopes = ["openid","email"] >
+
+module [ ]
+
+module auth [ token_expiry = "15m" ]
+
+module "auth" [ session_store = "redis" ]
+
+module : ;
+
+module auth : ;
+
+module "auth" : ;
+
+
+# -------------------------------------------------------------------------
+# 4️⃣  Identifier: component
+# -------------------------------------------------------------------------
+component {}
+
+component ui {}
+
+component "ui" {}
+
+component ui < theme = "dark" responsive = true >
+
+component [ ]
+
+component ui [ animation = "fade" ]
+
+component "ui" [ grid = "12col" ]
+
+component : ;
+
+component ui : ;
+
+component "ui" : ;
+
+
+# -------------------------------------------------------------------------
+# 5️⃣  Identifier: system
+# -------------------------------------------------------------------------
+system {}
+
+system monitor {}
+
+system "monitor" {}
+
+system monitor < interval = "30s" alert = "slack" >
+
+system [ ]
+
+system monitor [ retention = "90d" ]
+
+system "monitor" [ storage = "s3" ]
+
+system : ;
+
+system monitor : ;
+
+system "monitor" : ;
+
+
+# -------------------------------------------------------------------------
+# 6️⃣  Identifier: workflow
+# -------------------------------------------------------------------------
+workflow {}
+
+workflow deploy {}
+
+workflow "deploy" {}
+
+workflow deploy < strategy = "blue‑green" timeout = "10m" >
+
+workflow [ ]
+
+workflow deploy [ steps = 5 ]
+
+workflow "deploy" [ approvals = 2 ]
+
+workflow : ;
+
+workflow deploy : ;
+
+workflow "deploy" : ;
+
+
+# -------------------------------------------------------------------------
+# 7️⃣  Identifier: pipeline
+# -------------------------------------------------------------------------
+pipeline {}
+
+pipeline etl {}
+
+pipeline "etl" {}
+
+pipeline etl < schedule = "0 */4 * * *" >
+
+pipeline [ ]
+
+pipeline etl [ parallel = true ]
+
+pipeline "etl" [ notify = "email" ]
+
+pipeline : ;
+
+pipeline etl : ;
+
+pipeline "etl" : ;
+
+
+# -------------------------------------------------------------------------
+# 8️⃣  Identifier: job
+# -------------------------------------------------------------------------
+job {}
+
+job backup {}
+
+job "backup" {}
+
+job backup < cron = "0 2 * * *" retention = "30d" >
+
+job [ ]
+
+job backup [ compress = true ]
+
+job "backup" [ encrypt = true ]
+
+job : ;
+
+job backup : ;
+
+job "backup" : ;
+
+
+# -------------------------------------------------------------------------
+# 9️⃣  Identifier: task
+# -------------------------------------------------------------------------
+task {}
+
+task cleanup {}
+
+task "cleanup" {}
+
+task cleanup < run_at = "02:00" repeat = "daily" >
+
+task [ ]
+
+task cleanup [ force = true ]
+
+task "cleanup" [ dry_run = false ]
+
+task : ;
+
+task cleanup : ;
+
+task "cleanup" : ;
+
+
+# -------------------------------------------------------------------------
+# 🔟  Identifier: widget
+# -------------------------------------------------------------------------
+widget {}
+
+widget slider {}
+
+widget "slider" {}
+
+widget slider < orientation = "horizontal" speed = "fast" >
+
+widget [ ]
+
+widget slider [ autoplay = true ]
+
+widget "slider" [ dots = true ]
+
+widget : ;
+
+widget slider : ;
+
+widget "slider" : ;
+
+
+# -------------------------------------------------------------------------
+# 11️⃣  "@" shortcut forms (using the last identifier – widget)
+# -------------------------------------------------------------------------
+@section['widget'].key['value']
+@widget.key['value']

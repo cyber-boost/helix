@@ -1,0 +1,17 @@
+# 18‑serverless-func.hlx
+function {
+    name    = "image‑resize"
+    runtime = "nodejs20.x"
+    handler = "handler.resize"
+    memory  = 256
+    timeout = 30
+}
+trigger {
+    type   = "s3"
+    bucket = "my‑uploads"
+    events = ["s3:ObjectCreated:*"]
+}
+environment {
+    MAX_WIDTH  = "1920"
+    MAX_HEIGHT = "1080"
+}

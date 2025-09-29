@@ -1,0 +1,10 @@
+# 43‑ldap-config.hlx
+ldap {
+    url          = "ldaps://ldap.example.com"
+    bind_dn      = "cn=admin,dc=example,dc=com"
+    bind_pw      = $LDAP_PASSWORD
+    base_dn      = "ou=users,dc=example,dc=com"
+    user_filter  = "(uid={username})"
+    group_filter = "(member={dn})"
+}
+sync_interval = "5m"

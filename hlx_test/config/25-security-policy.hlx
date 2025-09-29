@@ -1,0 +1,13 @@
+# 25‑security-policy.hlx
+policy {
+    name        = "api‑hardening"
+    enforcement = "strict"
+}
+rules = [
+    { id = "r1"; description = "Disallow HTTP";   action = "block";   condition = "scheme == 'http'" },
+    { id = "r2"; description = "Rate limit";     action = "throttle"; limit = "100r/m" },
+    { id = "r3"; description = "Require JWT";    action = "allow";   condition = "header['Authorization'] != null" }
+]
+sections {
+    exceptions = { path = "/healthz"; methods = ["GET"] }
+}

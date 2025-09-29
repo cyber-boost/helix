@@ -1,0 +1,8 @@
+# 26‑scheduler-jobs.hlx
+scheduler {
+    timezone = "UTC"
+}
+jobs = [
+    { name = "cleanup_tmp", schedule = "0 3 * * *", command = "/usr/local/bin/cleanup.sh" },
+    { name = "send_reports", schedule = "30 7 * * MON", command = "python reports.py" }
+]

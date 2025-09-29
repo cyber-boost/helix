@@ -1,0 +1,7 @@
+# 45‑error-pages.hlx
+errors {
+    404 = "/static/404.html"
+    500 = "/static/500.html"
+    502 = "/static/502.html"
+}
+cache_control = "no-store"

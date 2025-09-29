@@ -1,0 +1,17 @@
+# 07‑microservice.hlx
+service {
+    name      = "user‑auth"
+    version   = "0.2.0"
+    language  = "go"
+    container = "docker"
+}
+docker {
+    image       = "alice/user‑auth:0.2.0"
+    port        = 8081
+    env = {
+        JWT_SECRET = $JWT_SECRET
+        DB_URL     = $POSTGRES_URL
+    }
+    healthcheck = "/healthz"
+}
+logs { level = "info"; path = "/var/log/user‑auth.log" }

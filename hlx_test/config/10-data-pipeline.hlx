@@ -1,0 +1,11 @@
+# 10‑data-pipeline.hlx
+pipeline {
+    name     = "etl‑sales"
+    schedule = "0 */4 * * *"   # every 4 hours
+}
+steps = [
+    { name = "extract",   type = "csv",   source = "s3://data/sales_raw/*.csv" },
+    { name = "transform", type = "python",script = "scripts/clean.py" },
+    { name = "load",      type = "postgres", table = "sales_clean" }
+]
+notifications { on_failure = "email"; email = "ops@example.com" }

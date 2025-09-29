@@ -1,0 +1,9 @@
+# 37‑k8s-cronjob.hlx
+cronjob {
+    name      = "db‑backup"
+    schedule  = "0 3 * * *"
+    image     = "postgres:16"
+    command   = ["pg_dumpall","-U","postgres"]
+    env = { PGPASSWORD = $POSTGRES_PASSWORD }
+    restartPolicy = "OnFailure"
+}

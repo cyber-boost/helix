@@ -1,0 +1,7 @@
+# Demo of @env['NAME'] operator
+service api < >
+    host = @env['API_HOST']
+    port = @env["API_PORT"]
+    mode = @env['MODE'] + "-v1"
+    debug = true
+>

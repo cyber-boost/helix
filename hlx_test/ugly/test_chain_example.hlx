@@ -1,0 +1,11 @@
+# Test the exact example you mentioned
+project "test" < >
+    # This is: @task['cleanup']set[foo!] → resolves foo as variable
+    # task is the section, cleanup is the key, foo is the value
+    result = @task['cleanup']set[foo!]
+
+    # Also test other chained operator patterns
+    get_result = @task['cleanup']get[foo!]
+    env_result = @env['HOME']
+    mixed = @task['test']set[!dynamic_value!]
+>

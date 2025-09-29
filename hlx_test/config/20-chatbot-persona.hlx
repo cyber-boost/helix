@@ -1,0 +1,16 @@
+# 20‑chatbot-persona.hlx
+bot {
+    name        = "HelpDeskBot"
+    version     = "2.0"
+    language    = "en"
+    description = "Answers common support questions"
+}
+persona {
+    tone        = "friendly"
+    max_tokens  = 500
+    temperature = 0.3
+}
+intents = [
+    { name = "reset_password"; examples = ["I forgot my password","reset my login"] },
+    { name = "order_status";   examples = ["Where is my order?","track shipment"] }
+]

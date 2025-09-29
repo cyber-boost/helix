@@ -1,0 +1,10 @@
+# 30‑gitops-repo.hlx
+repo {
+    url   = "git@github.com:alice/infrastructure.git"
+    branch = "main"
+    path   = "clusters/prod"
+}
+sync {
+    interval = "5m"
+    prune    = true
+}

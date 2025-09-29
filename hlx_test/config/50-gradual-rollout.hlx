@@ -1,0 +1,15 @@
+# 50‑gradual-rollout.hlx
+rollout {
+    feature = "new‑checkout"
+    strategy = "gradual"
+    phases = [
+        { percentage = 5;  duration = "7d" },
+        { percentage = 20; duration = "14d" },
+        { percentage = 50; duration = "21d" },
+        { percentage = 100;duration = "30d" }
+    ]
+}
+conditions {
+    min_latency_ms = 200
+    max_error_rate = "0.5%"
+}

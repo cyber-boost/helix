@@ -1,0 +1,477 @@
+.
+├── admin
+│   ├── technicals
+│   ├── docs
+│
+├── bindings
+│   └── ruby
+│       ├── bindings
+│       │   └── ruby
+│       ├── Cargo.lock
+│       ├── Cargo.toml
+│       ├── src
+│       │   └── lib.rs
+│       └── target
+│           ├── CACHEDIR.TAG
+│           ├── debug
+│           └── .rustc_info.json
+├── build.rs
+├── build.sh
+├── Cargo.lock
+├── Cargo.toml
+├── cbindgen.toml
+├── .cg
+├── commands
+│   ├── bundle.md
+│   ├── compile.md
+│   ├── compiler-modules.md
+│   ├── compiler-runtime.md
+│   ├── decompile.md
+│   ├── diff.md
+│   ├── info.md
+│   ├── init.md
+│   ├── install.md
+│   ├── migrate.md
+│   ├── modules.md
+│   ├── optimize.md
+│   ├── README.md
+│   ├── runtime.md
+│   ├── schema.md
+│   ├── serve.md
+│   ├── validate.md
+│   └── watch.md
+├── hlx_test
+│   ├── Cargo.lock
+│   ├── Cargo.toml
+│   ├── config
+│   │   ├── 01-project-roadmap.hlx
+│   │   ├── 02-codebase.hlx
+│   │   ├── 03-todolist.hlx
+│   │   ├── 04-notes.hlx
+│   │   ├── 05-blog.hlx
+│   ├── data
+│   │   ├── large_dataset.hlx
+│   │   └── sample_data.hlxj
+│   ├── examples
+│   │   ├── file_type_guide.md
+│   │   └── simple.rs
+│   ├── lib
+│   ├── libhelix.rlib
+│   ├── libhelix.so
+│   ├── README.md
+│   ├── src
+│   │   ├── lib.rs
+│   │   ├── main.rs
+│   │   └── test_enhancements.rs
+│   ├── target
+│   │   ├── CACHEDIR.TAG
+│   │   ├── debug
+│   │   │   ├── build
+│   │   │   ├── .cargo-lock
+│   │   │   ├── deps
+│   │   │   ├── examples
+│   │   │   ├── .fingerprint
+│   │   │   ├── hlx_test
+│   │   │   └── incremental
+│   │   ├── .future-incompat-report.json
+│   │   ├── .rustc_info.json
+│   │   └── tmp
+│   ├── ugly
+│   │   ├── test_all_syntax.hlx
+│   │   ├── test_chain_example.hlx
+│   │   ├── test_env_demo.hlx
+│   │   ├── test_env_operator.rs
+│   │   ├── test_env_setup.sh
+│   │   ├── test_operator_variable_markers.hlx
+│   │   ├── test_parser.rs
+│   │   ├── test_results.txt
+│   │   ├── test_roadmap.hlx
+│   │   ├── test_roadmap_schema.rs
+│   │   ├── test_syntax_equivalence.hlx
+│   │   ├── test_syntax.hlx
+│   │   ├── test_syntax_schema.py
+│   │   ├── test_tilde_syntax.hlx
+│   │   ├── test_variable_markers.hlx
+│   │   └── test_variable_markers.rs
+│   └── util
+│       ├── hlxb_util.rs
+│       ├── hlxc_util.rs
+│       └── hlx_util.rs
+├── install.sh
+├── legal
+│   ├── bbl_software_license.md
+│   ├── pp.md
+│   └── tos.md
+├── liblexer.rlib
+├── LICENSE
+├── logs
+│   ├── icon.png
+│   ├── javascript_test.log
+│   ├── php_test.log
+│   ├── python_test.log
+│   ├── rust_test.log
+│   └── test_results.txt
+├── media
+│   ├── buddy.jpeg
+│   └── logo.png
+├── osxcross -> /opt/cargo_ez/osxcross
+├── php_test.log
+├── pyproject.toml
+├── .pytest_cache
+│   ├── CACHEDIR.TAG
+│   ├── .gitignore
+│   ├── README.md
+│   └── v
+│       └── cache
+│           ├── lastfailed
+│           ├── nodeids
+│           └── stepwise
+├── python_test.log
+├── README.md
+├── rust_test.log
+├── sdk
+│   ├── build-all.sh
+│   ├── BUILD_SCRIPTS.md
+│   ├── csharp
+│   │   ├── AgentConfig.cs
+│   │   ├── build.ps1
+│   │   ├── build.sh
+│   │   ├── build-with-bindgen.ps1
+│   │   ├── build-with-bindgen.sh
+│   │   ├── ContextConfig.cs
+│   │   ├── CrewConfig.cs
+│   │   ├── examples
+│   │   │   ├── AdvancedExample.cs
+│   │   │   ├── BasicExample.cs
+│   │   │   └── FileExample.cs
+│   │   ├── HelixConfig.cs
+│   │   ├── Helix.csproj
+│   │   ├── HelixParser.cs
+│   │   ├── IMPLEMENTATION_SUMMARY.md
+│   │   ├── MemoryConfig.cs
+│   │   ├── PipelineConfig.cs
+│   │   ├── README.md
+│   │   ├── Value.cs
+│   │   └── WorkflowConfig.cs
+│   ├── go
+│   │   ├── build.sh
+│   │   ├── examples
+│   │   │   ├── advanced
+│   │   │   ├── basic
+│   │   │   └── file
+│   │   ├── go.mod
+│   │   ├── helix.go
+│   │   ├── helix.h
+│   │   ├── helix_test.go
+│   │   ├── IMPLEMENTATION_SUMMARY.md
+│   │   ├── parser.go
+│   │   └── README.md
+│   ├── java
+│   │   ├── build_native.sh
+│   │   ├── build.sh
+│   │   ├── IMPLEMENTATION.md
+│   │   ├── Makefile
+│   │   ├── package.sh
+│   │   ├── pom.xml
+│   │   ├── README.md
+│   │   └── src
+│   │       ├── main
+│   │       └── test
+│   ├── js
+│   │   ├── build.js
+│   │   ├── index.d.ts
+│   │   ├── index.js
+│   │   ├── index.ts
+│   │   ├── node_modules
+│   │   │   ├── abbrev
+│   │   ├── package.json
+│   │   ├── package-lock.json
+│   │   ├── README.md
+│   │   ├── src
+│   │   │   ├── api.ts
+│   │   │   ├── errors.ts
+│   │   │   └── types.ts
+│   │   ├── test_results.txt
+│   │   └── tests
+│   │       └── config.test.ts
+│   ├── php
+│   │   ├── build
+│   │   │   └── php
+│   │   ├── build.php
+│   │   ├── composer.json
+│   │   ├── composer.lock
+│   │   ├── ext.php
+│   │   ├── helix_ffi.php
+│   │   ├── helix_ffi.so
+│   │   ├── .phpunit.cache
+│   │   │   └── test-results
+│   │   ├── phpunit.xml
+│   │   ├── README.md
+│   │   ├── src
+│   │   │   ├── autoload.php
+│   │   │   ├── Config.php
+│   │   │   ├── ExecutionContext.php
+│   │   │   ├── Helix.php
+│   │   │   ├── Interpreter.php
+│   │   │   └── lib.rs
+│   │   ├── test_ffi.php
+│   │   ├── tests
+│   │   │   ├── ConfigTest.php
+│   │   │   ├── FFIMemoryTest.php
+│   │   │   ├── FFITest.php
+│   │   │   ├── HelixIntegrationTest.php
+│   │   │   ├── HelixTest.php
+│   │   │   ├── InterpreterTest.php
+│   │   │   └── README.md
+│   │   └── vendor
+│   │       ├── autoload.php
+│   │       ├── bin
+│   │       ├── composer
+│   │       ├── doctrine
+│   │       ├── myclabs
+│   │       ├── nikic
+│   │       ├── phar-io
+│   │       ├── phpstan
+│   │       ├── phpunit
+│   │       ├── sebastian
+│   │       └── theseer
+│   ├── py
+│   │   ├── build.py
+│   │   ├── helix
+│   │   │   ├── _core.py
+│   │   │   ├── _core.pyi
+│   │   │   ├── __init__.py
+│   │   │   └── __pycache__
+│   │   ├── MANIFEST.in
+│   │   ├── pyproject.toml
+│   │   ├── README.md
+│   │   ├── setup.py
+│   │   └── tests
+│   │       ├── __init__.py
+│   │       ├── __pycache__
+│   │       └── test_config.py
+│   └── ruby
+│       └── helix-gem
+│           ├── ext
+│           ├── Gemfile
+│           ├── Gemfile.lock
+│           ├── helix-1.1.8.gem
+│           ├── helix.gemspec
+│           ├── lib
+│           ├── LICENSE
+│           ├── Rakefile
+│           ├── README.md
+│           ├── .rspec
+│           ├── .rubocop.yml
+│           ├── spec
+│           ├── summaries
+│           ├── test_example.rb
+│           └── tmp
+├── src
+│   ├── dna
+│   │   ├── atp
+│   │   │   ├── ast.rs
+│   │   │   ├── interpreter.rs
+│   │   │   ├── lexer.rs
+│   │   │   ├── mod.rs
+│   │   │   ├── ops.rs
+│   │   │   ├── output.rs
+│   │   │   ├── parser.rs
+│   │   │   ├── types.rs
+│   │   │   ├── value.rs
+│   │   │   └── verify.rs
+│   │   ├── bch
+│   │   │   ├── mod.rs
+│   │   │   └── parser_bench.rs
+│   │   ├── bin
+│   │   │   ├── helix.rs
+│   │   │   └── test-utils
+│   │   ├── cmd
+│   │   │   ├── add.rs
+│   │   │   ├── a_example.rs
+│   │   │   ├── bench.rs
+│   │   │   ├── binary.rs
+│   │   │   ├── build.rs
+│   │   │   ├── bundle.rs
+│   │   │   ├── cache.rs
+│   │   │   ├── clean.rs
+│   │   │   ├── compile.rs
+│   │   │   ├── completions.rs
+│   │   │   ├── config.rs
+│   │   │   ├── dataset.rs
+│   │   │   ├── decompile.rs
+│   │   │   ├── diagnostics.rs
+│   │   │   ├── diff.rs
+│   │   │   ├── doctor.rs
+│   │   │   ├── export.rs
+│   │   │   ├── filter.rs
+│   │   │   ├── fmt.rs
+│   │   │   ├── generate.rs
+│   │   │   ├── import.rs
+│   │   │   ├── info.rs
+│   │   │   ├── init.rs
+│   │   │   ├── json.rs
+│   │   │   ├── lint.rs
+│   │   │   ├── loader.rs
+│   │   │   ├── migrate.rs
+│   │   │   ├── mod.rs
+│   │   │   ├── optimizer.rs
+│   │   │   ├── preview.rs
+│   │   │   ├── project.rs
+│   │   │   ├── publish.rs
+│   │   │   ├── reset.rs
+│   │   │   ├── rm.rs
+│   │   │   ├── runtime.rs
+│   │   │   ├── schema.rs
+│   │   │   ├── search.rs
+│   │   │   ├── serializer.rs
+│   │   │   ├── serve.rs
+│   │   │   ├── sign.rs
+│   │   │   ├── templates.rs
+│   │   │   ├── test.rs
+│   │   │   ├── tools.rs
+│   │   │   ├── validate.rs
+│   │   │   ├── watch.rs
+│   │   │   └── workflow.rs
+│   │   ├── exp
+│   │   │   ├── basic_parsing.rs
+│   │   │   ├── hlx_format copy.rs
+│   │   │   └── mod.rs
+│   │   ├── ffi
+│   │   │   ├── csharp.rs
+│   │   │   └── mod.rs
+│   │   ├── hel
+│   │   │   ├── dispatch.rs
+│   │   │   ├── dna_hlx.rs
+│   │   │   ├── error.rs
+│   │   │   ├── hlx.rs
+│   │   │   ├── integration.rs
+│   │   │   └── mod.rs
+│   │   ├── json
+│   │   │   ├── caption.rs
+│   │   │   ├── concat.rs
+│   │   │   ├── core.rs
+│   │   │   ├── hf.rs
+│   │   │   ├── metadata.rs
+│   │   │   ├── mod.rs
+│   │   │   ├── reasoning.rs
+│   │   │   └── st.rs
+│   │   ├── mds
+│   │   │   ├── add.rs
+│   │   │   ├── a_example.rs
+│   │   │   ├── benches.rs
+│   │   │   ├── bench.rs
+│   │   │   ├── binary.rs
+│   │   │   ├── build.rs
+│   │   │   ├── bundle copy.rs
+│   │   │   ├── bundle.rs
+│   │   │   ├── cache.rs
+│   │   │   ├── clean.rs
+│   │   │   ├── codegen.rs
+│   │   │   ├── compile.rs
+│   │   │   ├── completions.rs
+│   │   │   ├── config.rs
+│   │   │   ├── dataset.rs
+│   │   │   ├── decompile.rs
+│   │   │   ├── diagnostics.rs
+│   │   │   ├── diff.rs
+│   │   │   ├── doctor.rs
+│   │   │   ├── export.rs
+│   │   │   ├── filter.rs
+│   │   │   ├── fmt.rs
+│   │   │   ├── generate.rs
+│   │   │   ├── import.rs
+│   │   │   ├── info.rs
+│   │   │   ├── init.rs
+│   │   │   ├── json.rs
+│   │   │   ├── lint.rs
+│   │   │   ├── loader.rs
+│   │   │   ├── migrate.rs
+│   │   │   ├── mod.rs
+│   │   │   ├── optimizer.rs
+│   │   │   ├── preview.rs
+│   │   │   ├── project.rs
+│   │   │   ├── publish.rs
+│   │   │   ├── reset.rs
+│   │   │   ├── rm.rs
+│   │   │   ├── run.rs
+│   │   │   ├── runtime.rs
+│   │   │   ├── schema.rs
+│   │   │   ├── search.rs
+│   │   │   ├── semantic.rs
+│   │   │   ├── serializer.rs
+│   │   │   ├── server.rs
+│   │   │   ├── serve.rs
+│   │   │   ├── sign.rs
+│   │   │   ├── templates.rs
+│   │   │   ├── test copy.rs
+│   │   │   ├── test.rs
+│   │   │   ├── tools.rs
+│   │   │   ├── validate.rs
+│   │   │   ├── watch copy.rs
+│   │   │   ├── watch.rs
+│   │   │   └── workflow.rs
+│   │   ├── mod.rs
+│   │   ├── ngs
+│   │   │   ├── mod.rs
+│   │   │   └── python.rs
+│   │   ├── ops
+│   │   │   ├── conditional.rs
+│   │   │   ├── eval.rs
+│   │   │   ├── fundamental.rs
+│   │   │   ├── math.rs
+│   │   │   ├── mod.rs
+│   │   │   ├── parser.rs
+│   │   │   ├── string_processing.rs
+│   │   │   ├── ulator.pest
+│   │   │   └── validation.rs
+│   │   ├── out
+│   │   │   ├── helix_format.rs
+│   │   │   ├── hlxb_config_format.rs
+│   │   │   ├── hlxc_format.rs
+│   │   │   ├── hlx_config_format.rs
+│   │   │   └── mod.rs
+│   │   └── tst
+│   │       ├── calculator_integration_tests.rs
+│   │       ├── debug_parse.rs
+│   │       ├── debug_semantic.rs
+│   │       ├── e621_tests.rs
+│   │       ├── forge_integration_demo.rs
+│   │       ├── fundamental_ops.rs
+│   │       ├── hlxc_try.rs
+│   │       ├── hlx_integration_tests.rs
+│   │       ├── integration_tests.rs
+│   │       ├── load.rs
+│   │       ├── mod.rs
+│   │       ├── test_binary_loading.rs
+│   │       ├── test_duration_space.rs
+│   │       ├── test_lexer_fixes.rs
+│   │       ├── tests-b
+│   │       ├── tests.rs
+│   │       ├── text_tests.rs
+│   │       └── t-r-y-h-l-x.rs
+│   ├── hlx.rs
+│   ├── lib.rs
+│   └── src_tree.txt
+└── web
+    ├── get
+    │   └── latest.tar.gz
+    ├── helix-landing-page (1).html
+    ├── helix-landing-page.html
+    ├── index.php
+    ├── logs
+    │   ├── build_aarch64-apple-darwin.log
+    │   ├── build_aarch64-unknown-linux-musl.log
+    │   ├── build_i686-pc-windows-gnu.log
+    │   ├── build_x86_64-apple-darwin.log
+    │   ├── build_x86_64-pc-windows-gnu.log
+    │   ├── build_x86_64-unknown-linux-gnu.log
+    │   └── build_x86_64-unknown-linux-musl.log
+    ├── nginx.conf
+    ├── setup-nginx.sh
+    └── src
+        ├── install.sh
+        └── releases
+            ├── hlx_i686_pc_windows_gnu
+            ├── hlx_x86_64_pc_windows_gnu
+            └── hlx_x86_64_unknown_linux_gnu

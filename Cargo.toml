@@ -1,14 +1,14 @@
 [package]
 name = "hlx"
-version = "1.1.7"
+version = "1.1.8"
 edition = "2021"
 authors = ["Bernie", "Buddy"]
-description = "Configuration language designed specifically for AI systems"
+description = "Configuration language designed specifically for ml/ai/data systems"
 license = "MIT"
 repository = "https://github.com/cyber-boost/helix"
 keywords = ["configuration", "ai", "agents", "compiler", "parser"]
 categories = ["config", "parsing", "development-tools"]
-include = ["examples/**/*", "src/**/*", "compiler/**/*", "bin/**/*", "json/**/*", "README.md", "LICENSE", "Cargo.toml", "TREAT.md", "legal/**/*"]
+include = ["src/**/*", "src/dna/**/*", "src/bin/**/*", "src/dna/atp/**/*", "src/dna/bch/**/*", "src/dna/cmd/**/*", "src/dna/exp/**/*", "src/dna/ffi/**/*", "src/dna/hel/**/*", "src/dna/map/**/*", "src/dna/mds/**/*", "src/dna/ngs/**/*", "src/dna/ops/**/*", "src/dna/out/**/*", "README.md", "LICENSE", "Cargo.toml", "TREAT.md", "legal/**/*", "src/dna/ops/ulator.pest","hlx_test/**/*", "commands/**/*", "media/**/*", "CHANGE.LOG"]
 build = "build.rs"
 
 [lib]
@@ -18,11 +18,11 @@ crate-type = ["rlib", "cdylib"]
 
 [[bin]]
 name = "hlx"
-path = "src/bin/helix.rs"
+path = "src/bin/hlx.rs"
 required-features = ["cli"]
 
 [features]
-default = ["compiler", "cli", "chrono"]
+default = ["compiler", "cli", "chrono", "python"]
 compiler = ["bincode", "lz4_flex", "crc32fast", "memmap2", "zstd", "flate2"]
 cli = ["clap", "clap_complete", "serde_yaml", "compiler", "colored", "indicatif", "notify", "dirs", "toml_edit", "tempfile", "reqwest", "sha2", "which", "chrono"]
 python = ["pyo3/extension-module"]
@@ -78,6 +78,9 @@ which = { version = "4.4", optional = true }
 # Date/time handling
 chrono = { version = "0.4", features = ["serde"], optional = true }
 chrono-tz = "0.6"
+
+#CP
+once_cell = "1.19"
 
 # Random number generation for dataset processing
 rand = "0.8"
@@ -146,7 +149,7 @@ env_logger = "0.10"
 [[bench]]
 name = "parser_bench"
 harness = false
-path = "src/benches/parser_bench.rs"
+path = "src/dna/bch/parser_bench.rs"
 
 [profile.release]
 opt-level = 3

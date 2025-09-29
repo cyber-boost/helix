@@ -1,0 +1,14 @@
+# 15‑api-gateway.hlx
+gateway {
+    name = "public‑api"
+    port = 443
+}
+routes = [
+    { path = "/v1/users",      upstream = "http://users-svc:8080" },
+    { path = "/v1/orders",     upstream = "http://orders-svc:8080" },
+    { path = "/v1/payments",   upstream = "http://payments-svc:8080" }
+]
+tls {
+    cert_file = "/etc/ssl/certs/api.crt"
+    key_file  = "/etc/ssl/private/api.key"
+}

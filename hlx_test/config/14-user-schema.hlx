@@ -1,0 +1,13 @@
+# 14‑user-schema.hlx
+entity {
+    name = "user"
+}
+fields = [
+    { name = "id",        type = "uuid",    required = true },
+    { name = "email",     type = "string",  required = true; unique = true },
+    { name = "created_at",type = "datetime",required = true },
+    { name = "is_active", type = "bool",    default = true }
+]
+indexes = [
+    { fields = ["email"]; unique = true }
+]

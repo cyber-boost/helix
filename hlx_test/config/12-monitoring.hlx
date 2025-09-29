@@ -1,0 +1,13 @@
+# 12‑monitoring.hlx
+monitoring {
+    provider          = "prometheus"
+    scrape_interval   = "15s"
+}
+targets = [
+    { job = "hlx‑api", address = "localhost:9090", metrics_path = "/metrics" },
+    { job = "db",      address = "db.local:5432",   metrics_path = "/metrics" }
+]
+alerting {
+    email   = "alerts@example.com"
+    slack   = $SLACK_WEBHOOK_URL
+}

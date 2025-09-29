@@ -1,0 +1,20 @@
+# 02‑codebase.hlx
+codebase {
+    language   = "rust"
+    version    = "1.74"
+    repository = "git@github.com:alice/awesome‑app.git"
+}
+dependencies {
+    serde = "1.0"
+    clap  = "4.5"
+    tokio = "1.38"
+}
+scripts {
+    build = "cargo build --release"
+    test  = "cargo test"
+    lint  = "cargo clippy -- -D warnings"
+    fmt   = "cargo fmt"
+}
+sections {
+    ci = { provider = "github-actions"; workflow = "ci.yml" }
+}

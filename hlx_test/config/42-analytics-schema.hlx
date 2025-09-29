@@ -1,0 +1,11 @@
+# 42‑analytics-schema.hlx
+event {
+    name = "purchase_completed"
+    version = "1.0"
+}
+properties = [
+    { name = "order_id";   type = "string";   required = true },
+    { name = "amount";     type = "float";    required = true },
+    { name = "currency";   type = "string";   required = true },
+    { name = "customer_id";type = "string";   required = false }
+]

@@ -1,0 +1,10 @@
+# 46‑retention-rules.hlx
+retention {
+    logs   = "90d"
+    events = "180d"
+    backups = "365d"
+}
+purge_job {
+    schedule = "0 4 * * SUN"
+    command  = "/usr/local/bin/purge.sh"
+}

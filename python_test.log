@@ -1,0 +1,197 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /opt/helix
+configfile: pyproject.toml
+plugins: anyio-4.9.0
+collecting ... collected 35 items
+
+tests/test_config.py::TestHelixConfig::test_create_empty_config PASSED   [  2%]
+tests/test_config.py::TestHelixConfig::test_parse_simple_project FAILED  [  5%]
+tests/test_config.py::TestHelixConfig::test_parse_complex_agent FAILED   [  8%]
+tests/test_config.py::TestHelixConfig::test_parse_workflow_with_dependencies FAILED [ 11%]
+tests/test_config.py::TestHelixConfig::test_parse_memory_configuration FAILED [ 14%]
+tests/test_config.py::TestHelixConfig::test_parse_context_with_secrets FAILED [ 17%]
+tests/test_config.py::TestHelixConfig::test_parse_array_and_object_literals FAILED [ 20%]
+tests/test_config.py::TestHelixParser::test_parse_method_with_real_syntax FAILED [ 22%]
+tests/test_config.py::TestHelixParser::test_load_file_method FAILED      [ 25%]
+tests/test_config.py::TestHelixParser::test_parse_with_comments_and_whitespace FAILED [ 28%]
+tests/test_config.py::TestHelixParser::test_parse_with_durations_and_variables FAILED [ 31%]
+tests/test_config.py::TestUtilityFunctions::test_parse_function_with_real_syntax FAILED [ 34%]
+tests/test_config.py::TestUtilityFunctions::test_execute_function_arithmetic FAILED [ 37%]
+tests/test_config.py::TestUtilityFunctions::test_execute_function_with_config_context FAILED [ 40%]
+tests/test_config.py::TestUtilityFunctions::test_execute_function_string_operations PASSED [ 42%]
+tests/test_config.py::TestUtilityFunctions::test_load_file_function_with_temp_file FAILED [ 45%]
+tests/test_config.py::TestErrorHandling::test_parse_invalid_syntax FAILED [ 48%]
+tests/test_config.py::TestErrorHandling::test_parse_malformed_arrays_and_objects FAILED [ 51%]
+tests/test_config.py::TestErrorHandling::test_execute_invalid_expressions FAILED [ 54%]
+tests/test_config.py::TestErrorHandling::test_load_nonexistent_file FAILED [ 57%]
+tests/test_config.py::TestErrorHandling::test_load_invalid_file_content FAILED [ 60%]
+tests/test_config.py::TestErrorHandling::test_parse_with_undefined_variables PASSED [ 62%]
+tests/test_config.py::TestErrorHandling::test_get_nonexistent_key FAILED [ 65%]
+tests/test_config.py::TestErrorHandling::test_empty_config_operations PASSED [ 68%]
+tests/test_config.py::TestEdgeCases::test_complex_nested_data_structures FAILED [ 71%]
+tests/test_config.py::TestEdgeCases::test_large_data_structures FAILED   [ 74%]
+tests/test_config.py::TestEdgeCases::test_type_conversion_edge_cases FAILED [ 77%]
+tests/test_config.py::TestEdgeCases::test_reference_and_variable_edge_cases FAILED [ 80%]
+tests/test_config.py::TestEdgeCases::test_duration_and_size_edge_cases FAILED [ 82%]
+tests/test_config.py::TestIntegration::test_parse_real_hlx_file FAILED   [ 85%]
+tests/test_config.py::TestIntegration::test_async_execution_functionality FAILED [ 88%]
+tests/test_config.py::TestIntegration::test_operator_execution_context PASSED [ 91%]
+tests/test_config.py::TestIntegration::test_complex_workflow_execution FAILED [ 94%]
+tests/test_config.py::TestIntegration::test_memory_context_integration FAILED [ 97%]
+tests/test_config.py::TestIntegration::test_native_extension_validation FAILED [100%]
+
+=================================== FAILURES ===================================
+__________________ TestHelixConfig.test_parse_simple_project ___________________
+tests/test_config.py:38: in test_parse_simple_project
+    assert project_data is not None
+E   assert None is not None
+___________________ TestHelixConfig.test_parse_complex_agent ___________________
+tests/test_config.py:68: in test_parse_complex_agent
+    assert agent_data is not None
+E   assert None is not None
+____________ TestHelixConfig.test_parse_workflow_with_dependencies _____________
+tests/test_config.py:125: in test_parse_workflow_with_dependencies
+    assert workflow_data is not None
+E   assert None is not None
+_______________ TestHelixConfig.test_parse_memory_configuration ________________
+tests/test_config.py:174: in test_parse_memory_configuration
+    assert memory_data is not None
+E   assert None is not None
+_______________ TestHelixConfig.test_parse_context_with_secrets ________________
+tests/test_config.py:216: in test_parse_context_with_secrets
+    assert context_data is not None
+E   assert None is not None
+_____________ TestHelixConfig.test_parse_array_and_object_literals _____________
+tests/test_config.py:254: in test_parse_array_and_object_literals
+    numbers = config_data["numbers"]
+E   TypeError: 'NoneType' object is not subscriptable
+______________ TestHelixParser.test_parse_method_with_real_syntax ______________
+tests/test_config.py:306: in test_parse_method_with_real_syntax
+    assert project is not None
+E   assert None is not None
+____________________ TestHelixParser.test_load_file_method _____________________
+tests/test_config.py:343: in test_load_file_method
+    assert project["name"] == "file-test"
+E   TypeError: 'NoneType' object is not subscriptable
+___________ TestHelixParser.test_parse_with_comments_and_whitespace ____________
+tests/test_config.py:378: in test_parse_with_comments_and_whitespace
+    assert project["name"] == "comment-test"
+E   TypeError: 'NoneType' object is not subscriptable
+___________ TestHelixParser.test_parse_with_durations_and_variables ____________
+tests/test_config.py:414: in test_parse_with_durations_and_variables
+    assert workflow["timeout"] == "45m"
+E   TypeError: 'NoneType' object is not subscriptable
+__________ TestUtilityFunctions.test_parse_function_with_real_syntax ___________
+tests/test_config.py:448: in test_parse_function_with_real_syntax
+    assert config_data["value"] == 42
+E   TypeError: 'NoneType' object is not subscriptable
+____________ TestUtilityFunctions.test_execute_function_arithmetic _____________
+tests/test_config.py:459: in test_execute_function_arithmetic
+    assert result == 20  # 10 + (5 * 2)
+E   AssertionError: assert 'Result: x + y * z' == 20
+________ TestUtilityFunctions.test_execute_function_with_config_context ________
+tests/test_config.py:476: in test_execute_function_with_config_context
+    result = helix.execute("base * multiplier + offset", config)
+helix/__init__.py:253: in execute
+    for key, value in context.items():
+E   ValueError: too many values to unpack (expected 2)
+_________ TestUtilityFunctions.test_load_file_function_with_temp_file __________
+tests/test_config.py:518: in test_load_file_function_with_temp_file
+    assert project["name"] == "utility-file-test"
+E   TypeError: 'NoneType' object is not subscriptable
+_________________ TestErrorHandling.test_parse_invalid_syntax __________________
+tests/test_config.py:545: in test_parse_invalid_syntax
+    with pytest.raises(Exception):
+E   Failed: DID NOT RAISE <class 'Exception'>
+__________ TestErrorHandling.test_parse_malformed_arrays_and_objects ___________
+tests/test_config.py:559: in test_parse_malformed_arrays_and_objects
+    with pytest.raises(Exception):
+E   Failed: DID NOT RAISE <class 'Exception'>
+______________ TestErrorHandling.test_execute_invalid_expressions ______________
+tests/test_config.py:575: in test_execute_invalid_expressions
+    with pytest.raises(Exception):
+E   Failed: DID NOT RAISE <class 'Exception'>
+_________________ TestErrorHandling.test_load_nonexistent_file _________________
+tests/test_config.py:580: in test_load_nonexistent_file
+    with pytest.raises((FileNotFoundError, Exception)):
+E   Failed: DID NOT RAISE (<class 'FileNotFoundError'>, <class 'Exception'>)
+_______________ TestErrorHandling.test_load_invalid_file_content _______________
+tests/test_config.py:592: in test_load_invalid_file_content
+    with pytest.raises(Exception):
+E   Failed: DID NOT RAISE <class 'Exception'>
+__________________ TestErrorHandling.test_get_nonexistent_key __________________
+tests/test_config.py:632: in test_get_nonexistent_key
+    assert result == "default"
+E   AssertionError: assert None == 'default'
+______________ TestEdgeCases.test_complex_nested_data_structures _______________
+tests/test_config.py:684: in test_complex_nested_data_structures
+    deep_value = config_data["level1"]["level2"]["level3"]["level4"]["value"]
+E   TypeError: 'NoneType' object is not subscriptable
+___________________ TestEdgeCases.test_large_data_structures ___________________
+tests/test_config.py:727: in test_large_data_structures
+    parsed_array = config_data["large_array"]
+E   TypeError: 'NoneType' object is not subscriptable
+________________ TestEdgeCases.test_type_conversion_edge_cases _________________
+tests/test_config.py:776: in test_type_conversion_edge_cases
+    assert config_data["zero"] == 0
+E   TypeError: 'NoneType' object is not subscriptable
+_____________ TestEdgeCases.test_reference_and_variable_edge_cases _____________
+tests/test_config.py:834: in test_reference_and_variable_edge_cases
+    assert config_data["simple_var"] == "value1"
+E   TypeError: 'NoneType' object is not subscriptable
+_______________ TestEdgeCases.test_duration_and_size_edge_cases ________________
+tests/test_config.py:879: in test_duration_and_size_edge_cases
+    assert workflow["microsecond"] == "500us"
+E   TypeError: 'NoneType' object is not subscriptable
+___________________ TestIntegration.test_parse_real_hlx_file ___________________
+tests/test_config.py:910: in test_parse_real_hlx_file
+    assert project is not None
+E   assert None is not None
+______________ TestIntegration.test_async_execution_functionality ______________
+'asyncio' not found in `markers` configuration option
+_______________ TestIntegration.test_complex_workflow_execution ________________
+tests/test_config.py:1025: in test_complex_workflow_execution
+    assert workflow["name"] == "integration-test"
+E   TypeError: 'NoneType' object is not subscriptable
+_______________ TestIntegration.test_memory_context_integration ________________
+tests/test_config.py:1095: in test_memory_context_integration
+    assert memory["name"] == "integration-memory"
+E   TypeError: 'NoneType' object is not subscriptable
+_______________ TestIntegration.test_native_extension_validation _______________
+tests/test_config.py:1139: in test_native_extension_validation
+    assert project is not None
+E   assert None is not None
+=========================== short test summary info ============================
+FAILED tests/test_config.py::TestHelixConfig::test_parse_simple_project - ass...
+FAILED tests/test_config.py::TestHelixConfig::test_parse_complex_agent - asse...
+FAILED tests/test_config.py::TestHelixConfig::test_parse_workflow_with_dependencies
+FAILED tests/test_config.py::TestHelixConfig::test_parse_memory_configuration
+FAILED tests/test_config.py::TestHelixConfig::test_parse_context_with_secrets
+FAILED tests/test_config.py::TestHelixConfig::test_parse_array_and_object_literals
+FAILED tests/test_config.py::TestHelixParser::test_parse_method_with_real_syntax
+FAILED tests/test_config.py::TestHelixParser::test_load_file_method - TypeErr...
+FAILED tests/test_config.py::TestHelixParser::test_parse_with_comments_and_whitespace
+FAILED tests/test_config.py::TestHelixParser::test_parse_with_durations_and_variables
+FAILED tests/test_config.py::TestUtilityFunctions::test_parse_function_with_real_syntax
+FAILED tests/test_config.py::TestUtilityFunctions::test_execute_function_arithmetic
+FAILED tests/test_config.py::TestUtilityFunctions::test_execute_function_with_config_context
+FAILED tests/test_config.py::TestUtilityFunctions::test_load_file_function_with_temp_file
+FAILED tests/test_config.py::TestErrorHandling::test_parse_invalid_syntax - F...
+FAILED tests/test_config.py::TestErrorHandling::test_parse_malformed_arrays_and_objects
+FAILED tests/test_config.py::TestErrorHandling::test_execute_invalid_expressions
+FAILED tests/test_config.py::TestErrorHandling::test_load_nonexistent_file - ...
+FAILED tests/test_config.py::TestErrorHandling::test_load_invalid_file_content
+FAILED tests/test_config.py::TestErrorHandling::test_get_nonexistent_key - As...
+FAILED tests/test_config.py::TestEdgeCases::test_complex_nested_data_structures
+FAILED tests/test_config.py::TestEdgeCases::test_large_data_structures - Type...
+FAILED tests/test_config.py::TestEdgeCases::test_type_conversion_edge_cases
+FAILED tests/test_config.py::TestEdgeCases::test_reference_and_variable_edge_cases
+FAILED tests/test_config.py::TestEdgeCases::test_duration_and_size_edge_cases
+FAILED tests/test_config.py::TestIntegration::test_parse_real_hlx_file - asse...
+FAILED tests/test_config.py::TestIntegration::test_async_execution_functionality
+FAILED tests/test_config.py::TestIntegration::test_complex_workflow_execution
+FAILED tests/test_config.py::TestIntegration::test_memory_context_integration
+FAILED tests/test_config.py::TestIntegration::test_native_extension_validation
+========================= 30 failed, 5 passed in 0.29s =========================

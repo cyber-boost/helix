@@ -1,0 +1,10 @@
+# 27‑graphql-server.hlx
+graphql {
+    endpoint = "/gql"
+    playground = true
+    introspection = true
+}
+datasources = [
+    { name = "users",   type = "postgres", dsn = $POSTGRES_DSN },
+    { name = "products",type = "mongodb", uri = $MONGODB_URI }
+]

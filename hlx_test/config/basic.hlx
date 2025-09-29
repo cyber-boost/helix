@@ -1,0 +1,19 @@
+# Basic configuration file for testing
+project "test_app" <
+    name = "Test Application"
+    version = "1.0.0"
+    author = "Test User"
+>
+
+service api <
+    host = "localhost"
+    port = 8080
+    timeout = 30
+>
+
+database config <
+    host = "db.example.com"
+    port = 5432
+    database = "test_db"
+    username = "test_user"
+>

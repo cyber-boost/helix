@@ -1,0 +1,18 @@
+# 31‑ml-model.hlx
+model {
+    name        = "churn‑predictor"
+    version     = "1.0.3"
+    framework   = "pytorch"
+    framework_version = "2.2"
+    artifact    = "s3://ml-models/churn/v1.0.3/model.pt"
+}
+training {
+    dataset   = "s3://ml-data/churn/train.parquet"
+    epochs    = 30
+    batch_size = 256
+    optimizer = "adam"
+}
+metrics = {
+    accuracy = 0.92
+    auc      = 0.87
+}

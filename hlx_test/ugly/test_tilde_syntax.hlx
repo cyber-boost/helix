@@ -1,0 +1,52 @@
+# Test ~ prefix syntax for sections
+# All of these should work identically
+
+# Standard project keyword with name
+project "test_project" < >
+    version = "1.0"
+    type = "project"
+>
+
+# Tilde prefix with section name
+~test_section < >
+    version = "1.0"
+    type = "section"
+>
+
+# Tilde prefix with name
+~test_named < >
+    version = "1.0"
+    type = "named_section"
+>
+
+# Different block delimiters with tilde
+~test_braces { }
+    version = "1.0"
+    type = "braces"
+>
+
+~test_brackets [ ]
+    version = "1.0"
+    type = "brackets"
+>
+
+~test_colon : ;
+    version = "1.0"
+    type = "colon"
+>
+
+# Tilde with quoted names
+~"quoted_section" < >
+    version = "1.0"
+    type = "quoted"
+>
+
+# Regular identifiers (no project keyword)
+regular_section < >
+    version = "1.0"
+    type = "regular"
+>
+
+# All of these create Section declarations with different names
+# but identical structure - this demonstrates the flexibility
+# of the unified parsing approach

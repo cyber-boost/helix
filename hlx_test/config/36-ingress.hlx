@@ -1,0 +1,12 @@
+# 36‑ingress.hlx
+ingress {
+    name = "app-ingress"
+    class = "nginx"
+}
+rules = [
+    { host = "app.example.com"; path = "/"; service = "frontend:80" },
+    { host = "api.example.com"; path = "/v1/"; service = "api:8080" }
+]
+tls = [
+    { hosts = ["app.example.com","api.example.com"]; secretName = "tls-secret" }
+]
